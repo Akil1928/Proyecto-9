@@ -155,7 +155,7 @@ public class StudentController {
             tableData.add(entry);
         }
     }
-
+//exceptions
     private void validateFields() {
         if (txtCode.getText() == null || txtCode.getText().trim().isEmpty()) {
             throw new IllegalArgumentException("El código del curso es obligatorio.");
