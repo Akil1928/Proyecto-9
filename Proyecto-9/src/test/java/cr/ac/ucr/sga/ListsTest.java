@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 public class ListsTest {
 
-
+//aa
     @Test
     void simpleLinkedListAddAndRemoveTest() {
         SimpleLinkedList<Integer> list = new SimpleLinkedList<>();
