@@ -22,4 +22,4 @@ Cómo ejecutar:
 1. Abrir el proyecto en IntelliJ IDEA.
 2. Esperar que Maven descargue dependencias.
 3. Ejecutar cr.ac.ucr.sga.Main.
-4. Para pruebas usar mvn test.
+4. Para pruebas usar test.
