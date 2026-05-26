@@ -2,7 +2,7 @@ package cr.ac.ucr.sga.model.services;
 
 import cr.ac.ucr.sga.model.structures.lists.CircularDoublyLinkedList;
 import cr.ac.ucr.sga.model.structures.lists.CircularLinkedList;
-
+//clase singleton para manejar el historial de vistas y acciones del usuario
 public class SessionHistoryService {
 
     private static SessionHistoryService instance;

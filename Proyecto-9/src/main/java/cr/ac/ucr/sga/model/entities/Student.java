@@ -1,5 +1,5 @@
 package cr.ac.ucr.sga.model.entities;
-
+//clase para los estudiantes
 public class Student {
 
     private final String id;

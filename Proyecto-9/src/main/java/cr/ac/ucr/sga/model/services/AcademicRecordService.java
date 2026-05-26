@@ -3,7 +3,7 @@ package cr.ac.ucr.sga.model.services;
 import cr.ac.ucr.sga.model.entities.AcademicRecordEntry;
 import cr.ac.ucr.sga.model.structures.lists.DoublyLinkedList;
 import cr.ac.ucr.sga.model.structures.lists.SimpleLinkedList;
-
+//clase singleton para manejar el historial académico del estudiante
 public class AcademicRecordService {
 
     private static AcademicRecordService instance;

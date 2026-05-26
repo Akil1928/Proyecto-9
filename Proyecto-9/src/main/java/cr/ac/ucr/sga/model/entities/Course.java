@@ -1,7 +1,7 @@
 package cr.ac.ucr.sga.model.entities;
 
 import javafx.beans.property.*;
-
+//Clase para los cursos
 public class Course {
 
     private final StringProperty code;

@@ -146,7 +146,7 @@ public class StudentController {
     private void loadInitialData() {
         addDemoCourses();
     }
-
+//Este metodo es para refrescar la tabla
     private void refreshTable() {
         tableData.clear();
         AcademicRecordEntry[] entries = service.toArray();
