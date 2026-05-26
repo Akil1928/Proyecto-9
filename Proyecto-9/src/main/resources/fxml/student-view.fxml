@@ -1,63 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<VBox spacing="15" xmlns:fx="http://javafx.com/fxml" fx:controller="cr.ac.ucr.sga.controller.StudentController"
-      styleClass="panel" stylesheets="@../css/styless.css">
+<VBox spacing="12"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="cr.ac.ucr.sga.controller.StudentController"
+      styleClass="panel"
+      stylesheets="@../css/styless.css">
 
-    <padding>
-        <Insets top="15" right="15" bottom="15" left="15"/>
-    </padding>
+    <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
 
     <Label text="Expediente Académico" styleClass="panel-title"/>
 
-    <GridPane hgap="10" vgap="10">
-        <Label text="Código:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-        <TextField fx:id="txtCode" promptText="Ej: IF3001" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+    <!-- Formulario -->
+    <GridPane hgap="12" vgap="8">
+        <Label text="Código:"   GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="txtCode"    promptText="Ej: IF3001"        GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-        <Label text="Curso:" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
-        <TextField fx:id="txtName" promptText="Nombre del curso" GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+        <Label text="Curso:"    GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+        <TextField fx:id="txtName"    promptText="Nombre del curso"  GridPane.rowIndex="0" GridPane.columnIndex="3"/>
 
         <Label text="Créditos:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-        <TextField fx:id="txtCredits" promptText="Ej: 4" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+        <TextField fx:id="txtCredits" promptText="Ej: 4"             GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-        <Label text="Nota:" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
-        <TextField fx:id="txtGrade" promptText="0 - 100" GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+        <Label text="Nota:"     GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+        <TextField fx:id="txtGrade"   promptText="0 – 100"           GridPane.rowIndex="1" GridPane.columnIndex="3"/>
 
-        <Label text="Periodo:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-        <ComboBox fx:id="cbPeriod" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+        <Label text="Periodo:"  GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="cbPeriod"                                    GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-        <Label text="Estado:" GridPane.rowIndex="2" GridPane.columnIndex="2"/>
-        <ComboBox fx:id="cbStatus" GridPane.rowIndex="2" GridPane.columnIndex="3"/>
+        <Label text="Estado:"   GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+        <ComboBox fx:id="cbStatus"                                    GridPane.rowIndex="2" GridPane.columnIndex="3"/>
     </GridPane>
 
+    <!-- Botones de acción -->
     <HBox spacing="10">
-        <Button text="Agregar curso" styleClass="btn-primary" onAction="#addCourse"/>
-        <Button text="Eliminar seleccionado" styleClass="btn-green" onAction="#deleteSelectedCourse"/>
-        <Button text="Cargar 3 cursos de demostración" styleClass="btn-ghost" onAction="#addDemoCourses"/>
+        <Button text="Agregar curso"               styleClass="btn-primary" onAction="#addCourse"/>
+        <Button text="Eliminar seleccionado"       styleClass="btn-green"   onAction="#deleteSelectedCourse"/>
+        <Button text="Cargar 3 cursos de demo"     styleClass="btn-ghost"   onAction="#addDemoCourses"/>
     </HBox>
 
-    <TableView fx:id="tableRecord" prefHeight="350" styleClass="table-view">
+    <!-- Tabla -->
+    <TableView fx:id="tableRecord" prefHeight="320" VBox.vgrow="ALWAYS" styleClass="table-view">
         <columns>
-            <TableColumn fx:id="colCode" text="Código" prefWidth="100"/>
-            <TableColumn fx:id="colName" text="Curso" prefWidth="280"/>
-            <TableColumn fx:id="colPeriod" text="Periodo" prefWidth="100"/>
-            <TableColumn fx:id="colCredits" text="Créditos" prefWidth="100"/>
-            <TableColumn fx:id="colGrade" text="Nota" prefWidth="100"/>
-            <TableColumn fx:id="colStatus" text="Estado" prefWidth="120"/>
+            <TableColumn fx:id="colCode"    text="Código"   prefWidth="90"/>
+            <TableColumn fx:id="colName"    text="Curso"    prefWidth="260"/>
+            <TableColumn fx:id="colPeriod"  text="Periodo"  prefWidth="90"/>
+            <TableColumn fx:id="colCredits" text="Créditos" prefWidth="80"/>
+            <TableColumn fx:id="colGrade"   text="Nota"     prefWidth="70"/>
+            <TableColumn fx:id="colStatus"  text="Estado"   prefWidth="110"/>
         </columns>
-        <placeholder>
-            <Label text="No hay registros"/>
-        </placeholder>
+        <placeholder><Label text="No hay registros en el expediente"/></placeholder>
     </TableView>
+
+    <!-- Barra de estado -->
+    <Label fx:id="lblStatus" text="Listo." styleClass="status-bar"/>
 
 </VBox>

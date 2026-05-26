@@ -12,44 +12,20 @@ import javafx.scene.control.*;
 
 public class StudentController {
 
-    @FXML
-    private TextField txtCode;
-
-    @FXML
-    private TextField txtName;
-
-    @FXML
-    private TextField txtCredits;
-
-    @FXML
-    private TextField txtGrade;
-
-    @FXML
-    private ComboBox<String> cbStatus;
-
-    @FXML
-    private ComboBox<String> cbPeriod;
-
-    @FXML
-    private TableView<AcademicRecordEntry> tableRecord;
-
-    @FXML
-    private TableColumn<AcademicRecordEntry, String> colCode;
-
-    @FXML
-    private TableColumn<AcademicRecordEntry, String> colName;
-
-    @FXML
-    private TableColumn<AcademicRecordEntry, String> colPeriod;
-
-    @FXML
-    private TableColumn<AcademicRecordEntry, Number> colCredits;
-
-    @FXML
-    private TableColumn<AcademicRecordEntry, Number> colGrade;
-
-    @FXML
-    private TableColumn<AcademicRecordEntry, String> colStatus;
+    @FXML private TextField txtCode;
+    @FXML private TextField txtName;
+    @FXML private TextField txtCredits;
+    @FXML private TextField txtGrade;
+    @FXML private ComboBox<String> cbStatus;
+    @FXML private ComboBox<String> cbPeriod;
+    @FXML private TableView<AcademicRecordEntry> tableRecord;
+    @FXML private TableColumn<AcademicRecordEntry, String> colCode;
+    @FXML private TableColumn<AcademicRecordEntry, String> colName;
+    @FXML private TableColumn<AcademicRecordEntry, String> colPeriod;
+    @FXML private TableColumn<AcademicRecordEntry, Number> colCredits;
+    @FXML private TableColumn<AcademicRecordEntry, Number> colGrade;
+    @FXML private TableColumn<AcademicRecordEntry, String> colStatus;
+    @FXML private Label lblStatus;
 
     private final AcademicRecordService service = AcademicRecordService.getInstance();
     private final ObservableList<AcademicRecordEntry> tableData = FXCollections.observableArrayList();
@@ -69,7 +45,7 @@ public class StudentController {
         colPeriod.setCellValueFactory(data -> data.getValue().periodProperty());
 
         tableRecord.setItems(tableData);
-        loadInitialData();
+        addDemoCourses();
     }
 
     @FXML
@@ -94,6 +70,7 @@ public class StudentController {
             refreshTable();
             clearFields();
             JsonService.saveAcademicRecord(service.toArray(), "src/main/resources/data/courses.json");
+            setStatus("✔ Curso \"" + course.getName() + "\" agregado. Total: " + service.size() + " curso(s).");
 
         } catch (IllegalArgumentException ex) {
             showError(ex.getMessage());
@@ -105,13 +82,25 @@ public class StudentController {
         AcademicRecordEntry selected = tableRecord.getSelectionModel().getSelectedItem();
 
         if (selected == null) {
-            showError("Debe seleccionar un curso para eliminar.");
+            showError("Seleccione un curso en la tabla para eliminarlo.");
             return;
         }
 
-        service.removeRecordByCode(selected.getCourse().getCode());
-        refreshTable();
-        JsonService.saveAcademicRecord(service.toArray(), "src/main/resources/data/courses.json");
+        // Confirmación antes de eliminar
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Confirmar eliminación");
+        confirm.setHeaderText("¿Eliminar el curso seleccionado?");
+        confirm.setContentText("Curso: " + selected.getCourse().getName() + " (" + selected.getCourse().getCode() + ")");
+
+        confirm.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                String nombre = selected.getCourse().getName();
+                service.removeRecordByCode(selected.getCourse().getCode());
+                refreshTable();
+                JsonService.saveAcademicRecord(service.toArray(), "src/main/resources/data/courses.json");
+                setStatus("✔ Curso \"" + nombre + "\" eliminado. Quedan: " + service.size() + " curso(s).");
+            }
+        });
     }
 
     @FXML
@@ -120,64 +109,44 @@ public class StudentController {
 
         service.addRecord(new AcademicRecordEntry(
                 new CourseBuilder().setCode("IF3001").setName("Algoritmos y Estructuras de Datos").setCredits(4).build(),
-                "I-2026",
-                95,
-                "Aprobado"
-        ));
+                "I-2026", 95, "Aprobado"));
 
         service.addRecord(new AcademicRecordEntry(
                 new CourseBuilder().setCode("IF2000").setName("Programación I").setCredits(4).build(),
-                "II-2025",
-                88,
-                "Aprobado"
-        ));
+                "II-2025", 88, "Aprobado"));
 
         service.addRecord(new AcademicRecordEntry(
                 new CourseBuilder().setCode("IF1001").setName("Introducción a Informática").setCredits(3).build(),
-                "I-2025",
-                79,
-                "Aprobado"
-        ));
+                "I-2025", 79, "Aprobado"));
 
         refreshTable();
         JsonService.saveAcademicRecord(service.toArray(), "src/main/resources/data/courses.json");
+        setStatus("✔ 3 cursos de demostración cargados correctamente.");
     }
 
-    private void loadInitialData() {
-        addDemoCourses();
-    }
-//Este metodo es para refrescar la tabla
     private void refreshTable() {
         tableData.clear();
-        AcademicRecordEntry[] entries = service.toArray();
-
-        for (AcademicRecordEntry entry : entries) {
+        for (AcademicRecordEntry entry : service.toArray()) {
             tableData.add(entry);
         }
     }
-//exceptions
+
     private void validateFields() {
-        if (txtCode.getText() == null || txtCode.getText().trim().isEmpty()) {
+        if (txtCode.getText() == null || txtCode.getText().trim().isEmpty())
             throw new IllegalArgumentException("El código del curso es obligatorio.");
-        }
 
-        if (txtName.getText() == null || txtName.getText().trim().isEmpty()) {
+        if (txtName.getText() == null || txtName.getText().trim().isEmpty())
             throw new IllegalArgumentException("El nombre del curso es obligatorio.");
-        }
 
-        if (!txtCredits.getText().trim().matches("\\d+")) {
-            throw new IllegalArgumentException("Los créditos deben ser numéricos.");
-        }
+        if (!txtCredits.getText().trim().matches("\\d+"))
+            throw new IllegalArgumentException("Los créditos deben ser un número entero positivo.");
 
-        if (!txtGrade.getText().trim().matches("\\d+(\\.\\d+)?")) {
+        if (!txtGrade.getText().trim().matches("\\d+(\\.\\d+)?"))
             throw new IllegalArgumentException("La nota debe ser numérica.");
-        }
 
         double grade = Double.parseDouble(txtGrade.getText().trim());
-
-        if (grade < 0 || grade > 100) {
+        if (grade < 0 || grade > 100)
             throw new IllegalArgumentException("La nota debe estar entre 0 y 100.");
-        }
     }
 
     private void clearFields() {
@@ -187,6 +156,10 @@ public class StudentController {
         txtGrade.clear();
         cbStatus.getSelectionModel().selectFirst();
         cbPeriod.getSelectionModel().selectFirst();
+    }
+
+    private void setStatus(String msg) {
+        if (lblStatus != null) lblStatus.setText(msg);
     }
 
     private void showError(String message) {

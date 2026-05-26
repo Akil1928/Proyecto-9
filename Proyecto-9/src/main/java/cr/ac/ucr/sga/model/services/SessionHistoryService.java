@@ -2,7 +2,7 @@ package cr.ac.ucr.sga.model.services;
 
 import cr.ac.ucr.sga.model.structures.lists.CircularDoublyLinkedList;
 import cr.ac.ucr.sga.model.structures.lists.CircularLinkedList;
-//clase singleton para manejar el historial de vistas y acciones del usuario
+
 public class SessionHistoryService {
 
     private static SessionHistoryService instance;
@@ -16,10 +16,7 @@ public class SessionHistoryService {
     }
 
     public static SessionHistoryService getInstance() {
-        if (instance == null) {
-            instance = new SessionHistoryService();
-        }
-
+        if (instance == null) instance = new SessionHistoryService();
         return instance;
     }
 
@@ -38,12 +35,17 @@ public class SessionHistoryService {
         return view == null ? "Sin historial" : view;
     }
 
+    public String getCurrentView() {
+        String view = visitedViews.current();
+        return view == null ? "Sin historial" : view;
+    }
+
     public String nextAction() {
         String action = recentActions.next();
         return action == null ? "Sin acciones" : action;
     }
 
     public int size() {
-        return visitedViews.size();
+        return visitedViews.isEmpty() ? 0 : visitedViews.size();
     }
 }

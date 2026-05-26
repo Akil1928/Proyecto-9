@@ -4,22 +4,28 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane fx:id="mainPane" styleClass="root-pane" stylesheets="@../css/styless.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17.0.12" fx:controller="cr.ac.ucr.sga.controller.MainController">
+<BorderPane fx:id="mainPane" styleClass="root-pane"
+            stylesheets="@../css/styless.css"
+            xmlns:fx="http://javafx.com/fxml/1"
+            xmlns="http://javafx.com/javafx/17.0.12"
+            fx:controller="cr.ac.ucr.sga.controller.MainController">
 
-    <!-- HEADER similar to the provided design -->
     <top>
-        <VBox alignment="CENTER_LEFT" prefHeight="70.0" styleClass="header-bar" BorderPane.alignment="CENTER">
-            <padding><Insets bottom="12.0" left="28.0" right="28.0" top="12.0" /></padding>
-            <children>
-                <HBox alignment="CENTER_LEFT" spacing="12.0">
-                    <children>
-                        <Label styleClass="header-badge" text="P-9" />
-                        <Label styleClass="header-title" text="Sistema de Gestión Académica">
-                        </Label>
-                    </children>
-                </HBox>
-                <Label fx:id="lblCurrentView" styleClass="header-sub" text=" Menú principal" />
-            </children>
+        <VBox styleClass="header-bar" BorderPane.alignment="CENTER">
+            <padding><Insets top="12" left="28" right="28" bottom="10"/></padding>
+
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <Label styleClass="header-badge" text="P-9"/>
+                <Label styleClass="header-title" text="Sistema de Gestión Académica"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="← Atrás"   styleClass="btn-ghost" onAction="#goBack"/>
+                <Button text="Adelante →" styleClass="btn-ghost" onAction="#goForward"/>
+                <Button text="Acerca de"  styleClass="btn-ghost" onAction="#showAbout"/>
+            </HBox>
+
+            <Label fx:id="lblCurrentView"
+                   styleClass="header-sub"
+                   text="Vista actual: Expediente Académico"/>
         </VBox>
     </top>
 

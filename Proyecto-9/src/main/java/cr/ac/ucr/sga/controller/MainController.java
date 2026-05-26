@@ -11,20 +11,14 @@ import java.io.IOException;
 
 public class MainController {
 
-    @FXML
-    private BorderPane mainPane;
-
-    @FXML
-    private Label lblCurrentView;
+    @FXML private BorderPane mainPane;
+    @FXML private Label lblCurrentView;
 
     @FXML
     public void initialize() {
         SessionHistoryService.getInstance().addView("Menú principal");
-        showStudentView();
-    }
-
-    @FXML
-    private void showStudentView() {
+        SessionHistoryService.getInstance().addView("Expediente Académico");
+        SessionHistoryService.getInstance().addView("Reporte de cursos");
         loadCenter("/fxml/student-view.fxml", "Expediente Académico");
     }
 
@@ -45,7 +39,13 @@ public class MainController {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Sprint 1");
         alert.setHeaderText("Sistema de Gestión Académica");
-        alert.setContentText("Sprint 1: Maven, JavaFX, MVC, listas enlazadas, expediente académico e historial circular.");
+        alert.setContentText(
+                "Sprint 1: Maven + JavaFX 21, patrón MVC.\n" +
+                        "Estructuras: SimpleLinkedList, DoublyLinkedList,\n" +
+                        "CircularLinkedList, CircularDoublyLinkedList.\n" +
+                        "Historial de vistas registradas: " +
+                        SessionHistoryService.getInstance().size()
+        );
         alert.showAndWait();
     }
 
@@ -53,9 +53,8 @@ public class MainController {
         try {
             mainPane.setCenter(FXMLLoader.load(getClass().getResource(fxml)));
             lblCurrentView.setText("Vista actual: " + viewName);
-            SessionHistoryService.getInstance().addView(viewName);
         } catch (IOException e) {
-            throw new RuntimeException("No se pudo cargar la vista", e);
+            throw new RuntimeException("No se pudo cargar la vista: " + fxml, e);
         }
     }
 }
