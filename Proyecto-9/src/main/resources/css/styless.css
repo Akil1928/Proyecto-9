@@ -446,3 +446,17 @@
 .btn-green:disabled {
     -fx-opacity: 0.5;
 }
+
+/* ── Notificaciones (niveles) ───────────────────────────────────────────── */
+.notif-info {
+    -fx-text-fill: #2196F3; /* azul */
+    -fx-font-weight: bold;
+}
+.notif-warning {
+    -fx-text-fill: #FF9800; /* naranja */
+    -fx-font-weight: bold;
+}
+.notif-urgent {
+    -fx-text-fill: #F44336; /* rojo */
+    -fx-font-weight: bold;
+}

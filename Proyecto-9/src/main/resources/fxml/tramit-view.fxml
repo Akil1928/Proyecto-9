@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+            xmlns="http://javafx.com/javafx/17.0.12"
+            fx:controller="cr.ac.ucr.sga.controller.TramitController"
+            stylesheets="@../css/styless.css">
+    <top>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+            <Label text="Gestión de Trámites" styleClass="panel-title"/>
+        </HBox>
+    </top>
+    <left>
+        <VBox spacing="8">
+            <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+            <ComboBox fx:id="comboTipoTramit" promptText="Tipo de trámite"/>
+            <ComboBox fx:id="comboEstudiante" promptText="Estudiante"/>
+            <TextArea fx:id="txtDescription" promptText="Descripción" prefRowCount="4"/>
+            <ComboBox fx:id="comboStackType" onAction="#onCambiarTipoStack" promptText="Tipo de pila"/>
+            <Button text="Crear Trámite" onAction="#onCrearTramit" styleClass="btn-primary"/>
+            <Button text="Procesar Trámite del Tope" onAction="#onProcesarTramit" styleClass="btn-green"/>
+            <Button text="Avanzar Estado del Tope" onAction="#onAvanzarEstado" styleClass="btn-ghost"/>
+        </VBox>
+    </left>
+    <center>
+        <TableView fx:id="tramitTable">
+            <columns>
+                <TableColumn fx:id="colId" text="Id"/>
+                <TableColumn fx:id="colType" text="Tipo"/>
+                <TableColumn fx:id="colStudent" text="Estudiante"/>
+                <TableColumn fx:id="colState" text="Estado"/>
+                <TableColumn fx:id="colDate" text="Fecha"/>
+            </columns>
+        </TableView>
+    </center>
+    <bottom>
+        <HBox spacing="10">
+            <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+            <Label fx:id="lblTopeTramit" text="Tope: vacío"/>
+            <Label fx:id="lblNotificacion" text="Sin notificaciones"/>
+            <Label fx:id="lblTotalTramits" text="Total: 0"/>
+        </HBox>
+    </bottom>
+</BorderPane>

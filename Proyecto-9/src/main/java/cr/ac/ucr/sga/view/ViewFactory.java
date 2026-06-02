@@ -15,6 +15,14 @@ public class ViewFactory {
         load(stage, "/fxml/main-view.fxml", "Sistema de Gestión Académica");
     }
 
+    public static void showTramitView(Stage stage) {
+        load(stage, "/fxml/tramit-view.fxml", "Gestión de Trámites");
+    }
+
+    public static void showEnrollmentView(Stage stage) {
+        load(stage, "/fxml/enrollment-view.fxml", "Cola de Matrícula");
+    }
+
     private static void load(Stage stage, String fxml, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(ViewFactory.class.getResource(fxml));

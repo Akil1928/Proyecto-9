@@ -1,6 +1,6 @@
 package cr.ac.ucr.sga.model.entities;
 //clase para los estudiantes
-public class Student {
+public class Student implements Comparable<Student> {
 
     private final String id;
     private final String name;
@@ -28,5 +28,14 @@ public class Student {
 
     public int getApprovedCredits() {
         return approvedCredits;
+    }
+
+    public int getCreditosAprobados() {
+        return approvedCredits;
+    }
+
+    @Override
+    public int compareTo(Student other) {
+        return Integer.compare(other.approvedCredits, this.approvedCredits);
     }
 }

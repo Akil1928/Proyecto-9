@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1"
+            xmlns="http://javafx.com/javafx/17.0.12"
+            fx:controller="cr.ac.ucr.sga.controller.EnrollmentController"
+            stylesheets="@../css/styless.css">
+    <top>
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+            <Label text="Cola de Matrícula" styleClass="panel-title"/>
+        </HBox>
+    </top>
+    <left>
+        <VBox spacing="8">
+            <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+            <ComboBox fx:id="comboQueueType" onAction="#onCambiarTipoCola" promptText="Tipo de cola"/>
+            <ComboBox fx:id="comboEstudiante" promptText="Estudiante"/>
+            <Label fx:id="lblCreditosAprobados" text="Créditos aprobados: 0"/>
+            <Button text="Agregar a Cola de Matrícula" onAction="#onAgregarACola" styleClass="btn-primary"/>
+            <Button text="Matricular Siguiente (Dequeue)" onAction="#onMatricularSiguiente" styleClass="btn-green"/>
+            <Label fx:id="lblSiguienteEstudiante" text="Siguiente: vacío"/>
+        </VBox>
+    </left>
+    <center>
+        <TableView fx:id="enrollmentTable">
+            <columns>
+                <TableColumn fx:id="colNombre" text="Nombre"/>
+                <TableColumn fx:id="colCreditos" text="Créditos"/>
+                <TableColumn fx:id="colPrioridad" text="Prioridad"/>
+            </columns>
+        </TableView>
+    </center>
+    <bottom>
+        <HBox spacing="10">
+            <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+            <Label fx:id="lblNotificacion" text="Sin notificaciones"/>
+            <Label fx:id="lblTotalEnCola" text="Total en cola: 0"/>
+        </HBox>
+    </bottom>
+</BorderPane>

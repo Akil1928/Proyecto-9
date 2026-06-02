@@ -28,5 +28,21 @@
                    text="Vista actual: Expediente Académico"/>
         </VBox>
     </top>
+    <left>
+        <VBox spacing="8" styleClass="panel" BorderPane.alignment="CENTER_LEFT">
+            <padding><Insets top="12" left="12" right="12" bottom="12"/></padding>
+            <Button text="Expediente Académico" styleClass="btn-dark" onAction="#openStudentView"/>
+            <Button text="Gestión de Trámites" styleClass="btn-dark" onAction="#openTramitView"/>
+            <Button text="Cola de Matrícula" styleClass="btn-dark" onAction="#openEnrollmentView"/>
+        </VBox>
+    </left>
+    <bottom>
+        <HBox styleClass="status-bar" spacing="10" BorderPane.alignment="CENTER">
+            <padding><Insets top="6" left="12" right="12" bottom="6"/></padding>
+            <Label fx:id="lblNotificationBar" styleClass="status-left" text="Sin notificaciones"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label text="UCR - SGA" styleClass="status-right"/>
+        </HBox>
+    </bottom>
 
 </BorderPane>

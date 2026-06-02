@@ -1,0 +1,346 @@
+================================================================================
+          SPRINT 2 — QUÉ DEBE VERSE Y FUNCIONAR AL EJECUTAR EL PROGRAMA
+          Proyecto: Sistema de Gestión Académica (SGA)
+          IF-3001 Algoritmos y Estructuras de Datos | Grupo 21
+================================================================================
+
+Este documento describe EXACTAMENTE lo que debe verse en pantalla y funcionar
+cuando se ejecuta la aplicación al finalizar el Sprint 2.
+
+================================================================================
+1. VENTANA PRINCIPAL (main-view.fxml)
+================================================================================
+
+Al ejecutar Main.java, se abre la ventana principal del sistema.
+
+QUÉ SE VE:
+  - Título de la ventana: "Sistema de Gestión Académica - UCR"
+  - Un menú o panel con TODAS las opciones disponibles:
+
+      [Expediente Académico]     ← ya funcionaba del Sprint 1
+      [Gestión de Trámites]      ← NUEVO Sprint 2
+      [Cola de Matrícula]        ← NUEVO Sprint 2
+
+  - Un área o barra de notificaciones siempre visible en la parte inferior
+    o lateral de la ventana principal que muestra los últimos mensajes del
+    sistema en tiempo real.
+
+QUÉ FUNCIONA:
+  - Hacer clic en cada opción abre la vista correspondiente
+  - Las notificaciones aparecen automáticamente cuando ocurre algo en el sistema
+
+================================================================================
+2. VISTA DE GESTIÓN DE TRÁMITES (tramit-view.fxml)
+================================================================================
+
+Al hacer clic en "Gestión de Trámites" se abre esta ventana o panel.
+
+--------------------------------------------------------------------------------
+2.1 FORMULARIO DE CREACIÓN (panel izquierdo o superior)
+--------------------------------------------------------------------------------
+
+QUÉ SE VE:
+  - Título: "Nuevo Trámite"
+
+  - ComboBox "Tipo de Trámite" con estas opciones fijas:
+        Beca
+        Revisión de Nota
+        Retiro de Curso
+        Certificado
+        Traslado
+
+  - ComboBox "Estudiante" que lista TODOS los estudiantes cargados del JSON
+    (el usuario selecciona de la lista, NUNCA escribe un código a mano)
+    Ejemplo de lo que aparece en la lista:
+        Juan Pérez - 120 créditos
+        María López - 80 créditos
+        Carlos Rodríguez - 45 créditos
+
+  - TextArea "Descripción" para detallar el trámite
+
+  - Botón [Crear Trámite]
+
+  - Separador
+
+  - ComboBox "Tipo de Pila" con opciones:
+        ArrayStack
+        LinkedStack
+
+  - Botón [Procesar Trámite del Tope]  ← hace pop()
+  - Botón [Avanzar Estado del Tope]    ← llama nextState() sin hacer pop()
+
+  - Label "Tope de la pila:"
+    Muestra el trámite que está actualmente en el tope, por ejemplo:
+        "Beca - Juan Pérez - Pendiente"
+
+--------------------------------------------------------------------------------
+2.2 TABLA DE LA PILA (panel central)
+--------------------------------------------------------------------------------
+
+QUÉ SE VE:
+  - Título: "Pila de Trámites (LIFO)"
+  - TableView con columnas:
+        ID          | tipo corto como T-001, T-002...
+        Tipo        | Beca, Certificado, etc.
+        Estudiante  | Nombre del estudiante
+        Estado      | Pendiente / Procesando / Resuelto
+        Fecha       | dd/MM/yyyy HH:mm
+
+  - El PRIMER registro de la tabla (arriba) es siempre el TOPE de la pila
+    (el último trámite ingresado)
+
+  - Label en la parte inferior: "Total de trámites en pila: 3"
+
+QUÉ FUNCIONA:
+  ESCENARIO A — Crear trámites:
+    1. Seleccionar "Beca" en el ComboBox de tipo
+    2. Seleccionar "Juan Pérez" en el ComboBox de estudiante
+    3. Escribir descripción: "Solicitud de beca socioeconómica"
+    4. Clic [Crear Trámite]
+    5. RESULTADO: aparece una nueva fila EN LA PARTE SUPERIOR de la tabla
+       con estado "Pendiente" y la fecha actual
+    6. El label "Tope de la pila:" se actualiza
+
+  ESCENARIO B — Procesar trámite del tope:
+    1. Clic [Procesar Trámite del Tope]
+    2. RESULTADO: la primera fila de la tabla DESAPARECE
+    3. El label del tope se actualiza al siguiente trámite
+    4. Aparece notificación en el panel
+
+  ESCENARIO C — Avanzar estado:
+    1. Hay un trámite en estado "Pendiente" en el tope
+    2. Clic [Avanzar Estado del Tope]
+    3. RESULTADO: ese trámite cambia a "Procesando" EN LA MISMA TABLA
+    4. Clic nuevamente [Avanzar Estado del Tope]
+    5. RESULTADO: cambia a "Resuelto"
+    6. Clic una vez más: NO cambia nada (estado final)
+       y aparece un Alert informando que ya está resuelto
+
+  ESCENARIO D — Cambiar tipo de pila:
+    1. Hay 3 trámites creados con ArrayStack
+    2. Cambiar ComboBox a "LinkedStack"
+    3. RESULTADO: la tabla muestra los mismos trámites, el comportamiento es idéntico
+       (esto demuestra que ambas implementaciones son intercambiables)
+
+  ESCENARIO E — Validaciones:
+    - Intentar crear trámite sin seleccionar tipo → Alert de error: "Seleccione el tipo de trámite"
+    - Intentar crear sin seleccionar estudiante → Alert de error: "Seleccione un estudiante"
+    - Intentar crear sin descripción → Alert de error: "Ingrese una descripción"
+    - Intentar procesar si la pila está vacía → Alert de error: "La pila está vacía"
+
+--------------------------------------------------------------------------------
+2.3 PANEL DE NOTIFICACIONES (dentro de la vista de trámites)
+--------------------------------------------------------------------------------
+
+QUÉ SE VE:
+  - Sección "Notificaciones" siempre visible
+  - Label o TextArea que muestra el último mensaje, con color según nivel:
+        AZUL    → INFO: operación exitosa
+        NARANJA → ADVERTENCIA: trámite cambió a Procesando
+        ROJO    → URGENTE: error crítico
+
+  Ejemplos de mensajes que deben aparecer:
+    "INFO: Trámite T-001 creado exitosamente"
+    "ADVERTENCIA: Trámite T-001 ahora está en estado Procesando"
+    "INFO: Trámite T-001 fue Resuelto exitosamente"
+    "URGENTE: La pila está vacía, no hay trámites que procesar"
+
+================================================================================
+3. VISTA DE COLA DE MATRÍCULA (enrollment-view.fxml)
+================================================================================
+
+Al hacer clic en "Cola de Matrícula" se abre esta ventana o panel.
+
+--------------------------------------------------------------------------------
+3.1 FORMULARIO DE INSCRIPCIÓN (panel izquierdo o superior)
+--------------------------------------------------------------------------------
+
+QUÉ SE VE:
+  - Título: "Inscripción a Cola de Matrícula"
+
+  - ComboBox "Tipo de Cola" con opciones:
+        ArrayQueue      ← orden de llegada (FIFO)
+        LinkedQueue     ← orden de llegada (FIFO)
+        PriorityQueue   ← orden por créditos (mayor primero)
+
+  - ComboBox "Estudiante" que lista TODOS los estudiantes del JSON
+    Muestra nombre y créditos:
+        Juan Pérez - 120 créditos
+        María López - 80 créditos
+
+  - Label "Créditos aprobados: 120" que se actualiza automáticamente
+    al seleccionar un estudiante del ComboBox
+
+  - Botón [Agregar a Cola de Matrícula]
+  - Botón [Matricular Siguiente (Dequeue)]
+
+  - Label "Siguiente a ser atendido:"
+    Muestra el estudiante que está al frente de la cola, por ejemplo:
+        "Juan Pérez - 200 créditos"
+
+  - Label "Total en cola: 5"
+
+--------------------------------------------------------------------------------
+3.2 TABLA DE LA COLA (panel central)
+--------------------------------------------------------------------------------
+
+QUÉ SE VE:
+  - Título: "Cola de Matrícula"
+  - TableView con columnas:
+        Posición    | 1, 2, 3, 4, 5...
+        Nombre      | nombre del estudiante
+        Créditos    | número de créditos aprobados
+        Prioridad   | ALTA / MEDIA / BAJA (calculado automáticamente)
+
+  - El PRIMER registro (posición 1) es quien será atendido primero
+
+QUÉ FUNCIONA:
+  ESCENARIO A — Agregar estudiantes con ArrayQueue o LinkedQueue:
+    1. Seleccionar "ArrayQueue"
+    2. Seleccionar "Juan Pérez (120 créditos)" → clic [Agregar]
+    3. Seleccionar "María López (80 créditos)" → clic [Agregar]
+    4. Seleccionar "Carlos Rodríguez (200 créditos)" → clic [Agregar]
+    5. RESULTADO en la tabla:
+        Posición 1: Juan Pérez - 120 créditos       ← llegó primero (FIFO)
+        Posición 2: María López - 80 créditos
+        Posición 3: Carlos Rodríguez - 200 créditos ← llegó último
+
+  ESCENARIO B — Agregar estudiantes con PriorityQueue:
+    1. Seleccionar "PriorityQueue"
+    2. Agregar los mismos 3 estudiantes en el mismo orden
+    3. RESULTADO en la tabla (orden DIFERENTE, por créditos):
+        Posición 1: Carlos Rodríguez - 200 créditos ← más créditos, primero
+        Posición 2: Juan Pérez - 120 créditos
+        Posición 3: María López - 80 créditos        ← menos créditos, último
+
+    ESTO ES LO MÁS IMPORTANTE DEL SPRINT 2:
+    Que al agregar estudiantes desordenados, la PriorityQueue
+    los reordena automáticamente por créditos.
+
+  ESCENARIO C — Matricular siguiente:
+    1. Clic [Matricular Siguiente]
+    2. RESULTADO: el estudiante de la posición 1 DESAPARECE de la tabla
+    3. Los demás suben una posición
+    4. El label "Siguiente a ser atendido:" se actualiza
+    5. Aparece notificación: "INFO: Carlos Rodríguez ha sido matriculado"
+
+  ESCENARIO D — Cambiar tipo de cola en tiempo real:
+    1. Hay 3 estudiantes en la cola con ArrayQueue (orden de llegada)
+    2. Cambiar a "PriorityQueue"
+    3. RESULTADO: la tabla se reordena automáticamente por créditos
+    4. Cambiar a "LinkedQueue"
+    5. RESULTADO: vuelve al orden de llegada
+
+  ESCENARIO E — Validaciones:
+    - Intentar agregar sin seleccionar estudiante → Alert: "Seleccione un estudiante"
+    - Intentar agregar el mismo estudiante dos veces → Alert: "El estudiante ya está en la cola"
+    - Intentar matricular si la cola está vacía → Alert: "La cola de matrícula está vacía"
+
+--------------------------------------------------------------------------------
+3.3 PANEL DE NOTIFICACIONES (dentro de la vista de matrícula)
+--------------------------------------------------------------------------------
+
+  Ejemplos de mensajes que deben aparecer:
+    "INFO: Juan Pérez agregado a la cola de matrícula"
+    "INFO: Carlos Rodríguez ha sido matriculado exitosamente"
+    "URGENTE: La cola está vacía, no hay estudiantes que matricular"
+
+================================================================================
+4. COMPORTAMIENTO DE LAS NOTIFICACIONES EN TODO EL SISTEMA
+================================================================================
+
+Las notificaciones son GLOBALES. Eso significa:
+
+  - Si estás en la vista de Trámites y ocurre algo en Matrícula,
+    la notificación aparece en ambos lados (patrón Observer)
+
+  - Los mensajes tienen tres niveles visualmente diferenciados:
+        INFO        → texto en color AZUL  (#2196F3)
+        ADVERTENCIA → texto en color NARANJA (#FF9800)
+        URGENTE     → texto en color ROJO  (#F44336)
+
+  - Los mensajes urgentes se muestran PRIMERO sin importar el orden de llegada
+    (gracias a la PriorityQueue interna de NotificationService)
+
+================================================================================
+5. PERSISTENCIA — QUÉ PASA AL CERRAR Y ABRIR EL PROGRAMA
+================================================================================
+
+AL CERRAR EL PROGRAMA:
+  - Los trámites se guardan automáticamente en resources/data/tramits.json
+  - Ejemplo de cómo se ve el archivo tramits.json:
+      [
+        {
+          "id": "T-001",
+          "type": "Beca",
+          "description": "Solicitud de beca socioeconómica",
+          "studentName": "Juan Pérez",
+          "stateName": "Pendiente",
+          "createdAt": "2026-06-01T20:30:00"
+        },
+        {
+          "id": "T-002",
+          "type": "Certificado",
+          "description": "Certificado de notas",
+          "studentName": "María López",
+          "stateName": "Resuelto",
+          "createdAt": "2026-06-01T20:35:00"
+        }
+      ]
+
+AL ABRIR EL PROGRAMA NUEVAMENTE:
+  - Los trámites aparecen de nuevo en la tabla (cargados del JSON)
+  - La cola de matrícula puede iniciar vacía (es un proceso de sesión activa)
+
+================================================================================
+6. RESUMEN VISUAL — LO QUE EL PROFESOR VERÁ EN LA DEMO
+================================================================================
+
+PASO 1: Abrir el programa
+  → Se ve la ventana principal con las opciones del menú
+
+PASO 2: Ir a "Gestión de Trámites"
+  → Se ve el formulario + tabla vacía
+
+PASO 3: Crear 3 trámites
+  → Trámite 1: Beca - Juan Pérez        (aparece abajo en tabla, luego arriba)
+  → Trámite 2: Retiro de Curso - María  (aparece arriba, empuja al anterior abajo)
+  → Trámite 3: Certificado - Carlos     (aparece arriba como nuevo tope)
+  → La tabla tiene 3 filas, el tope (Certificado) está en la posición 1
+
+PASO 4: Procesar trámite del tope
+  → Clic [Procesar Trámite del Tope]
+  → "Certificado - Carlos" desaparece de la tabla
+  → Notificación aparece: "INFO: Trámite T-003 procesado"
+  → Ahora el tope es "Retiro de Curso - María"
+
+PASO 5: Avanzar estado del trámite del tope
+  → "Retiro de Curso - María" está en "Pendiente"
+  → Clic [Avanzar Estado] → cambia a "Procesando" + notificación NARANJA
+  → Clic [Avanzar Estado] → cambia a "Resuelto" + notificación AZUL
+  → Clic [Avanzar Estado] → Alert: "El trámite ya fue resuelto"
+
+PASO 6: Ir a "Cola de Matrícula"
+  → Se ve el formulario + tabla vacía
+
+PASO 7: Seleccionar PriorityQueue y agregar 5 estudiantes
+  → Estudiante A: 45 créditos  → entra a la cola
+  → Estudiante B: 200 créditos → entra y SUBE AL TOPE automáticamente
+  → Estudiante C: 120 créditos → entra en posición 2 (entre B y los demás)
+  → Estudiante D: 80 créditos  → entra en posición 3
+  → Estudiante E: 160 créditos → entra en posición 2 (entre B y C)
+  → Tabla final:
+       1. Estudiante B - 200 créditos
+       2. Estudiante E - 160 créditos
+       3. Estudiante C - 120 créditos
+       4. Estudiante D - 80 créditos
+       5. Estudiante A - 45 créditos
+
+PASO 8: Matricular uno a uno
+  → Clic [Matricular Siguiente] × 5
+  → Siempre sale el de más créditos primero
+  → Cada vez aparece notificación: "INFO: [Nombre] fue matriculado"
+
+================================================================================
+FIN DEL DOCUMENTO — Sprint 2 Demo Visual | IF-3001 | Grupo 21
+================================================================================

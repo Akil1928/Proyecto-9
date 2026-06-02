@@ -27,6 +27,11 @@ public class StudentBuilder {
         return this;
     }
 
+    public StudentBuilder withCreditosAprobados(int creditos) {
+        this.approvedCredits = creditos;
+        return this;
+    }
+
     public Student build() {
         if (id == null || id.isBlank()) {
             throw new IllegalArgumentException("La identificación es obligatoria.");

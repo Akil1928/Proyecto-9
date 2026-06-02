@@ -97,6 +97,12 @@ public class SimpleLinkedList<T> {
         return size == 0;
     }
 
+    public void clear() {
+        head = null;
+        tail = null;
+        size = 0;
+    }
+
     public int size() {
         return size;
     }

@@ -1,0 +1,678 @@
+================================================================================
+          SPRINT 2 — PILAS Y COLAS | INSTRUCCIONES COMPLETAS
+          Proyecto: Sistema de Gestión Académica (SGA)
+          IF-3001 Algoritmos y Estructuras de Datos | Grupo 21
+================================================================================
+
+OBJETIVO DEL SPRINT:
+Implementar pilas y colas. Construir el módulo de Gestión de Trámites (pila LIFO)
+y el módulo de Matrícula con cola de prioridad.
+
+PUNTOS TOTALES: 25 puntos
+DURACIÓN: Semana 3
+
+================================================================================
+SECCIÓN 1 — CLASES NUEVAS A CREAR (respetando tu estructura actual)
+================================================================================
+
+Tu estructura actual tiene:
+  model/entities/       → AcademicRecordEntry, Course, CourseBuilder, Student, StudentBuilder
+  model/services/       → AcademicRecordService, JsonService, SessionHistoryService
+  model/structures/lists/ → CircularDoublyLinkedList, CircularLinkedList, DoubleNode,
+                            DoublyLinkedList, List (interfaz), ListException, Node, SimpleLinkedList
+  controller/           → MainController, StudentController
+  view/                 → ViewFactory
+
+A continuación se listan TODAS las clases nuevas que debes agregar:
+
+--------------------------------------------------------------------------------
+1.1 NUEVAS ESTRUCTURAS — model/structures/stacks/
+--------------------------------------------------------------------------------
+
+ARCHIVO: Stack.java  (interfaz)
+  - Métodos abstractos:
+      void push(T item) throws StackException
+      T pop() throws StackException
+      T peek() throws StackException
+      boolean isEmpty()
+      int size()
+      void clear()
+
+ARCHIVO: StackException.java
+  - Extiende Exception
+  - Constructor con mensaje String
+
+ARCHIVO: ArrayStack.java  (implementa Stack<T>)
+  - Atributos:
+      private Object[] data
+      private int top
+      private int capacity
+      private static final int DEFAULT_CAPACITY = 10
+  - Constructor: ArrayStack() y ArrayStack(int capacity)
+  - push(): si está lleno, llama a resize() que duplica el arreglo
+  - pop(): retorna y elimina el elemento del tope, lanza StackException si vacío
+  - peek(): retorna sin eliminar, lanza StackException si vacío
+  - resize(): copia el arreglo a uno de doble capacidad (Arrays.copyOf)
+  - toString(): representación de la pila de tope a base
+
+ARCHIVO: LinkedStack.java  (implementa Stack<T>)
+  - Usa Node.java que ya tienes en structures/lists/
+  - Atributos:
+      private Node<T> top
+      private int size
+  - push(): crea nuevo nodo que apunta al tope actual
+  - pop(): guarda el valor del tope, avanza el puntero, retorna el valor
+  - peek(): retorna top.data sin mover el puntero
+  - Sin límite de capacidad (lista enlazada)
+
+--------------------------------------------------------------------------------
+1.2 NUEVAS ESTRUCTURAS — model/structures/queues/
+--------------------------------------------------------------------------------
+
+ARCHIVO: Queue.java  (interfaz)
+  - Métodos abstractos:
+      void enqueue(T item) throws QueueException
+      T dequeue() throws QueueException
+      T peek() throws QueueException
+      boolean isEmpty()
+      int size()
+      void clear()
+
+ARCHIVO: QueueException.java
+  - Extiende Exception
+  - Constructor con mensaje String
+
+ARCHIVO: ArrayQueue.java  (implementa Queue<T>)
+  - Cola circular con arreglo
+  - Atributos:
+      private Object[] data
+      private int front     (índice del primer elemento)
+      private int rear      (índice donde se insertará el siguiente)
+      private int size
+      private int capacity
+  - enqueue(): inserta en rear, rear = (rear + 1) % capacity
+  - dequeue(): retira de front, front = (front + 1) % capacity
+  - La circularidad permite reutilizar el espacio del arreglo
+  - Si está lleno al insertar, lanzar QueueException
+
+ARCHIVO: LinkedQueue.java  (implementa Queue<T>)
+  - Usa Node.java que ya tienes
+  - Atributos:
+      private Node<T> head  (frente de la cola)
+      private Node<T> tail  (final de la cola)
+      private int size
+  - enqueue(): agrega al tail en O(1)
+  - dequeue(): retira del head en O(1)
+
+ARCHIVO: PriorityQueue.java  (implementa Queue<T>)
+  - Heap binario para ordenar estudiantes por créditos (mayor primero)
+  - Atributos:
+      private Object[] heap
+      private int size
+      private int capacity
+      private Comparator<T> comparator
+  - Constructor: PriorityQueue(Comparator<T> comparator)
+  - enqueue(): inserta al final del heap y llama heapifyUp()
+  - dequeue(): extrae la raíz, pone el último elemento en la raíz y llama heapifyDown()
+  - heapifyUp(): compara con el padre y sube mientras tenga mayor prioridad
+  - heapifyDown(): compara con los hijos y baja mientras tenga menor prioridad
+  - Fórmulas de índices:
+      padre(i)     = (i - 1) / 2
+      hijoIzq(i)   = 2 * i + 1
+      hijoDer(i)   = 2 * i + 2
+
+--------------------------------------------------------------------------------
+1.3 NUEVA ENTIDAD — model/entities/
+--------------------------------------------------------------------------------
+
+ARCHIVO: Tramit.java
+  - Atributos:
+      private String id           (UUID autogenerado)
+      private String type         ("Beca", "Revisión de Nota", "Retiro de Curso",
+                                   "Certificado", "Traslado")
+      private String description
+      private String studentId    (referencia al estudiante)
+      private String studentName
+      private TramitState state   (referencia al estado actual — patrón State)
+      private String stateName    (para mostrar en UI: "Pendiente", "Procesando", "Resuelto")
+      private LocalDateTime createdAt
+      private LocalDateTime updatedAt
+  - Métodos:
+      void nextState()   → llama state.handle(this) para avanzar al siguiente estado
+      void setState(TramitState state)
+      String getStateName()
+      Getters y setters para todos los atributos
+  - Implementar TramitBuilder interno o como clase separada (igual que StudentBuilder)
+
+--------------------------------------------------------------------------------
+1.4 PATRÓN STATE — model/states/   (NUEVO PAQUETE)
+--------------------------------------------------------------------------------
+
+ARCHIVO: TramitState.java  (interfaz)
+  - Método: void handle(Tramit tramit)
+  - Método: String getName()
+
+ARCHIVO: PendingState.java  (implementa TramitState)
+  - getName(): retorna "Pendiente"
+  - handle(Tramit tramit):
+      tramit.setState(new ProcessingState())
+      tramit.setStateName("Procesando")
+      tramit.setUpdatedAt(LocalDateTime.now())
+      NotificationService.getInstance().notify(
+          "ADVERTENCIA: Trámite " + tramit.getId() + " ahora está en Procesando")
+
+ARCHIVO: ProcessingState.java  (implementa TramitState)
+  - getName(): retorna "Procesando"
+  - handle(Tramit tramit):
+      tramit.setState(new ResolvedState())
+      tramit.setStateName("Resuelto")
+      tramit.setUpdatedAt(LocalDateTime.now())
+      NotificationService.getInstance().notify(
+          "INFO: Trámite " + tramit.getId() + " fue Resuelto exitosamente")
+
+ARCHIVO: ResolvedState.java  (implementa TramitState)
+  - getName(): retorna "Resuelto"
+  - handle(Tramit tramit):
+      No hace nada (estado final)
+      O lanzar excepción: "El trámite ya está resuelto, no puede avanzar más"
+
+--------------------------------------------------------------------------------
+1.5 PATRÓN OBSERVER — view/observers/   (NUEVO PAQUETE)
+--------------------------------------------------------------------------------
+
+ARCHIVO: NotificationObserver.java  (interfaz)
+  - Método: void onNotification(String message, String level)
+    (level puede ser: "INFO", "ADVERTENCIA", "URGENTE")
+
+ARCHIVO: NotificationService.java  (en model/services/ — SINGLETON)
+  - Atributos:
+      private static NotificationService instance
+      private List<NotificationObserver> observers = new ArrayList<>()
+      private PriorityQueue<Notification> notificationQueue (usa tu PriorityQueue)
+  - Constructor privado
+  - getInstance(): retorna la instancia única (lazy initialization)
+  - addObserver(NotificationObserver o)
+  - removeObserver(NotificationObserver o)
+  - notify(String message, String level):
+      Crea una Notification, la agrega a la cola de prioridad,
+      notifica a todos los observers: observers.forEach(o -> o.onNotification(message, level))
+
+ARCHIVO: Notification.java  (en model/entities/)
+  - Atributos:
+      private String message
+      private String level      ("INFO"=0, "ADVERTENCIA"=1, "URGENTE"=2)
+      private int priority      (INFO=1, ADVERTENCIA=2, URGENTE=3)
+      private LocalDateTime timestamp
+  - Implementa Comparable<Notification> para usar en la PriorityQueue
+
+--------------------------------------------------------------------------------
+1.6 SERVICIOS NUEVOS — model/services/
+--------------------------------------------------------------------------------
+
+ARCHIVO: TramitService.java
+  - Atributos:
+      private ArrayStack<Tramit> arrayStack     (pila con arreglo)
+      private LinkedStack<Tramit> linkedStack   (pila con lista enlazada)
+      private Stack<Tramit> activeStack         (la que está en uso actualmente)
+      private List<Tramit> allTramits           (lista de todos los trámites histórico)
+  - Métodos:
+      void pushTramit(Tramit tramit)            → agrega a la pila activa
+      Tramit popTramit() throws StackException  → extrae del tope (LIFO)
+      Tramit peekTramit() throws StackException → ve el tope sin extraer
+      void setStackType(String type)            → "array" o "linked"
+      boolean isEmpty()
+      int size()
+      List<Tramit> getAllTramits()
+      void saveTramits()                         → llama a JsonService para persistir
+      void loadTramits()                         → carga desde JSON al inicio
+
+ARCHIVO: EnrollmentService.java
+  - Atributos:
+      private ArrayQueue<Student> arrayQueue
+      private LinkedQueue<Student> linkedQueue
+      private PriorityQueue<Student> priorityQueue
+      private Queue<Student> activeQueue        (la que está en uso)
+  - Métodos:
+      void enqueueStudent(Student student)
+      Student dequeueStudent() throws QueueException
+      Student peekStudent() throws QueueException
+      void setQueueType(String type)            → "array", "linked", "priority"
+      boolean isEmpty()
+      int size()
+      List<Student> getCurrentQueueAsList()     → para mostrar en TableView
+
+NOTA: Para que Student funcione en la PriorityQueue por créditos, agrega a Student.java:
+  - Implementar Comparable<Student> o pasar un Comparator al constructor
+  - El Comparator debe ordenar por creditosAprobados de MAYOR a MENOR:
+    Comparator<Student> byCredits = (a, b) -> b.getCreditosAprobados() - a.getCreditosAprobados()
+
+--------------------------------------------------------------------------------
+1.7 CONTROLADORES NUEVOS — controller/
+--------------------------------------------------------------------------------
+
+ARCHIVO: TramitController.java  (implementa Initializable, NotificationObserver)
+  - Atributos FXML:
+      @FXML TableView<Tramit> tramitTable
+      @FXML TableColumn<Tramit, String> colId, colType, colStudent, colState, colDate
+      @FXML ComboBox<String> comboTipoTramit
+      @FXML ComboBox<String> comboEstudiante    (lista de estudiantes existentes)
+      @FXML TextArea txtDescription
+      @FXML ComboBox<String> comboStackType     ("ArrayStack" / "LinkedStack")
+      @FXML Label lblTopeTramit                 (muestra el trámite en el tope)
+      @FXML Label lblNotificacion               (muestra la última notificación)
+      @FXML Label lblTotalTramits
+  - Métodos:
+      initialize(): registra este controller como observer, carga lista de estudiantes
+      onCrearTramit(): valida campos, crea Tramit con estado PendingState, hace push
+      onProcesarTramit(): hace pop de la pila, llama nextState() dos veces para Demo
+                          (o un botón por transición)
+      onAvanzarEstado(): llama tramit.nextState() al trámite en el tope sin extraerlo
+      onCambiarTipoStack(): cambia entre ArrayStack y LinkedStack
+      onNotification(String message, String level): actualiza lblNotificacion con color
+      refreshTable(): actualiza la TableView con el contenido actual de la pila
+      validateFields(): verifica que no hayan campos vacíos
+
+ARCHIVO: EnrollmentController.java  (implementa Initializable, NotificationObserver)
+  - Atributos FXML:
+      @FXML TableView<Student> enrollmentTable
+      @FXML TableColumn<Student, String> colNombre, colCreditos, colPrioridad
+      @FXML ComboBox<String> comboQueueType     ("ArrayQueue"/"LinkedQueue"/"PriorityQueue")
+      @FXML ComboBox<String> comboEstudiante    (lista de estudiantes)
+      @FXML Label lblSiguienteEstudiante        (muestra quién será atendido)
+      @FXML Label lblNotificacion
+      @FXML Label lblTotalEnCola
+  - Métodos:
+      initialize(): carga estudiantes existentes en el ComboBox
+      onAgregarACola(): agrega el estudiante seleccionado a la cola activa
+      onMatricularSiguiente(): hace dequeue, muestra quién fue matriculado, notifica
+      onCambiarTipoCola(): cambia entre los tres tipos de cola, actualiza la tabla
+      refreshTable(): actualiza TableView con el orden actual de la cola
+      validateFields(): valida que se seleccionó un estudiante
+
+--------------------------------------------------------------------------------
+1.8 VISTAS FXML — resources/fxml/
+--------------------------------------------------------------------------------
+
+ARCHIVO: tramit-view.fxml
+  - BorderPane como raíz
+  - TOP: HBox con título "Gestión de Trámites" y ComboBox para tipo de pila
+  - LEFT: VBox con el formulario de creación:
+      ComboBox: tipo de trámite (Beca, Revisión de Nota, Retiro, Certificado, Traslado)
+      ComboBox: selección de estudiante (NO ingresar código manualmente)
+      TextArea: descripción del trámite
+      Botón "Crear Trámite"
+      Botón "Procesar Trámite del Tope" (pop)
+      Botón "Avanzar Estado del Tope" (nextState sin pop)
+  - CENTER: TableView con columnas Id, Tipo, Estudiante, Estado, Fecha
+      La primera fila visualmente debe representar el tope de la pila
+  - BOTTOM: HBox con:
+      Label que muestra el trámite en el tope
+      Label de notificaciones (colores según nivel)
+      Label con total de trámites
+
+ARCHIVO: enrollment-view.fxml
+  - BorderPane como raíz
+  - TOP: HBox con título "Cola de Matrícula" y ComboBox para tipo de cola
+  - LEFT: VBox con:
+      ComboBox: selección de estudiante
+      Label que muestra los créditos del estudiante seleccionado
+      Botón "Agregar a Cola de Matrícula"
+      Botón "Matricular Siguiente (Dequeue)"
+      Label "Siguiente a atender:" con nombre del primero en la cola
+  - CENTER: TableView con columnas: Posición, Nombre, Créditos, Prioridad
+      El orden de la tabla refleja el orden de atención
+  - BOTTOM: HBox con notificaciones y total en cola
+
+--------------------------------------------------------------------------------
+1.9 ACTUALIZAR — resources/fxml/main-view.fxml
+--------------------------------------------------------------------------------
+
+Agregar en el menú o panel principal:
+  - Botón/opción "Gestión de Trámites" → abre tramit-view.fxml
+  - Botón/opción "Cola de Matrícula"   → abre enrollment-view.fxml
+
+--------------------------------------------------------------------------------
+1.10 ACTUALIZAR — view/ViewFactory.java
+--------------------------------------------------------------------------------
+
+Agregar casos para crear las nuevas vistas:
+  - "tramit-view"    → cargar tramit-view.fxml
+  - "enrollment-view" → cargar enrollment-view.fxml
+
+--------------------------------------------------------------------------------
+1.11 ACTUALIZAR — model/services/JsonService.java
+--------------------------------------------------------------------------------
+
+Agregar métodos para persistir en JSON:
+  - List<Tramit> loadTramits()
+  - void saveTramits(List<Tramit> tramits)
+  (ruta sugerida: resources/data/tramits.json)
+
+NOTA: students.json ya debería existir del Sprint 1; si no, crearlo aquí también.
+
+================================================================================
+SECCIÓN 2 — AGREGAR A CLASES EXISTENTES
+================================================================================
+
+2.1 ACTUALIZAR Student.java (entities/)
+  Agregar atributo:
+    private int creditosAprobados   (para la cola de prioridad)
+  Agregar en StudentBuilder:
+    .withCreditosAprobados(int creditos)
+  Agregar implementación de Comparable<Student>:
+    @Override public int compareTo(Student other) {
+        return Integer.compare(other.creditosAprobados, this.creditosAprobados);
+    }
+
+2.2 ACTUALIZAR MainController.java (controller/)
+  - Implementar NotificationObserver
+  - Registrarse en NotificationService en el initialize()
+  - Mostrar notificaciones en un área global de la ventana principal
+
+================================================================================
+SECCIÓN 3 — REGLAS DE VALIDACIÓN (requeridas por el proyecto)
+================================================================================
+
+3.1 En TramitController:
+  - ComboBox de tipo de trámite no puede estar vacío
+  - ComboBox de estudiante no puede estar vacío
+  - TextArea de descripción no puede estar vacío
+  - Si la pila está vacía y se intenta procesar → mostrar Alert de error
+
+3.2 En EnrollmentController:
+  - ComboBox de estudiante no puede estar vacío
+  - No se puede agregar el mismo estudiante dos veces a la cola activa
+  - Si la cola está vacía y se intenta desencolar → mostrar Alert de error
+
+3.3 General:
+  - Usar Alert.AlertType.ERROR para mostrar errores de validación
+  - Usar Alert.AlertType.INFORMATION para confirmar operaciones exitosas
+  - Nunca usar campos de texto libre para ingresar IDs o códigos
+    (siempre ComboBox con datos cargados)
+
+================================================================================
+SECCIÓN 4 — PRUEBAS JUNIT 5 (requeridas)
+================================================================================
+
+ARCHIVO: src/test/java/cr/ac/ucr/sga/StacksTest.java
+
+Test cases OBLIGATORIOS para ArrayStack:
+  - testArrayStackPushAndPop()         → push 3 elementos, pop verifica LIFO
+  - testArrayStackPeekNoRemove()       → peek no modifica el tamaño
+  - testArrayStackEmptyThrowsException() → pop en pila vacía lanza StackException
+  - testArrayStackResize()             → insertar 15 elementos (capacidad inicial 10)
+                                         y verificar que todos están correctos
+  - testArrayStackOneElement()         → push 1, pop 1, verificar isEmpty()
+
+Test cases OBLIGATORIOS para LinkedStack:
+  - testLinkedStackPushAndPop()
+  - testLinkedStackPeekNoRemove()
+  - testLinkedStackEmptyThrowsException()
+  - testLinkedStackOneElement()
+
+ARCHIVO: src/test/java/cr/ac/ucr/sga/QueuesTest.java
+
+Test cases OBLIGATORIOS para ArrayQueue:
+  - testArrayQueueEnqueueDequeue()     → enqueue 3, dequeue en orden FIFO
+  - testArrayQueueCircular()           → enqueue 5, dequeue 3, enqueue 3 más
+                                         verificar que los índices circulan correctamente
+  - testArrayQueueEmptyThrowsException() → dequeue en vacía
+  - testArrayQueueOneElement()
+  - testArrayQueuePeekNoRemove()
+
+Test cases OBLIGATORIOS para LinkedQueue:
+  - testLinkedQueueEnqueueDequeue()
+  - testLinkedQueueEmptyThrowsException()
+  - testLinkedQueueOneElement()
+
+Test cases OBLIGATORIOS para PriorityQueue:
+  - testPriorityQueueOrderByCredits()  → insertar estudiantes con 10,50,30,80,20 créditos
+                                         verificar que salen en orden 80,50,30,20,10
+  - testPriorityQueueEmptyThrowsException()
+  - testPriorityQueueOneElement()
+  - testPriorityQueueSameCredits()     → dos estudiantes con mismos créditos
+
+Todos los tests deben tener:
+  @Test annotation
+  Assertions.assertEquals(), Assertions.assertTrue(), Assertions.assertThrows()
+  Cobertura mínima del 90%
+
+================================================================================
+SECCIÓN 5 — DEMO DEL SPRINT REVIEW 2 (lo que debes demostrar)
+================================================================================
+
+PUNTO 1: Módulo de Trámites — Crear 3 trámites y mostrar la pila
+  1. Abrir la vista de Trámites
+  2. Seleccionar estudiante del ComboBox (no escribir a mano)
+  3. Seleccionar tipo "Beca" → ingresar descripción → clic "Crear Trámite"
+  4. Repetir con tipos "Retiro de Curso" y "Certificado"
+  5. La TableView debe mostrar los 3 trámites, el último creado arriba (tope)
+  6. El Label del tope debe reflejar el último trámite ingresado
+
+PUNTO 2: Procesar trámite del tope con notificación
+  1. Clic en "Procesar Trámite del Tope"
+  2. El trámite desaparece de la pila (pop)
+  3. En el panel de notificaciones aparece el mensaje de cambio de estado
+  4. El Label del tope se actualiza al siguiente trámite
+
+PUNTO 3: Cola de matrícula — Ingresar 5 estudiantes con distintos créditos
+  1. Abrir la vista de Matrícula
+  2. Seleccionar "PriorityQueue" en el ComboBox de tipo de cola
+  3. Agregar 5 estudiantes con créditos diferentes (ej: 120, 45, 200, 80, 160)
+  4. La TableView debe mostrar automáticamente el orden de prioridad (200 arriba)
+
+PUNTO 4: Desencolar y mostrar orden de prioridad
+  1. Clic en "Matricular Siguiente"
+  2. Se muestra que el estudiante con MÁS créditos (200) fue matriculado primero
+  3. Repetir varias veces mostrando el orden descendente
+  4. Aparece notificación "INFO: Estudiante X ha sido matriculado"
+
+PUNTO 5: Transición de estados del trámite
+  1. Crear un nuevo trámite (estado: Pendiente)
+  2. Clic "Avanzar Estado" → cambia a Procesando + notificación ADVERTENCIA
+  3. Clic "Avanzar Estado" → cambia a Resuelto + notificación INFO
+  4. Intentar avanzar nuevamente → mostrar que ya está en estado final
+
+================================================================================
+SECCIÓN 6 — ARTEFACTOS A ENTREGAR (Git)
+================================================================================
+
+6.1 Tag en GitHub:
+  git add .
+  git commit -m "Sprint 2: Implementación de pilas, colas y patrones State/Observer"
+  git tag sprint-2
+  git push origin master --tags
+
+6.2 Pruebas JUnit en verde:
+  mvn test
+  Todos los tests de StacksTest y QueuesTest deben pasar (verde)
+  Capturar screenshot del resultado
+
+6.3 Documentación de patrones (agregar a docs/ o como PDF separado):
+  - Diagrama UML del patrón State (TramitState, PendingState, ProcessingState, ResolvedState, Tramit)
+  - Diagrama UML del patrón Observer (NotificationObserver, NotificationService, controllers)
+  - Explicación escrita de por qué se usó cada patrón (1 párrafo por patrón)
+  - Comparación ArrayStack vs LinkedStack (ventajas/desventajas de cada implementación)
+  - Comparación ArrayQueue vs LinkedQueue vs PriorityQueue
+
+================================================================================
+SECCIÓN 7 — ESTRUCTURA DE PAQUETES FINAL DEL SPRINT 2
+================================================================================
+
+src/main/java/cr/ac/ucr/sga/
+├── controller/
+│   ├── MainController.java          (actualizar: implementar NotificationObserver)
+│   ├── StudentController.java       (existente, sin cambios)
+│   ├── TramitController.java        ← NUEVO
+│   └── EnrollmentController.java    ← NUEVO
+│
+├── model/
+│   ├── entities/
+│   │   ├── AcademicRecordEntry.java (existente)
+│   │   ├── Course.java              (existente)
+│   │   ├── CourseBuilder.java       (existente)
+│   │   ├── Notification.java        ← NUEVO
+│   │   ├── Student.java             (actualizar: agregar creditosAprobados)
+│   │   ├── StudentBuilder.java      (actualizar: agregar withCreditosAprobados)
+│   │   └── Tramit.java             ← NUEVO
+│   │
+│   ├── services/
+│   │   ├── AcademicRecordService.java (existente)
+│   │   ├── EnrollmentService.java     ← NUEVO
+│   │   ├── JsonService.java           (actualizar: agregar métodos para Tramit)
+│   │   ├── NotificationService.java   ← NUEVO (Singleton + Observer)
+│   │   ├── SessionHistoryService.java (existente)
+│   │   └── TramitService.java         ← NUEVO
+│   │
+│   ├── states/                        ← NUEVO PAQUETE
+│   │   ├── TramitState.java           ← NUEVO (interfaz)
+│   │   ├── PendingState.java          ← NUEVO
+│   │   ├── ProcessingState.java       ← NUEVO
+│   │   └── ResolvedState.java         ← NUEVO
+│   │
+│   └── structures/
+│       ├── lists/                     (existente, sin cambios)
+│       │   ├── CircularDoublyLinkedList.java
+│       │   ├── CircularLinkedList.java
+│       │   ├── DoubleNode.java
+│       │   ├── DoublyLinkedList.java
+│       │   ├── List.java
+│       │   ├── ListException.java
+│       │   ├── Node.java
+│       │   └── SimpleLinkedList.java
+│       │
+│       ├── stacks/                    ← NUEVO PAQUETE
+│       │   ├── Stack.java             ← NUEVO (interfaz)
+│       │   ├── StackException.java    ← NUEVO
+│       │   ├── ArrayStack.java        ← NUEVO
+│       │   └── LinkedStack.java       ← NUEVO
+│       │
+│       └── queues/                    ← NUEVO PAQUETE
+│           ├── Queue.java             ← NUEVO (interfaz)
+│           ├── QueueException.java    ← NUEVO
+│           ├── ArrayQueue.java        ← NUEVO
+│           ├── LinkedQueue.java       ← NUEVO
+│           └── PriorityQueue.java     ← NUEVO
+│
+├── view/
+│   ├── ViewFactory.java              (actualizar: agregar nuevas vistas)
+│   └── observers/                    ← NUEVO PAQUETE
+│       └── NotificationObserver.java ← NUEVO (interfaz)
+│
+└── Main.java                         (sin cambios)
+
+src/main/resources/
+├── css/styless.css                   (actualizar: estilos para notificaciones)
+├── data/
+│   ├── courses.json                  (existente)
+│   ├── students.json                 (si no existe, crear aquí)
+│   └── tramits.json                  ← NUEVO
+└── fxml/
+    ├── main-view.fxml                (actualizar: agregar botones para nuevas vistas)
+    ├── student-view.fxml             (existente)
+    ├── tramit-view.fxml              ← NUEVO
+    └── enrollment-view.fxml          ← NUEVO
+
+src/test/java/cr/ac/ucr/sga/
+├── ListsTest.java                    (existente del Sprint 1)
+├── StacksTest.java                   ← NUEVO
+└── QueuesTest.java                   ← NUEVO
+
+================================================================================
+SECCIÓN 8 — NOTAS IMPORTANTES
+================================================================================
+
+REGLA FUNDAMENTAL:
+  Las clases ArrayStack, LinkedStack, ArrayQueue, LinkedQueue y PriorityQueue
+  deben ser implementadas DESDE CERO, sin usar java.util.Stack, java.util.Queue,
+  java.util.ArrayDeque, java.util.PriorityQueue ni ninguna otra clase de
+  colecciones de Java. Esto es un requisito explícito del proyecto.
+
+  SÍ puedes usar: ArrayList (solo donde el proyecto lo permite como lista auxiliar),
+  LocalDateTime, UUID, Arrays.copyOf() para redimensionar arreglos, Comparator,
+  y todas las clases de JavaFX.
+
+SOBRE PERSISTENCIA JSON:
+  - Todos los trámites deben guardarse en tramits.json al hacer push o pop
+  - Al iniciar la aplicación, cargar los trámites desde el JSON
+  - Usa la misma librería JSON que ya tienes (Gson o Jackson según tu JsonService)
+
+SOBRE EL PATRÓN SINGLETON:
+  - NotificationService DEBE ser Singleton (una sola instancia en toda la app)
+  - TramitService puede ser Singleton también para compartirse entre controladores
+  - EnrollmentService puede ser Singleton
+
+SOBRE JAVAFX:
+  - Los cambios en la UI deben hacerse en el hilo de JavaFX
+  - Si haces operaciones desde otro hilo, usa Platform.runLater(() -> { ... })
+  - Las TableView se actualizan automáticamente si usas ObservableList:
+    ObservableList<Tramit> list = FXCollections.observableArrayList(...)
+    tramitTable.setItems(list)
+
+COLORES PARA NOTIFICACIONES (actualizar styless.css):
+  .notification-info        { -fx-text-fill: #2196F3; }   /* azul */
+  .notification-advertencia { -fx-text-fill: #FF9800; }   /* naranja */
+  .notification-urgente     { -fx-text-fill: #F44336; }   /* rojo */
+
+================================================================================
+RESUMEN — CHECKLIST ANTES DE LA ENTREGA
+================================================================================
+
+ESTRUCTURAS:
+[ ] Stack.java (interfaz) implementada
+[ ] StackException.java implementada
+[ ] ArrayStack.java con redimensionamiento dinámico
+[ ] LinkedStack.java con nodos enlazados
+[ ] Queue.java (interfaz) implementada
+[ ] QueueException.java implementada
+[ ] ArrayQueue.java circular funcional
+[ ] LinkedQueue.java con head y tail
+[ ] PriorityQueue.java con heap binario por créditos
+
+ENTIDADES Y ESTADOS:
+[ ] Tramit.java con todos los atributos
+[ ] Notification.java con niveles de prioridad
+[ ] TramitState.java (interfaz)
+[ ] PendingState.java
+[ ] ProcessingState.java
+[ ] ResolvedState.java
+[ ] Student.java actualizado con creditosAprobados
+
+SERVICIOS:
+[ ] NotificationService.java (Singleton + Observer)
+[ ] TramitService.java funcional con ambas pilas
+[ ] EnrollmentService.java funcional con las tres colas
+[ ] JsonService.java actualizado para tramits.json
+
+INTERFAZ GRÁFICA:
+[ ] tramit-view.fxml con ComboBoxes (no campos de texto para IDs)
+[ ] enrollment-view.fxml con ComboBoxes
+[ ] main-view.fxml actualizado con nuevas opciones de menú
+[ ] Validaciones en todos los formularios
+[ ] Notificaciones visibles con colores según nivel
+
+CONTROLADORES:
+[ ] TramitController.java implementando NotificationObserver
+[ ] EnrollmentController.java implementando NotificationObserver
+[ ] ViewFactory.java actualizado
+[ ] MainController.java actualizado
+
+PRUEBAS:
+[ ] StacksTest.java con todos los casos borde (vacío, lleno, un elemento)
+[ ] QueuesTest.java con todos los casos borde incluyendo PriorityQueue
+[ ] mvn test pasa en verde (todos los tests)
+
+GIT:
+[ ] Commits diarios con mensajes descriptivos
+[ ] Tag sprint-2 creado y pusheado
+[ ] Profesor tiene acceso al repositorio
+
+DOCUMENTACIÓN:
+[ ] Diagrama UML actualizado con todas las clases nuevas
+[ ] Documentación del patrón State (diagrama + explicación)
+[ ] Documentación del patrón Observer (diagrama + explicación)
+[ ] Comparativa de implementaciones de pilas y colas
+
+================================================================================
+FIN DEL DOCUMENTO — Sprint 2 | IF-3001 | Grupo 21
+================================================================================
