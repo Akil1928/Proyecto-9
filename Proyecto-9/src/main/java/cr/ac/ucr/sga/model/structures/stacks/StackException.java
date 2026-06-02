@@ -5,4 +5,3 @@ public class StackException extends Exception {
 		super(message);
 	}
 }
-

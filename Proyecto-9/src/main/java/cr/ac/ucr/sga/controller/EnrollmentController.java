@@ -38,7 +38,7 @@ public class EnrollmentController implements Initializable, NotificationObserver
             students.add(s.getId() + " - " + s.getName());
         }
         comboEstudiante.setItems(students);
-        // actualizar créditos aprobados cuando se seleccione un estudiante
+        //actualizar créditos aprobados cuando se seleccione un estudiante
         comboEstudiante.setOnAction(evt -> {
             String val = comboEstudiante.getValue();
             if (val == null) {
@@ -54,7 +54,7 @@ public class EnrollmentController implements Initializable, NotificationObserver
                 }
             }
         });
-        // configurar columnas
+        //configurar columnas
         colNombre.setCellValueFactory(data -> new javafx.beans.property.ReadOnlyStringWrapper(data.getValue().getName()));
         colCreditos.setCellValueFactory(data -> new javafx.beans.property.ReadOnlyStringWrapper(String.valueOf(data.getValue().getApprovedCredits())));
         colPrioridad.setCellValueFactory(data -> {
@@ -167,6 +167,11 @@ public class EnrollmentController implements Initializable, NotificationObserver
             case "ADVERTENCIA" -> lblNotificacion.getStyleClass().add("notif-warning");
             default -> lblNotificacion.getStyleClass().add("notif-info");
         }
+    }
+
+    @Override
+    public void onNotification(String message) {
+
     }
 }
 

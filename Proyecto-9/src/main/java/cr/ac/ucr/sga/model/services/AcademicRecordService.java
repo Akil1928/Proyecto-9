@@ -41,7 +41,11 @@ public class AcademicRecordService {
     }
 
     public int size() {
-        return academicHistory.size();
+        try {
+            return academicHistory.isEmpty() ? 0 : academicHistory.size();
+        } catch (cr.ac.ucr.sga.model.structures.lists.ListException e) {
+            return 0;
+        }
     }
 
     public void clear() {

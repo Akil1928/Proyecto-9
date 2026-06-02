@@ -32,7 +32,7 @@ public class StudentController {
 
     @FXML
     public void initialize() {
-        cbStatus.setItems(FXCollections.observableArrayList("Aprobado", "Reprobado", "En curso"));
+        cbStatus.setItems(FXCollections.observableArrayList("Aprobado", "Reprobado", "En curso"));//las opciones a escoger
         cbPeriod.setItems(FXCollections.observableArrayList("I-2025", "II-2025", "I-2026", "II-2026"));
         cbStatus.getSelectionModel().selectFirst();
         cbPeriod.getSelectionModel().selectFirst();
@@ -86,7 +86,7 @@ public class StudentController {
             return;
         }
 
-        // Confirmación antes de eliminar
+        //confirmación antes de eliminar
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Confirmar eliminación");
         confirm.setHeaderText("¿Eliminar el curso seleccionado?");
@@ -102,7 +102,7 @@ public class StudentController {
             }
         });
     }
-
+//solo para mostrar los cursos de ejemplo
     @FXML
     private void addDemoCourses() {
         service.clear();
@@ -161,7 +161,7 @@ public class StudentController {
     private void setStatus(String msg) {
         if (lblStatus != null) lblStatus.setText(msg);
     }
-
+//validacion
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Validación");

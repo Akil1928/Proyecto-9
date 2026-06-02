@@ -2,16 +2,15 @@ package cr.ac.ucr.sga.model.structures.queues;
 
 import cr.ac.ucr.sga.model.structures.lists.Node;
 
-public class LinkedQueue<T> implements Queue<T> {
+public class HeaderLinkedQueue<T> implements Queue<T> {
 
     private Node<T> front;
     private Node<T> rear;
     private int size;
 
-    public LinkedQueue() {
-        this.front = null;
-        this.rear = null;
-        this.size = 0;
+    public HeaderLinkedQueue() {
+        front = rear = new Node<>();
+        size = 0;
     }
 
     @Override
@@ -19,40 +18,41 @@ public class LinkedQueue<T> implements Queue<T> {
 
     @Override
     public void clear() {
-        front = rear = null;
+        front = rear = new Node<>();
         size = 0;
     }
 
     @Override
-    public boolean isEmpty() { return front == null; }
+    public boolean isEmpty() { return front == rear; }
 
     @Override
     public int indexOf(T element) throws QueueException {
-        if (isEmpty()) throw new QueueException("Linked Queue is empty");
-        Node<T> aux = front;
-        int index = 1;
-        while (aux != null) {
-            if (equals(aux.data, element)) return index;
+        if (isEmpty()) throw new QueueException("Header Linked Queue is empty");
+        HeaderLinkedQueue<T> aux = new HeaderLinkedQueue<>();
+        int index = 1, pos = -1;
+        while (!isEmpty()) {
+            if (equals(front(), element)) pos = index;
+            aux.enQueue(deQueue());
             index++;
-            aux = aux.next;
         }
-        return -1;
+        while (!aux.isEmpty()) enQueue(aux.deQueue());
+        return pos;
     }
 
     @Override
     public void enQueue(T element) throws QueueException {
         Node<T> node = new Node<>(element);
-        if (isEmpty()) front = rear = node;
-        else { rear.next = node; rear = node; }
+        rear.next = node;
+        rear = node;
         size++;
     }
 
     @Override
     public T deQueue() throws QueueException {
         if (isEmpty()) throw new QueueException("Linked Queue is empty");
-        T element = front.data;
-        if (front == rear) clear();
-        else { front = front.next; size--; }
+        T element = front.next.data;
+        if (front.next == rear) clear();
+        else { front.next = front.next.next; size--; }
         return element;
     }
 
@@ -64,36 +64,38 @@ public class LinkedQueue<T> implements Queue<T> {
     @Override
     public boolean contains(T element) throws QueueException {
         if (isEmpty()) throw new QueueException("Linked Queue is empty");
-        Node<T> aux = front;
-        while (aux != null) {
-            if (equals(aux.data, element)) return true;
-            aux = aux.next;
+        HeaderLinkedQueue<T> aux = new HeaderLinkedQueue<>();
+        boolean found = false;
+        while (!isEmpty()) {
+            if (equals(front(), element)) found = true;
+            aux.enQueue(deQueue());
         }
-        return false;
+        while (!aux.isEmpty()) enQueue(aux.deQueue());
+        return found;
     }
 
     @Override
     public T peek() throws QueueException {
         if (isEmpty()) throw new QueueException("Linked Queue is empty");
-        return front.data;
+        return front.next.data;
     }
 
     @Override
     public T front() throws QueueException {
         if (isEmpty()) throw new QueueException("Linked Queue is empty");
-        return front.data;
+        return front.next.data;
     }
 
     @Override
     public String toString() {
         if (isEmpty()) return "Linked Queue is empty";
-        StringBuilder sb = new StringBuilder(" FRONT → ");
+        StringBuilder sb = new StringBuilder(" FRONT → [] → ");
         try {
-            LinkedQueue<T> auxQueue = new LinkedQueue<>();
+            HeaderLinkedQueue<T> auxQueue = new HeaderLinkedQueue<>();
             while (!isEmpty()) {
                 sb.append("[").append(peek()).append("]");
                 auxQueue.enQueue(deQueue());
-                if (!isEmpty()) sb.append(" → ");
+                if (!isEmpty()) sb.append(", ");
             }
             while (!auxQueue.isEmpty()) enQueue(auxQueue.deQueue());
         } catch (QueueException e) {

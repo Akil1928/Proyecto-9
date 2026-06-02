@@ -25,19 +25,20 @@ public class MainController implements NotificationObserver {
         SessionHistoryService.getInstance().addView("Reporte de cursos");
         loadCenter("/fxml/student-view.fxml", "Expediente Académico");
     }
-
+//ir atras
     @FXML
     private void goBack() {
         String view = SessionHistoryService.getInstance().previousView();
         lblCurrentView.setText("Vista actual: " + view);
     }
-
+//ir adelante
     @FXML
     private void goForward() {
         String view = SessionHistoryService.getInstance().nextView();
         lblCurrentView.setText("Vista actual: " + view);
     }
 
+    //Lo que hace es para mostrar un tipo de mensaje del acerca de, incompleto porque conforme avance el proyecto
     @FXML
     private void showAbout() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -73,6 +74,11 @@ public class MainController implements NotificationObserver {
         if (lblNotificationBar != null) {
             lblNotificationBar.setText(level + ": " + message);
         }
+    }
+
+    @Override
+    public void onNotification(String message) {
+
     }
 
     private void loadCenter(String fxml, String viewName) {

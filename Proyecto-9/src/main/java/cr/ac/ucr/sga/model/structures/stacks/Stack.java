@@ -1,6 +1,8 @@
 package cr.ac.ucr.sga.model.structures.stacks;
 
 public interface Stack<T> {
+    T top() throws StackException;
+
     void push(T item) throws StackException;
     T pop() throws StackException;
     T peek() throws StackException;

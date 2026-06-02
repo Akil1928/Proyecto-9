@@ -16,11 +16,11 @@ public class Notification implements Comparable<Notification> {
     }
 
     private int priorityFor(String level) {
-        if (level == null) return 1;
+        if (level == null) return 3;
         return switch (level.toUpperCase()) {
-            case "URGENTE" -> 3;
-            case "ADVERTENCIA" -> 2;
-            default -> 1;
+            case "URGENTE"      -> 1;
+            case "ADVERTENCIA"  -> 2;
+            default             -> 3;
         };
     }
 

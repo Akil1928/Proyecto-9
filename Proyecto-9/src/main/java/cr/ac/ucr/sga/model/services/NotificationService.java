@@ -2,6 +2,7 @@ package cr.ac.ucr.sga.model.services;
 
 import cr.ac.ucr.sga.model.entities.Notification;
 import cr.ac.ucr.sga.model.structures.queues.PriorityQueue;
+import cr.ac.ucr.sga.model.structures.queues.QueueException;
 import cr.ac.ucr.sga.view.observers.NotificationObserver;
 
 import java.util.ArrayList;
@@ -11,10 +12,9 @@ public class NotificationService {
     private static NotificationService instance;
 
     private final List<NotificationObserver> observers = new ArrayList<>();
-    private final PriorityQueue<Notification> notificationQueue = new PriorityQueue<>(Notification::compareTo);
+    private final PriorityQueue<Notification> notificationQueue = new PriorityQueue<>();
 
-    private NotificationService() {
-    }
+    private NotificationService() {}
 
     public static NotificationService getInstance() {
         if (instance == null) {
@@ -35,7 +35,11 @@ public class NotificationService {
 
     public void notify(String message, String level) {
         Notification notification = new Notification(message, level);
-        notificationQueue.enqueue(notification);
+        try {
+            notificationQueue.enQueue(notification, levelToPriority(level));
+        } catch (QueueException e) {
+            throw new RuntimeException(e);
+        }
         for (NotificationObserver observer : observers) {
             observer.onNotification(message, level);
         }
@@ -44,9 +48,17 @@ public class NotificationService {
     public Notification peekLastNotification() {
         try {
             return notificationQueue.peek();
-        } catch (Exception e) {
+        } catch (QueueException e) {
             return null;
         }
     }
-}
 
+    private int levelToPriority(String level) {
+        if (level == null) return 3;
+        return switch (level.toUpperCase()) {
+            case "HIGH", "ERROR"   -> 1;
+            case "MEDIUM", "WARN"  -> 2;
+            default                -> 3;
+        };
+    }
+}

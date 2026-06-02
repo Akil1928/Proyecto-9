@@ -1,55 +1,16 @@
 package cr.ac.ucr.sga.model.structures.stacks;
 
-import java.util.Arrays;
-
 public class ArrayStack<T> implements Stack<T> {
-    private static final int DEFAULT_CAPACITY = 10;
 
-    private Object[] data;
+    private int n;
     private int top;
-    private int capacity;
+    private T[] data;
 
-    public ArrayStack() {
-        this(DEFAULT_CAPACITY);
-    }
-
-    public ArrayStack(int capacity) {
-        this.capacity = Math.max(1, capacity);
-        this.data = new Object[this.capacity];
+    public ArrayStack(int n) {
+        if (n <= 0) System.exit(1);
+        this.n = n;
         this.top = -1;
-    }
-
-    @Override
-    public void push(T item) {
-        if (top + 1 == capacity) {
-            resize();
-        }
-        data[++top] = item;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public T pop() throws StackException {
-        if (isEmpty()) {
-            throw new StackException("Stack is empty");
-        }
-        T item = (T) data[top];
-        data[top--] = null;
-        return item;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public T peek() throws StackException {
-        if (isEmpty()) {
-            throw new StackException("Stack is empty");
-        }
-        return (T) data[top];
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return top < 0;
+        data = (T[]) new Object[n];
     }
 
     @Override
@@ -59,34 +20,56 @@ public class ArrayStack<T> implements Stack<T> {
 
     @Override
     public void clear() {
-        data = new Object[capacity];
-        top = -1;
+        this.top = -1;
+        data = (T[]) new Object[n];
     }
 
-    private void resize() {
-        capacity *= 2;
-        data = Arrays.copyOf(data, capacity);
+    @Override
+    public boolean isEmpty() {
+        return top == -1;
+    }
+
+    @Override
+    public T peek() throws StackException {
+        if (isEmpty()) throw new StackException("Array Stack is empty");
+        return this.data[top];
+    }
+
+    @Override
+    public T top() throws StackException {
+        if (isEmpty()) throw new StackException("Array Stack is empty");
+        return this.data[top];
+    }
+
+    @Override
+    public void push(T element) throws StackException {
+        if (top == n - 1) {
+            throw new StackException("Array Stack is full");
+        }
+        data[++top] = element;
+    }
+
+    @Override
+    public T pop() throws StackException {
+        if (isEmpty()) throw new StackException("Array Stack is empty");
+        return this.data[top--];
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("Top -> ");
-        for (int i = top; i >= 0; i--) {
-            sb.append('[').append(data[i]).append(']');
-            if (i > 0) sb.append(" -> ");
-        }
-        sb.append(" -> Bottom");
+        if (isEmpty()) return "ArrayStack is empty";
+        StringBuilder sb = new StringBuilder("TOP → ");
+        try {
+            ArrayStack<T> auxStack = new ArrayStack<>(n);
+            while (!isEmpty()) {
+                sb.append("[").append(peek()).append("]");
+                auxStack.push(pop());
+                if (!isEmpty()) sb.append(", ");
+            }
+            while (!auxStack.isEmpty())
+                push(auxStack.pop());
+        } catch (StackException e) {}
+        sb.append(" →");
         return sb.toString();
     }
-
-    @SuppressWarnings("unchecked")
-    public T[] toArray(T[] array) {
-        int index = 0;
-        for (int i = top; i >= 0 && index < array.length; i--) {
-            array[index++] = (T) data[i];
-        }
-        return array;
-    }
 }
-
-

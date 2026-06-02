@@ -5,4 +5,3 @@ public class QueueException extends Exception {
         super(message);
     }
 }
-

@@ -46,6 +46,10 @@ public class SessionHistoryService {
     }
 
     public int size() {
-        return visitedViews.isEmpty() ? 0 : visitedViews.size();
+        try {
+            return visitedViews.isEmpty() ? 0 : visitedViews.size();
+        } catch (cr.ac.ucr.sga.model.structures.lists.ListException e) {
+            return 0;
+        }
     }
 }

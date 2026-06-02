@@ -10,13 +10,12 @@ import cr.ac.ucr.sga.model.structures.stacks.StackException;
 public class TramitService {
     private static TramitService instance;
 
-    private final ArrayStack<Tramit> arrayStack = new ArrayStack<>();
+    private final ArrayStack<Tramit> arrayStack = new ArrayStack<>(50);
     private final LinkedStack<Tramit> linkedStack = new LinkedStack<>();
     private Stack<Tramit> activeStack = arrayStack;
     private final SimpleLinkedList<Tramit> allTramits = new SimpleLinkedList<>();
 
-    private TramitService() {
-    }
+    private TramitService() {}
 
     public static TramitService getInstance() {
         if (instance == null) {
@@ -83,6 +82,3 @@ public class TramitService {
         }
     }
 }
-
-
-

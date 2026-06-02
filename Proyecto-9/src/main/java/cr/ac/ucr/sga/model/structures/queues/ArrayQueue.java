@@ -1,94 +1,106 @@
 package cr.ac.ucr.sga.model.structures.queues;
 
-import java.util.Arrays;
-
 public class ArrayQueue<T> implements Queue<T> {
-    private static final int DEFAULT_CAPACITY = 10;
 
-    private Object[] data;
-    private int front;
-    private int rear;
-    private int size;
-    private int capacity;
-
-    public ArrayQueue() {
-        this(DEFAULT_CAPACITY);
-    }
+    private int n;
+    private T[] data;
+    private int front, rear;
 
     public ArrayQueue(int capacity) {
-        this.capacity = Math.max(1, capacity);
-        this.data = new Object[this.capacity];
-    }
-
-    @Override
-    public void enqueue(T item) throws QueueException {
-        if (size == capacity) {
-            throw new QueueException("Queue is full");
-        }
-        data[rear] = item;
-        rear = (rear + 1) % capacity;
-        size++;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public T dequeue() throws QueueException {
-        if (isEmpty()) {
-            throw new QueueException("Queue is empty");
-        }
-        T value = (T) data[front];
-        data[front] = null;
-        front = (front + 1) % capacity;
-        size--;
-        return value;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public T peek() throws QueueException {
-        if (isEmpty()) {
-            throw new QueueException("Queue is empty");
-        }
-        return (T) data[front];
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return size == 0;
+        this.n = capacity;
+        data = (T[]) new Object[capacity];
+        rear = n - 1;
+        front = rear;
     }
 
     @Override
     public int size() {
-        return size;
+        return rear - front;
     }
 
     @Override
     public void clear() {
-        data = new Object[capacity];
-        front = 0;
-        rear = 0;
-        size = 0;
+        data = (T[]) new Object[n];
+        rear = n - 1;
+        front = rear;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return front == rear;
+    }
+
+    @Override
+    public int indexOf(T element) throws QueueException {
+        if (isEmpty()) throw new QueueException("Array Queue is empty");
+        HeaderLinkedQueue<T> aux = new HeaderLinkedQueue<>();
+        int index = 1, pos = -1;
+        while (!isEmpty()) {
+            if (equals(front(), element)) pos = index;
+            aux.enQueue(deQueue());
+            index++;
+        }
+        while (!aux.isEmpty()) enQueue(aux.deQueue());
+        return pos;
+    }
+
+    @Override
+    public void enQueue(T element) throws QueueException {
+        if (size() == data.length)
+            throw new QueueException("Array Queue is full");
+        for (int i = front; i <= rear; i++) {
+            data[i] = data[i + 1];
+        }
+        data[rear] = element;
+        front--;
+    }
+
+    @Override
+    public T deQueue() throws QueueException {
+        if (isEmpty()) throw new QueueException("Array Queue is empty");
+        return data[++front];
+    }
+
+    @Override
+    public void enQueue(T element, Integer priority) throws QueueException {}
+
+    @Override
+    public boolean contains(T element) throws QueueException {
+        if (isEmpty()) throw new QueueException("Array Queue is empty");
+        return false;
+    }
+
+    @Override
+    public T peek() throws QueueException {
+        if (isEmpty()) throw new QueueException("Array Queue is empty");
+        return data[front + 1];
+    }
+
+    @Override
+    public T front() throws QueueException {
+        if (isEmpty()) throw new QueueException("Array Queue is empty");
+        return data[front + 1];
     }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("Front -> ");
-        for (int i = 0; i < size; i++) {
-            int index = (front + i) % capacity;
-            sb.append('[').append(data[index]).append(']');
-            if (i < size - 1) sb.append(" -> ");
+        if (isEmpty()) return "Array Queue is empty";
+        StringBuilder sb = new StringBuilder(" FRONT → ");
+        try {
+            ArrayQueue<T> auxQueue = new ArrayQueue<>(n);
+            while (!isEmpty()) {
+                sb.append("[").append(peek()).append("]");
+                auxQueue.enQueue(deQueue());
+                if (!isEmpty()) sb.append(", ");
+            }
+            while (!auxQueue.isEmpty()) enQueue(auxQueue.deQueue());
+        } catch (QueueException e) {
+            throw new RuntimeException(e);
         }
-        sb.append(" -> Rear");
         return sb.toString();
     }
 
-    @SuppressWarnings("unchecked")
-    public T[] toArray(T[] array) {
-        for (int i = 0; i < size && i < array.length; i++) {
-            array[i] = (T) data[(front + i) % capacity];
-        }
-        return array;
+    private boolean equals(T a, T b) {
+        return a == null ? b == null : a.equals(b);
     }
 }
-
-

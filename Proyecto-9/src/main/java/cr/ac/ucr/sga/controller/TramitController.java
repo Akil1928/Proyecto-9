@@ -42,7 +42,7 @@ public class TramitController implements Initializable, NotificationObserver {
             students.add(s.getId() + " - " + s.getName());
         }
         comboEstudiante.setItems(students);
-        // configurar columnas
+        //configurar columnas
         colId.setCellValueFactory(data -> new javafx.beans.property.ReadOnlyStringWrapper(data.getValue().getId()));
         colType.setCellValueFactory(data -> new javafx.beans.property.ReadOnlyStringWrapper(data.getValue().getType()));
         colStudent.setCellValueFactory(data -> new javafx.beans.property.ReadOnlyStringWrapper(data.getValue().getStudentName()));
@@ -173,6 +173,10 @@ public class TramitController implements Initializable, NotificationObserver {
             case "ADVERTENCIA" -> lblNotificacion.getStyleClass().add("notif-warning");
             default -> lblNotificacion.getStyleClass().add("notif-info");
         }
+    }
+
+    @Override
+    public void onNotification(String message) {
     }
 }
 
