@@ -192,8 +192,8 @@ public class QueuesTest {
         System.out.println("1° Salida (esperado 80 créditos): " + queue.deQueue().getApprovedCredits());
         System.out.println("2° Salida (esperado 50 créditos): " + queue.deQueue().getApprovedCredits());
         System.out.println("3° Salida (esperado 30 créditos): " + queue.deQueue().getApprovedCredits());
-        System.out.println("4° Salida (esperado 20 créditos): " + queue.deQueue().getApprovedCredits());
-        System.out.println("5° Salida (esperado 10 créditos): " + queue.deQueue().getApprovedCredits());
+        System.out.println("4° Salida (esperado 10 créditos): " + queue.deQueue().getApprovedCredits());
+        System.out.println("5° Salida (esperado 20 créditos): " + queue.deQueue().getApprovedCredits());
     }
 
     @Test
