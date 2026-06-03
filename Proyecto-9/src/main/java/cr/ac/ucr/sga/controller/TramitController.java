@@ -1,9 +1,11 @@
 package cr.ac.ucr.sga.controller;
 
 import cr.ac.ucr.sga.model.entities.Tramit;
+import cr.ac.ucr.sga.model.entities.User;
 import cr.ac.ucr.sga.model.services.NotificationService;
 import cr.ac.ucr.sga.model.services.StudentDirectoryService;
 import cr.ac.ucr.sga.model.services.TramitService;
+import cr.ac.ucr.sga.model.services.UserService;
 import cr.ac.ucr.sga.view.observers.NotificationObserver;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -29,20 +31,48 @@ public class TramitController implements Initializable, NotificationObserver {
     @FXML private Label lblNotificacion;
     @FXML private Label lblTotalTramits;
 
+    // Controles exclusivos del ADMINISTRADOR (con fx:id en FXML)
+    @FXML private Button btnProcesar;
+    @FXML private Button btnAvanzarEstado;
+    @FXML private Label lblStackSection;
+
     private final TramitService service = TramitService.getInstance();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         NotificationService.getInstance().addObserver(this);
-        comboTipoTramit.setItems(FXCollections.observableArrayList("Beca", "Revisión de Nota", "Retiro de Curso", "Certificado", "Traslado"));
+
+        User currentUser = UserService.getInstance().getCurrentUser();
+        boolean isAdmin = currentUser != null && currentUser.getRole() == User.Role.ADMINISTRADOR;
+
+        comboTipoTramit.setItems(FXCollections.observableArrayList(
+                "Beca", "Revisión de Nota", "Retiro de Curso", "Certificado", "Traslado"));
         comboStackType.setItems(FXCollections.observableArrayList("ArrayStack", "LinkedStack"));
         comboStackType.getSelectionModel().selectFirst();
-        ObservableList<String> students = FXCollections.observableArrayList();
-        for (var s : StudentDirectoryService.getInstance().getStudents()) {
-            students.add(s.getId() + " - " + s.getName());
+
+        if (isAdmin) {
+            // Admin: puede seleccionar cualquier estudiante
+            ObservableList<String> students = FXCollections.observableArrayList();
+            for (var s : StudentDirectoryService.getInstance().getStudents()) {
+                students.add(s.getId() + " - " + s.getName());
+            }
+            comboEstudiante.setItems(students);
+        } else {
+            // Estudiante (US-05): solo puede crear trámite a su nombre
+            // Pre-selecciona el usuario actual; el combo queda deshabilitado
+            String selfEntry = currentUser.getUsername() + " - " + currentUser.getDisplayName();
+            comboEstudiante.setItems(FXCollections.observableArrayList(selfEntry));
+            comboEstudiante.getSelectionModel().selectFirst();
+            comboEstudiante.setDisable(true);
+
+            // Ocultar controles exclusivos del administrador
+            if (btnProcesar != null)     btnProcesar.setVisible(false);
+            if (btnAvanzarEstado != null) btnAvanzarEstado.setVisible(false);
+            if (lblStackSection != null) lblStackSection.setVisible(false);
+            comboStackType.setVisible(false);
         }
-        comboEstudiante.setItems(students);
-        //configurar columnas
+
+        // Configurar columnas
         colId.setCellValueFactory(data -> new javafx.beans.property.ReadOnlyStringWrapper(data.getValue().getId()));
         colType.setCellValueFactory(data -> new javafx.beans.property.ReadOnlyStringWrapper(data.getValue().getType()));
         colStudent.setCellValueFactory(data -> new javafx.beans.property.ReadOnlyStringWrapper(data.getValue().getStudentName()));
@@ -69,12 +99,12 @@ public class TramitController implements Initializable, NotificationObserver {
         String[] student = comboEstudiante.getValue().split(" - ", 2);
         Tramit tramit = new Tramit(comboTipoTramit.getValue(), txtDescription.getText().trim(), student[0], student[1]);
         service.pushTramit(tramit);
-        // notify global observers
         NotificationService.getInstance().notify("Trámite " + tramit.getId() + " creado exitosamente", "INFO");
         refreshTable();
         updateLabels();
     }
 
+    // Solo para ADMINISTRADOR (US-06: LIFO)
     @FXML
     private void onProcesarTramit() {
         try {
@@ -83,12 +113,12 @@ public class TramitController implements Initializable, NotificationObserver {
             refreshTable();
             updateLabels();
         } catch (cr.ac.ucr.sga.model.structures.stacks.StackException e) {
-            // especificación: mostrar alerta y notificación urgente
             showError("La pila está vacía");
             NotificationService.getInstance().notify("La pila está vacía, no hay trámites que procesar", "URGENTE");
         }
     }
 
+    // Solo para ADMINISTRADOR
     @FXML
     private void onAvanzarEstado() {
         try {
@@ -96,7 +126,6 @@ public class TramitController implements Initializable, NotificationObserver {
             try {
                 tramit.nextState();
             } catch (IllegalStateException ise) {
-                // ya estaba resuelto
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Estado");
                 alert.setHeaderText("Información");
@@ -125,7 +154,6 @@ public class TramitController implements Initializable, NotificationObserver {
         if (n == 0) return;
         Tramit[] arr = new Tramit[n];
         service.getAllTramits().toArray(arr);
-        // Mostrar tope primero (último agregado)
         for (int i = n - 1; i >= 0; i--) {
             if (arr[i] != null) tramitTable.getItems().add(arr[i]);
         }
@@ -165,7 +193,6 @@ public class TramitController implements Initializable, NotificationObserver {
     public void onNotification(String message, String level) {
         String text = level + ": " + message;
         lblNotificacion.setText(text);
-        // ajustar estilo por nivel
         lblNotificacion.getStyleClass().removeIf(s -> s.startsWith("notif-"));
         if (level == null) level = "INFO";
         switch (level.toUpperCase()) {
@@ -179,5 +206,3 @@ public class TramitController implements Initializable, NotificationObserver {
     public void onNotification(String message) {
     }
 }
-
-

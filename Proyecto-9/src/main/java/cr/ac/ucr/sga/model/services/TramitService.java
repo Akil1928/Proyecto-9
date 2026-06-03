@@ -15,7 +15,10 @@ public class TramitService {
     private Stack<Tramit> activeStack = arrayStack;
     private final SimpleLinkedList<Tramit> allTramits = new SimpleLinkedList<>();
 
-    private TramitService() {}
+    private TramitService() {
+        // Cargar trámites persistidos al iniciar
+        loadTramits();
+    }
 
     public static TramitService getInstance() {
         if (instance == null) {

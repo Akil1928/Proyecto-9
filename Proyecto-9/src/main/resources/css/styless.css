@@ -459,4 +459,49 @@
 .notif-urgent {
     -fx-text-fill: #F44336; /* rojo */
     -fx-font-weight: bold;
+
+    /* ══════════════════════════════════════════════════════════════════════════
+   SPRINT 2 — Pantalla de Login
+   Agregar al final de styless.css
+   ══════════════════════════════════════════════════════════════════════════ */
+
+    /* Tarjeta central de login */
+    .login-card {
+        -fx-background-color: #1E1E2E;
+        -fx-background-radius: 10;
+        -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.5), 20, 0, 0, 4);
+    }
+
+    /* Etiqueta de campo del formulario */
+    .form-label {
+        -fx-text-fill: #BBBBCC;
+        -fx-font-size: 12px;
+        -fx-font-weight: bold;
+    }
+
+    /* Campo de texto / contraseña del formulario */
+    .form-field {
+        -fx-background-color: #2A2A3E;
+        -fx-text-fill: #E8E8F0;
+        -fx-prompt-text-fill: #666680;
+        -fx-border-color: #3A3A5E;
+        -fx-border-radius: 4;
+        -fx-background-radius: 4;
+        -fx-padding: 8 10 8 10;
+        -fx-font-size: 13px;
+    }
+    .form-field:focused {
+        -fx-border-color: #7C6AF7;
+        -fx-effect: dropshadow(gaussian, rgba(124,106,247,0.3), 6, 0, 0, 0);
+    }
+
+    /* Mensaje de error en login */
+    .error-label {
+        -fx-text-fill: #FF6B6B;
+        -fx-font-size: 12px;
+        -fx-font-weight: bold;
+        -fx-background-color: rgba(255, 107, 107, 0.12);
+        -fx-background-radius: 4;
+        -fx-padding: 6 10 6 10;
+    }
 }

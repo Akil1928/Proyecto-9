@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!--
+    login-view.fxml
+    Primera pantalla que ve el usuario. Dependiendo del rol se carga la vista principal.
+    Rutas de acceso:
+      - ADMINISTRADOR → main-view.fxml (ve todos los módulos)
+      - ESTUDIANTE    → main-view.fxml (solo ve Expediente y Trámites propios)
+-->
+<BorderPane styleClass="root-pane"
+            stylesheets="@../css/styless.css"
+            xmlns:fx="http://javafx.com/fxml/1"
+            xmlns="http://javafx.com/javafx/17.0.12"
+            fx:controller="cr.ac.ucr.sga.controller.LoginController">
+
+    <center>
+        <VBox alignment="CENTER" spacing="20" maxWidth="380"
+              styleClass="login-card">
+            <padding><Insets top="40" left="40" right="40" bottom="40"/></padding>
+
+            <!-- Logo / título -->
+            <Label text="P-9" styleClass="header-badge" style="-fx-font-size:28px;"/>
+            <Label text="Sistema de Gestión Académica"
+                   styleClass="header-title"
+                   wrapText="true"
+                   style="-fx-alignment:center;"/>
+            <Label text="Inicio de Sesión"
+                   styleClass="header-sub"
+                   style="-fx-font-size:14px;"/>
+
+            <Separator/>
+
+            <!-- Formulario -->
+            <VBox spacing="6">
+                <Label text="Usuario:" styleClass="form-label"/>
+                <TextField fx:id="txtUsername"
+                           promptText="Ingrese su usuario"
+                           styleClass="form-field"/>
+            </VBox>
+
+            <VBox spacing="6">
+                <Label text="Contraseña:" styleClass="form-label"/>
+                <PasswordField fx:id="txtPassword"
+                               promptText="Ingrese su contraseña"
+                               styleClass="form-field"
+                               onAction="#handleLogin"/>
+            </VBox>
+
+            <!-- Mensaje de error -->
+            <Label fx:id="lblError"
+                   styleClass="error-label"
+                   text=""
+                   wrapText="true"
+                   visible="false"/>
+
+            <!-- Botón de ingreso -->
+            <Button text="Ingresar"
+                    styleClass="btn-dark"
+                    maxWidth="Infinity"
+                    onAction="#handleLogin"/>
+
+            <Separator/>
+
+            <!-- Usuarios de prueba (ayuda para el profesor) -->
+            <VBox spacing="3" alignment="CENTER">
+                <Label text="Usuarios de prueba:" style="-fx-font-size:11px; -fx-opacity:0.7;"/>
+                <Label text="admin / admin123  →  Administrador"
+                       style="-fx-font-size:10px; -fx-font-family:monospace; -fx-opacity:0.6;"/>
+                <Label text="estudiante / est123  →  Estudiante"
+                       style="-fx-font-size:10px; -fx-font-family:monospace; -fx-opacity:0.6;"/>
+            </VBox>
+
+            <!-- Barra de estado inferior -->
+            <Label fx:id="lblStatus" text="" styleClass="status-left"
+                   style="-fx-font-size:11px;" wrapText="true"/>
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox styleClass="status-bar" spacing="10" BorderPane.alignment="CENTER">
+            <padding><Insets top="6" left="12" right="12" bottom="6"/></padding>
+            <Label text="UCR - SGA  |  Sprint 2" styleClass="status-right"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>

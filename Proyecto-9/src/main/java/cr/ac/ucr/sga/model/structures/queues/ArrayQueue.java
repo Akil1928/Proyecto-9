@@ -49,7 +49,7 @@ public class ArrayQueue<T> implements Queue<T> {
         if (size() == data.length)
             throw new QueueException("Array Queue is full");
 
-        // Corregido: i < rear (en lugar de <=) para que data[i + 1] no se salga del arreglo
+        //corregido: i < rear (en lugar de <=) para que data[i + 1] no se salga del arreglo
         for (int i = front; i < rear; i++) {
             data[i] = data[i + 1];
         }

@@ -14,6 +14,10 @@ public class AcademicRecordService {
     private AcademicRecordService() {
         academicHistory = new DoublyLinkedList<>();
         pendingEnrollment = new SimpleLinkedList<>();
+        // Cargar expediente persistido al iniciar
+        for (AcademicRecordEntry entry : JsonService.loadAcademicRecord()) {
+            addRecord(entry);
+        }
     }
 
     public static AcademicRecordService getInstance() {

@@ -39,7 +39,7 @@
     <HBox spacing="10">
         <Button text="Agregar curso"               styleClass="btn-primary" onAction="#addCourse"/>
         <Button text="Eliminar seleccionado"       styleClass="btn-green"   onAction="#deleteSelectedCourse"/>
-        <Button text="Cargar 3 cursos de demo"     styleClass="btn-ghost"   onAction="#addDemoCourses"/>
+        <Button fx:id="btnLoadDemo" text="Cargar 3 cursos de demo" styleClass="btn-ghost" onAction="#addDemoCourses"/>
     </HBox>
 
     <!-- Tabla -->

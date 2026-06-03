@@ -4,6 +4,16 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<!--
+    main-view.fxml  (actualizado Sprint 2)
+
+    El panel izquierdo se controla dinámicamente desde MainController según el rol:
+      - ADMINISTRADOR: ve Expediente, Trámites, Cola de Matrícula, y botón Cerrar Sesión
+      - ESTUDIANTE: ve solo Expediente y Trámites, y botón Cerrar Sesión
+
+    Los botones Atrás / Adelante ahora son funcionales: navegan por el historial circular
+    (CircularDoublyLinkedList) de vistas cargadas en la sesión.
+-->
 <BorderPane fx:id="mainPane" styleClass="root-pane"
             stylesheets="@../css/styless.css"
             xmlns:fx="http://javafx.com/fxml/1"
@@ -18,24 +28,31 @@
                 <Label styleClass="header-badge" text="P-9"/>
                 <Label styleClass="header-title" text="Sistema de Gestión Académica"/>
                 <Region HBox.hgrow="ALWAYS"/>
-                <Button text="← Atrás"   styleClass="btn-ghost" onAction="#goBack"/>
+
+                <!-- Nombre del usuario en sesión -->
+                <Label fx:id="lblUserInfo" styleClass="header-sub"
+                       text="Sesión: —" style="-fx-font-size:12px;"/>
+
+                <Button text="← Atrás"    styleClass="btn-ghost" onAction="#goBack"/>
                 <Button text="Adelante →" styleClass="btn-ghost" onAction="#goForward"/>
                 <Button text="Acerca de"  styleClass="btn-ghost" onAction="#showAbout"/>
             </HBox>
 
             <Label fx:id="lblCurrentView"
                    styleClass="header-sub"
-                   text="Vista actual: Expediente Académico"/>
+                   text="Vista actual: —"/>
         </VBox>
     </top>
+
+    <!-- El menú lateral se construye dinámicamente en MainController.initialize()
+         según el rol del usuario. Por eso solo dejamos un VBox vacío con fx:id. -->
     <left>
-        <VBox spacing="8" styleClass="panel" BorderPane.alignment="CENTER_LEFT">
+        <VBox fx:id="menuPanel" spacing="8" styleClass="panel" BorderPane.alignment="CENTER_LEFT">
             <padding><Insets top="12" left="12" right="12" bottom="12"/></padding>
-            <Button text="Expediente Académico" styleClass="btn-dark" onAction="#openStudentView"/>
-            <Button text="Gestión de Trámites" styleClass="btn-dark" onAction="#openTramitView"/>
-            <Button text="Cola de Matrícula" styleClass="btn-dark" onAction="#openEnrollmentView"/>
+            <!-- Los botones se agregan por código en MainController -->
         </VBox>
     </left>
+
     <bottom>
         <HBox styleClass="status-bar" spacing="10" BorderPane.alignment="CENTER">
             <padding><Insets top="6" left="12" right="12" bottom="6"/></padding>

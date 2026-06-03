@@ -7,6 +7,7 @@ module cr.ac.ucr.sga {
     opens cr.ac.ucr.sga.controller to javafx.fxml;
     opens cr.ac.ucr.sga.model.entities to javafx.base, com.google.gson;
     opens cr.ac.ucr.sga.model.states to javafx.fxml, com.google.gson;
+    opens cr.ac.ucr.sga.model.services to com.google.gson;
     opens cr.ac.ucr.sga.view.observers to javafx.fxml;
 
     exports cr.ac.ucr.sga;

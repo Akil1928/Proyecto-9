@@ -18,10 +18,13 @@
             <ComboBox fx:id="comboTipoTramit" promptText="Tipo de trámite"/>
             <ComboBox fx:id="comboEstudiante" promptText="Estudiante"/>
             <TextArea fx:id="txtDescription" promptText="Descripción" prefRowCount="4"/>
+            <!-- Controles exclusivos del ADMINISTRADOR (ocultos por código para ESTUDIANTE) -->
+            <Label fx:id="lblStackSection" text="Tipo de pila:" style="-fx-font-weight:bold;"/>
             <ComboBox fx:id="comboStackType" onAction="#onCambiarTipoStack" promptText="Tipo de pila"/>
             <Button text="Crear Trámite" onAction="#onCrearTramit" styleClass="btn-primary"/>
-            <Button text="Procesar Trámite del Tope" onAction="#onProcesarTramit" styleClass="btn-green"/>
-            <Button text="Avanzar Estado del Tope" onAction="#onAvanzarEstado" styleClass="btn-ghost"/>
+            <!-- Solo admin puede procesar y avanzar estado (US-06) -->
+            <Button fx:id="btnProcesar" text="Procesar Trámite del Tope (LIFO)" onAction="#onProcesarTramit" styleClass="btn-green"/>
+            <Button fx:id="btnAvanzarEstado" text="Avanzar Estado del Tope" onAction="#onAvanzarEstado" styleClass="btn-ghost"/>
         </VBox>
     </left>
     <center>

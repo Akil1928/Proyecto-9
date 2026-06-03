@@ -3,8 +3,10 @@ package cr.ac.ucr.sga.controller;
 import cr.ac.ucr.sga.model.entities.AcademicRecordEntry;
 import cr.ac.ucr.sga.model.entities.Course;
 import cr.ac.ucr.sga.model.entities.CourseBuilder;
+import cr.ac.ucr.sga.model.entities.User;
 import cr.ac.ucr.sga.model.services.AcademicRecordService;
 import cr.ac.ucr.sga.model.services.JsonService;
+import cr.ac.ucr.sga.model.services.UserService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -26,13 +28,14 @@ public class StudentController {
     @FXML private TableColumn<AcademicRecordEntry, Number> colGrade;
     @FXML private TableColumn<AcademicRecordEntry, String> colStatus;
     @FXML private Label lblStatus;
+    @FXML private Button btnLoadDemo;
 
     private final AcademicRecordService service = AcademicRecordService.getInstance();
     private final ObservableList<AcademicRecordEntry> tableData = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
-        cbStatus.setItems(FXCollections.observableArrayList("Aprobado", "Reprobado", "En curso"));//las opciones a escoger
+        cbStatus.setItems(FXCollections.observableArrayList("Aprobado", "Reprobado", "En curso"));
         cbPeriod.setItems(FXCollections.observableArrayList("I-2025", "II-2025", "I-2026", "II-2026"));
         cbStatus.getSelectionModel().selectFirst();
         cbPeriod.getSelectionModel().selectFirst();
@@ -45,7 +48,26 @@ public class StudentController {
         colPeriod.setCellValueFactory(data -> data.getValue().periodProperty());
 
         tableRecord.setItems(tableData);
-        addDemoCourses();
+
+        User currentUser = UserService.getInstance().getCurrentUser();
+        boolean isAdmin = currentUser != null && currentUser.getRole() == User.Role.ADMINISTRADOR;
+
+        if (isAdmin) {
+            // El administrador ve los cursos demo del sistema
+            addDemoCourses();
+        } else {
+            // El estudiante (US-05) ve SOLO sus propios cursos del expediente
+            // Se cargan los registros del AcademicRecordService correspondientes a su sesión.
+            // Si el expediente está vacío (primera vez), se muestra vacío — el estudiante agrega sus cursos.
+            refreshTable();
+            if (tableData.isEmpty()) {
+                setStatus("Expediente vacío. Agregue sus cursos con el formulario.");
+            } else {
+                setStatus("Expediente cargado con " + tableData.size() + " curso(s).");
+            }
+            // El botón "Cargar demo" solo es útil para el admin
+            if (btnLoadDemo != null) btnLoadDemo.setVisible(false);
+        }
     }
 
     @FXML
@@ -86,7 +108,6 @@ public class StudentController {
             return;
         }
 
-        //confirmación antes de eliminar
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Confirmar eliminación");
         confirm.setHeaderText("¿Eliminar el curso seleccionado?");
@@ -102,7 +123,8 @@ public class StudentController {
             }
         });
     }
-//solo para mostrar los cursos de ejemplo
+
+    // Cargar cursos demo — solo visible para ADMINISTRADOR
     @FXML
     private void addDemoCourses() {
         service.clear();
@@ -161,7 +183,7 @@ public class StudentController {
     private void setStatus(String msg) {
         if (lblStatus != null) lblStatus.setText(msg);
     }
-//validacion
+
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Validación");
