@@ -17,24 +17,30 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class TramitController implements Initializable, NotificationObserver {
+
     @FXML private TableView<Tramit> tramitTable;
     @FXML private TableColumn<Tramit, String> colId;
     @FXML private TableColumn<Tramit, String> colType;
     @FXML private TableColumn<Tramit, String> colStudent;
     @FXML private TableColumn<Tramit, String> colState;
     @FXML private TableColumn<Tramit, String> colDate;
+
     @FXML private ComboBox<String> comboTipoTramit;
     @FXML private ComboBox<String> comboEstudiante;
     @FXML private TextArea txtDescription;
+
+    // Controles exclusivos del ADMINISTRADOR
     @FXML private ComboBox<String> comboStackType;
+    @FXML private Button btnProcesar;
+    @FXML private Button btnAvanzarEstado;
+    @FXML private Label  lblStackSection;
+    @FXML private Label  lblAdminSection;
+
+    // Labels de estado/info
     @FXML private Label lblTopeTramit;
     @FXML private Label lblNotificacion;
     @FXML private Label lblTotalTramits;
-
-    // Controles exclusivos del ADMINISTRADOR (con fx:id en FXML)
-    @FXML private Button btnProcesar;
-    @FXML private Button btnAvanzarEstado;
-    @FXML private Label lblStackSection;
+    @FXML private Label lblEstadoInfo;
 
     private final TramitService service = TramitService.getInstance();
 
@@ -45,41 +51,48 @@ public class TramitController implements Initializable, NotificationObserver {
         User currentUser = UserService.getInstance().getCurrentUser();
         boolean isAdmin = currentUser != null && currentUser.getRole() == User.Role.ADMINISTRADOR;
 
+        // Tipos de trámite disponibles para todos
         comboTipoTramit.setItems(FXCollections.observableArrayList(
                 "Beca", "Revisión de Nota", "Retiro de Curso", "Certificado", "Traslado"));
-        comboStackType.setItems(FXCollections.observableArrayList("ArrayStack", "LinkedStack"));
-        comboStackType.getSelectionModel().selectFirst();
 
         if (isAdmin) {
-            // Admin: puede seleccionar cualquier estudiante
+            // ── ADMINISTRADOR ──
+            // Puede seleccionar cualquier estudiante
+            comboStackType.setItems(FXCollections.observableArrayList("ArrayStack", "LinkedStack"));
+            comboStackType.getSelectionModel().selectFirst();
+
             ObservableList<String> students = FXCollections.observableArrayList();
             for (var s : StudentDirectoryService.getInstance().getStudents()) {
                 students.add(s.getId() + " - " + s.getName());
             }
             comboEstudiante.setItems(students);
         } else {
-            // Estudiante (US-05): solo puede crear trámite a su nombre
-            // Pre-selecciona el usuario actual; el combo queda deshabilitado
+            // ── ESTUDIANTE ──
+            // El estudiante solo puede enviar trámites a su propio nombre (US-05).
+            // El combo queda bloqueado con su usuario pre-cargado.
             String selfEntry = currentUser.getUsername() + " - " + currentUser.getDisplayName();
             comboEstudiante.setItems(FXCollections.observableArrayList(selfEntry));
             comboEstudiante.getSelectionModel().selectFirst();
-            comboEstudiante.setDisable(true);
+            comboEstudiante.setDisable(true); // no puede cambiarlo
 
-            // Ocultar controles exclusivos del administrador
-            if (btnProcesar != null)     btnProcesar.setVisible(false);
-            if (btnAvanzarEstado != null) btnAvanzarEstado.setVisible(false);
-            if (lblStackSection != null) lblStackSection.setVisible(false);
-            comboStackType.setVisible(false);
+            // Ocultar y desactivar todos los controles exclusivos del administrador
+            setAdminControlsVisible(false);
         }
 
-        // Configurar columnas
-        colId.setCellValueFactory(data -> new javafx.beans.property.ReadOnlyStringWrapper(data.getValue().getId()));
-        colType.setCellValueFactory(data -> new javafx.beans.property.ReadOnlyStringWrapper(data.getValue().getType()));
-        colStudent.setCellValueFactory(data -> new javafx.beans.property.ReadOnlyStringWrapper(data.getValue().getStudentName()));
-        colState.setCellValueFactory(data -> new javafx.beans.property.ReadOnlyStringWrapper(data.getValue().getStateName()));
+        // Configurar columnas de la tabla
+        colId.setCellValueFactory(data ->
+                new javafx.beans.property.ReadOnlyStringWrapper(
+                        data.getValue().getId().substring(0, 8) + "..."));
+        colType.setCellValueFactory(data ->
+                new javafx.beans.property.ReadOnlyStringWrapper(data.getValue().getType()));
+        colStudent.setCellValueFactory(data ->
+                new javafx.beans.property.ReadOnlyStringWrapper(data.getValue().getStudentName()));
+        colState.setCellValueFactory(data ->
+                new javafx.beans.property.ReadOnlyStringWrapper(data.getValue().getStateName()));
         colDate.setCellValueFactory(data -> {
             var dt = data.getValue().getCreatedAt();
-            String formatted = dt == null ? "" : dt.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+            String formatted = dt == null ? "" :
+                    dt.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
             return new javafx.beans.property.ReadOnlyStringWrapper(formatted);
         });
 
@@ -87,6 +100,41 @@ public class TramitController implements Initializable, NotificationObserver {
         updateLabels();
     }
 
+    /**
+     * Oculta y desactiva todos los controles que solo debe ver/usar el administrador.
+     */
+    private void setAdminControlsVisible(boolean visible) {
+        if (btnProcesar != null) {
+            btnProcesar.setVisible(visible);
+            btnProcesar.setManaged(visible);
+        }
+        if (btnAvanzarEstado != null) {
+            btnAvanzarEstado.setVisible(visible);
+            btnAvanzarEstado.setManaged(visible);
+        }
+        if (lblStackSection != null) {
+            lblStackSection.setVisible(visible);
+            lblStackSection.setManaged(visible);
+        }
+        if (lblAdminSection != null) {
+            lblAdminSection.setVisible(visible);
+            lblAdminSection.setManaged(visible);
+        }
+        if (comboStackType != null) {
+            comboStackType.setVisible(visible);
+            comboStackType.setManaged(visible);
+        }
+        // La tabla es de solo lectura para el estudiante (no puede interactuar con estados)
+        if (tramitTable != null) {
+            tramitTable.setEditable(false);
+        }
+    }
+
+    /**
+     * US-05: Enviar un trámite.
+     * - El estado "Pendiente" se asigna automáticamente por código.
+     * - El estudiante NO elige el estado.
+     */
     @FXML
     private void onCrearTramit() {
         try {
@@ -97,46 +145,82 @@ public class TramitController implements Initializable, NotificationObserver {
         }
 
         String[] student = comboEstudiante.getValue().split(" - ", 2);
-        Tramit tramit = new Tramit(comboTipoTramit.getValue(), txtDescription.getText().trim(), student[0], student[1]);
+
+        // El estado se fuerza a "Pendiente" dentro del constructor de Tramit (new PendingState())
+        // El estudiante nunca elige el estado manualmente.
+        Tramit tramit = new Tramit(
+                comboTipoTramit.getValue(),
+                txtDescription.getText().trim(),
+                student[0],
+                student[1]
+        );
+
         service.pushTramit(tramit);
-        NotificationService.getInstance().notify("Trámite " + tramit.getId() + " creado exitosamente", "INFO");
+        NotificationService.getInstance().notify(
+                "Trámite " + tramit.getId().substring(0, 8) + "... enviado. Estado: Pendiente", "INFO");
+
         refreshTable();
         updateLabels();
+        clearForm();
     }
 
-    // Solo para ADMINISTRADOR (US-06: LIFO)
+    /**
+     * US-06: Procesar el trámite del tope de la pila (LIFO).
+     * SOLO disponible para el ADMINISTRADOR.
+     * El admin no puede elegir qué trámite procesar; solo saca el del tope.
+     */
     @FXML
     private void onProcesarTramit() {
         try {
             Tramit popped = service.popTramit();
-            NotificationService.getInstance().notify("Trámite " + popped.getId() + " procesado", "INFO");
+            NotificationService.getInstance().notify(
+                    "Trámite " + popped.getId().substring(0, 8) + "... procesado (retirado de pila)", "INFO");
             refreshTable();
             updateLabels();
         } catch (cr.ac.ucr.sga.model.structures.stacks.StackException e) {
-            showError("La pila está vacía");
-            NotificationService.getInstance().notify("La pila está vacía, no hay trámites que procesar", "URGENTE");
+            showError("La pila está vacía. No hay trámites pendientes.");
+            NotificationService.getInstance().notify("La pila está vacía", "URGENTE");
         }
     }
 
-    // Solo para ADMINISTRADOR
+    /**
+     * Avanzar el estado del trámite en el tope (Pendiente → Procesando → Resuelto).
+     * SOLO disponible para el ADMINISTRADOR.
+     * Esto dispara automáticamente una notificación al sistema (US-09).
+     */
     @FXML
     private void onAvanzarEstado() {
         try {
             Tramit tramit = service.peekTramit();
+            String estadoAnterior = tramit.getStateName();
+
             try {
                 tramit.nextState();
             } catch (IllegalStateException ise) {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Estado");
-                alert.setHeaderText("Información");
-                alert.setContentText("El trámite ya fue resuelto");
+                alert.setTitle("Estado final");
+                alert.setHeaderText("El trámite ya fue resuelto");
+                alert.setContentText("No se puede avanzar más el estado de este trámite.");
                 alert.showAndWait();
                 return;
             }
+
+            String estadoNuevo = tramit.getStateName();
+
+            // US-09: El sistema notifica automáticamente el cambio de estado.
+            // Ni el estudiante ni el admin disparan esto con un botón específico;
+            // ocurre como consecuencia directa de que el admin avanzó el estado.
+            NotificationService.getInstance().notify(
+                    "Trámite de " + tramit.getStudentName()
+                            + " cambió: " + estadoAnterior + " → " + estadoNuevo,
+                    estadoNuevo.equalsIgnoreCase("Resuelto") ? "INFO" : "ADVERTENCIA"
+            );
+
             refreshTable();
             updateLabels();
+
         } catch (cr.ac.ucr.sga.model.structures.stacks.StackException e) {
-            showError("La pila está vacía");
+            showError("La pila está vacía.");
         }
     }
 
@@ -154,55 +238,61 @@ public class TramitController implements Initializable, NotificationObserver {
         if (n == 0) return;
         Tramit[] arr = new Tramit[n];
         service.getAllTramits().toArray(arr);
+        // Mostrar más reciente primero (LIFO visual)
         for (int i = n - 1; i >= 0; i--) {
             if (arr[i] != null) tramitTable.getItems().add(arr[i]);
         }
     }
 
     private void updateLabels() {
-        lblTotalTramits.setText("Total de trámites en pila: " + service.size());
+        lblTotalTramits.setText("Total en pila: " + service.size());
         try {
             var top = service.peekTramit();
-            lblTopeTramit.setText("Tope de la pila: " + top.getType() + " - " + top.getStudentName() + " - " + top.getStateName());
+            lblTopeTramit.setText("Tope: " + top.getType()
+                    + " | " + top.getStudentName()
+                    + " | " + top.getStateName());
         } catch (Exception e) {
-            lblTopeTramit.setText("Tope de la pila: vacío");
+            lblTopeTramit.setText("Tope: vacío");
         }
     }
 
+    private void clearForm() {
+        comboTipoTramit.getSelectionModel().clearSelection();
+        txtDescription.clear();
+    }
+
     private void validateFields() {
-        if (comboTipoTramit.getValue() == null) {
-            throw new IllegalArgumentException("Seleccione el tipo de trámite");
-        }
-        if (comboEstudiante.getValue() == null) {
-            throw new IllegalArgumentException("Seleccione un estudiante");
-        }
-        if (txtDescription.getText() == null || txtDescription.getText().isBlank()) {
-            throw new IllegalArgumentException("Ingrese una descripción");
-        }
+        if (comboTipoTramit.getValue() == null)
+            throw new IllegalArgumentException("Seleccione el tipo de trámite.");
+        if (comboEstudiante.getValue() == null)
+            throw new IllegalArgumentException("Seleccione un estudiante.");
+        if (txtDescription.getText() == null || txtDescription.getText().isBlank())
+            throw new IllegalArgumentException("Ingrese una descripción del trámite.");
     }
 
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Validación");
-        alert.setHeaderText("Error");
+        alert.setTitle("Error");
+        alert.setHeaderText("Operación no permitida");
         alert.setContentText(message);
         alert.showAndWait();
     }
 
+    // ── Observer (US-09): recibe notificaciones automáticas del sistema ────────
+
     @Override
     public void onNotification(String message, String level) {
-        String text = level + ": " + message;
+        String text = "[" + level + "] " + message;
         lblNotificacion.setText(text);
         lblNotificacion.getStyleClass().removeIf(s -> s.startsWith("notif-"));
         if (level == null) level = "INFO";
         switch (level.toUpperCase()) {
-            case "URGENTE" -> lblNotificacion.getStyleClass().add("notif-urgent");
-            case "ADVERTENCIA" -> lblNotificacion.getStyleClass().add("notif-warning");
-            default -> lblNotificacion.getStyleClass().add("notif-info");
+            case "URGENTE"      -> lblNotificacion.getStyleClass().add("notif-urgent");
+            case "ADVERTENCIA"  -> lblNotificacion.getStyleClass().add("notif-warning");
+            default             -> lblNotificacion.getStyleClass().add("notif-info");
         }
     }
 
     @Override
-    public void onNotification(String message) {
-    }
+    public void onNotification(String message) { }
 }

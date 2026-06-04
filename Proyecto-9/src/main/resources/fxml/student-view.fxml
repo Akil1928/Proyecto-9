@@ -14,35 +14,45 @@
 
     <Label text="Expediente Académico" styleClass="panel-title"/>
 
-    <!-- Formulario -->
-    <GridPane hgap="12" vgap="8">
-        <Label text="Código:"   GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-        <TextField fx:id="txtCode"    promptText="Ej: IF3001"        GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-
-        <Label text="Curso:"    GridPane.rowIndex="0" GridPane.columnIndex="2"/>
-        <TextField fx:id="txtName"    promptText="Nombre del curso"  GridPane.rowIndex="0" GridPane.columnIndex="3"/>
-
-        <Label text="Créditos:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-        <TextField fx:id="txtCredits" promptText="Ej: 4"             GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-
-        <Label text="Nota:"     GridPane.rowIndex="1" GridPane.columnIndex="2"/>
-        <TextField fx:id="txtGrade"   promptText="0 – 100"           GridPane.rowIndex="1" GridPane.columnIndex="3"/>
-
-        <Label text="Periodo:"  GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-        <ComboBox fx:id="cbPeriod"                                    GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-
-        <Label text="Estado:"   GridPane.rowIndex="2" GridPane.columnIndex="2"/>
-        <ComboBox fx:id="cbStatus"                                    GridPane.rowIndex="2" GridPane.columnIndex="3"/>
-    </GridPane>
-
-    <!-- Botones de acción -->
-    <HBox spacing="10">
-        <Button text="Agregar curso"               styleClass="btn-primary" onAction="#addCourse"/>
-        <Button text="Eliminar seleccionado"       styleClass="btn-green"   onAction="#deleteSelectedCourse"/>
-        <Button fx:id="btnLoadDemo" text="Cargar 3 cursos de demo" styleClass="btn-ghost" onAction="#addDemoCourses"/>
+    <!-- Panel de información del estudiante (créditos aprobados) -->
+    <HBox spacing="16" alignment="CENTER_LEFT" styleClass="info-bar">
+        <padding><Insets top="8" right="12" bottom="8" left="12"/></padding>
+        <Label text="Estudiante:"/>
+        <Label fx:id="lblNombreEstudiante" text="—" style="-fx-font-weight: bold;"/>
+        <Label text="  |  Créditos aprobados:"/>
+        <Label fx:id="lblCreditosAprobados" text="0" style="-fx-font-weight: bold; -fx-text-fill: #1a56db;"/>
     </HBox>
 
-    <!-- Tabla -->
+    <!-- Sección solo visible para ADMINISTRADOR: formulario de carga de cursos -->
+    <VBox fx:id="panelAdminCurso" spacing="8">
+        <GridPane hgap="12" vgap="8">
+            <Label text="Código:"   GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <TextField fx:id="txtCode"    promptText="Ej: IF3001"        GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+            <Label text="Curso:"    GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+            <TextField fx:id="txtName"    promptText="Nombre del curso"  GridPane.rowIndex="0" GridPane.columnIndex="3"/>
+
+            <Label text="Créditos:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <TextField fx:id="txtCredits" promptText="Ej: 4"             GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+            <Label text="Nota:"     GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+            <TextField fx:id="txtGrade"   promptText="0 – 100"           GridPane.rowIndex="1" GridPane.columnIndex="3"/>
+
+            <Label text="Periodo:"  GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <ComboBox fx:id="cbPeriod"                                    GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+            <Label text="Estado:"   GridPane.rowIndex="2" GridPane.columnIndex="2"/>
+            <ComboBox fx:id="cbStatus"                                    GridPane.rowIndex="2" GridPane.columnIndex="3"/>
+        </GridPane>
+
+        <HBox spacing="10">
+            <Button text="Agregar curso"               styleClass="btn-primary" onAction="#addCourse"/>
+            <Button text="Eliminar seleccionado"       styleClass="btn-green"   onAction="#deleteSelectedCourse"/>
+            <Button fx:id="btnLoadDemo" text="Cargar 3 cursos de demo" styleClass="btn-ghost" onAction="#addDemoCourses"/>
+        </HBox>
+    </VBox>
+
+    <!-- Tabla (visible para todos) -->
     <TableView fx:id="tableRecord" prefHeight="320" VBox.vgrow="ALWAYS" styleClass="table-view">
         <columns>
             <TableColumn fx:id="colCode"    text="Código"   prefWidth="90"/>

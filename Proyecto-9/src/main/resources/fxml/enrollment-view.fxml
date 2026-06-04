@@ -1,47 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<BorderPane prefHeight="481.0" prefWidth="622.0" stylesheets="@../css/styless.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="cr.ac.ucr.sga.controller.EnrollmentController">
+<BorderPane prefHeight="481.0" prefWidth="650.0"
+            stylesheets="@../css/styless.css"
+            xmlns="http://javafx.com/javafx/17.0.12"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="cr.ac.ucr.sga.controller.EnrollmentController">
     <top>
         <HBox alignment="CENTER_LEFT" spacing="10">
-            <padding><Insets bottom="12" left="12" right="12" top="12" /></padding>
-            <Label styleClass="panel-title" text="Cola de Matrícula" />
+            <padding><Insets bottom="12" left="12" right="12" top="12"/></padding>
+            <Label styleClass="panel-title" text="Cola de Matrícula"/>
         </HBox>
     </top>
     <left>
         <VBox spacing="8">
-            <padding><Insets bottom="12" left="12" right="12" top="12" /></padding>
-            <ComboBox fx:id="comboQueueType" onAction="#onCambiarTipoCola" promptText="Tipo de cola" />
-            <ComboBox fx:id="comboEstudiante" promptText="Estudiante" />
-            <Label fx:id="lblCreditosAprobados" text="Créditos aprobados: 0" />
-            <Button onAction="#onAgregarACola" styleClass="btn-primary" text="Agregar a Cola de Matrícula" />
-            <Button onAction="#onMatricularSiguiente" styleClass="btn-green" text="Matricular Siguiente (Dequeue)" />
-            <Label fx:id="lblSiguienteEstudiante" text="Siguiente: vacío" />
+            <padding><Insets bottom="12" left="12" right="12" top="12"/></padding>
+
+            <!-- Información del estudiante (visible para todos) -->
+            <Label text="Tu información:" style="-fx-font-weight: bold;"/>
+            <Label fx:id="lblNombreEstudiante" text="Estudiante: —"/>
+            <Label fx:id="lblCreditosAprobados" text="Créditos aprobados: 0"
+                   style="-fx-font-weight: bold; -fx-text-fill: #1a56db;"/>
+
+            <Separator/>
+
+            <!-- US-07: Estudiante solicita su propia matrícula -->
+            <!-- El sistema calcula la prioridad automáticamente por créditos -->
+            <Button fx:id="btnSolicitarMatricula" onAction="#onSolicitarMatricula"
+                    styleClass="btn-primary" text="Solicitar Matrícula"/>
+            <Label fx:id="lblMiPosicion" text="Tu posición en cola: —"
+                   style="-fx-font-style: italic;"/>
+
+            <Separator/>
+
+            <!-- Sección exclusiva del ADMINISTRADOR (oculta para estudiante) -->
+            <Label fx:id="lblAdminSection" text="Administración" style="-fx-font-weight:bold;"/>
+            <!-- US-08: El admin puede seleccionar cualquier estudiante para agregar -->
+            <ComboBox fx:id="comboEstudiante" promptText="Seleccionar estudiante"/>
+            <Label fx:id="lblCreditosSeleccionado" text="Créditos: 0"/>
+            <Button fx:id="btnAgregarACola" onAction="#onAgregarACola"
+                    styleClass="btn-ghost" text="Agregar Estudiante a Cola"/>
+
+            <!-- US-06 (cola): Solo el admin procesa el frente de la cola de prioridad -->
+            <Button fx:id="btnMatricularSiguiente" onAction="#onMatricularSiguiente"
+                    styleClass="btn-green" text="Matricular Siguiente (Dequeue)"/>
+
+            <!-- Tipo de cola: solo el admin puede cambiarlo -->
+            <Label fx:id="lblTipoCola" text="Tipo de cola:"/>
+            <ComboBox fx:id="comboQueueType" onAction="#onCambiarTipoCola" promptText="Tipo de cola"/>
+
+            <Label fx:id="lblSiguienteEstudiante" text="Siguiente: vacío"/>
         </VBox>
     </left>
     <center>
-        <TableView fx:id="enrollmentTable">
+        <!-- US-08: La tabla está ordenada por prioridad (créditos DESC), no es reordenable manualmente -->
+        <TableView fx:id="enrollmentTable" editable="false">
             <columns>
-                <TableColumn fx:id="colNombre" prefWidth="229.60004580020905" text="Nombre" />
-                <TableColumn fx:id="colCreditos" prefWidth="86.39996337890625" text="Créditos" />
-                <TableColumn fx:id="colPrioridad" prefWidth="92.0" text="Prioridad" />
+                <TableColumn fx:id="colNombre"    text="Nombre"    prefWidth="200"/>
+                <TableColumn fx:id="colCreditos"  text="Créditos"  prefWidth="80"/>
+                <TableColumn fx:id="colPrioridad" text="Prioridad" prefWidth="90"/>
             </columns>
+            <placeholder><Label text="Cola de matrícula vacía"/></placeholder>
         </TableView>
     </center>
     <bottom>
         <HBox spacing="10">
-            <padding><Insets bottom="12" left="12" right="12" top="12" /></padding>
-            <Label fx:id="lblNotificacion" text="Sin notificaciones" />
-            <Label fx:id="lblTotalEnCola" text="Total en cola: 0" />
+            <padding><Insets bottom="12" left="12" right="12" top="12"/></padding>
+            <Label fx:id="lblNotificacion" text="Sin notificaciones"/>
+            <Label fx:id="lblTotalEnCola"  text="Total en cola: 0"/>
         </HBox>
     </bottom>
 </BorderPane>

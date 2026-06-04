@@ -5,12 +5,16 @@ import cr.ac.ucr.sga.model.entities.Course;
 import cr.ac.ucr.sga.model.entities.CourseBuilder;
 import cr.ac.ucr.sga.model.entities.User;
 import cr.ac.ucr.sga.model.services.AcademicRecordService;
+import cr.ac.ucr.sga.model.services.CurriculumService;
 import cr.ac.ucr.sga.model.services.JsonService;
 import cr.ac.ucr.sga.model.services.UserService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
+
+import java.util.List;
 
 public class StudentController {
 
@@ -29,16 +33,22 @@ public class StudentController {
     @FXML private TableColumn<AcademicRecordEntry, String> colStatus;
     @FXML private Label lblStatus;
     @FXML private Button btnLoadDemo;
+    @FXML private VBox panelAdminCurso;
+    @FXML private Label lblNombreEstudiante;
+    @FXML private Label lblCreditosAprobados;
 
-    private final AcademicRecordService service = AcademicRecordService.getInstance();
+    private final AcademicRecordService service    = AcademicRecordService.getInstance();
+    private final CurriculumService     curriculum = CurriculumService.getInstance();
     private final ObservableList<AcademicRecordEntry> tableData = FXCollections.observableArrayList();
 
     @FXML
     public void initialize() {
-        cbStatus.setItems(FXCollections.observableArrayList("Aprobado", "Reprobado", "En curso"));
-        cbPeriod.setItems(FXCollections.observableArrayList("I-2025", "II-2025", "I-2026", "II-2026"));
-        cbStatus.getSelectionModel().selectFirst();
-        cbPeriod.getSelectionModel().selectFirst();
+        if (cbStatus != null)
+            cbStatus.setItems(FXCollections.observableArrayList("Aprobado", "Reprobado", "En curso"));
+        if (cbPeriod != null)
+            cbPeriod.setItems(FXCollections.observableArrayList("I-2025", "II-2025", "I-2026", "II-2026"));
+        if (cbStatus != null) cbStatus.getSelectionModel().selectFirst();
+        if (cbPeriod != null) cbPeriod.getSelectionModel().selectFirst();
 
         colCode.setCellValueFactory(data -> data.getValue().getCourse().codeProperty());
         colName.setCellValueFactory(data -> data.getValue().getCourse().nameProperty());
@@ -53,30 +63,75 @@ public class StudentController {
         boolean isAdmin = currentUser != null && currentUser.getRole() == User.Role.ADMINISTRADOR;
 
         if (isAdmin) {
-            // El administrador ve los cursos demo del sistema
+            if (panelAdminCurso != null) panelAdminCurso.setVisible(true);
+            if (lblNombreEstudiante != null) lblNombreEstudiante.setText("(Administrador)");
+            refreshCreditos();
             addDemoCourses();
         } else {
-            // El estudiante (US-05) ve SOLO sus propios cursos del expediente
-            // Se cargan los registros del AcademicRecordService correspondientes a su sesión.
-            // Si el expediente está vacío (primera vez), se muestra vacío — el estudiante agrega sus cursos.
-            refreshTable();
-            if (tableData.isEmpty()) {
-                setStatus("Expediente vacío. Agregue sus cursos con el formulario.");
-            } else {
-                setStatus("Expediente cargado con " + tableData.size() + " curso(s).");
+            // ESTUDIANTE: ocultar formulario de agregar cursos
+            if (panelAdminCurso != null) {
+                panelAdminCurso.setVisible(false);
+                panelAdminCurso.setManaged(false);
             }
-            // El botón "Cargar demo" solo es útil para el admin
-            if (btnLoadDemo != null) btnLoadDemo.setVisible(false);
+            if (btnLoadDemo != null) {
+                btnLoadDemo.setVisible(false);
+                btnLoadDemo.setManaged(false);
+            }
+            if (lblNombreEstudiante != null && currentUser != null) {
+                lblNombreEstudiante.setText(currentUser.getDisplayName());
+            }
+            refreshTable();
+            refreshCreditos();
+            setStatus(tableData.isEmpty()
+                    ? "Tu expediente académico está vacío."
+                    : "Expediente cargado con " + tableData.size() + " curso(s).");
         }
     }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Acciones disponibles SOLO para el ADMINISTRADOR
+    // ─────────────────────────────────────────────────────────────────────────
 
     @FXML
     private void addCourse() {
         try {
             validateFields();
+        } catch (IllegalArgumentException ex) {
+            showError("Datos inválidos", ex.getMessage());
+            return;
+        }
 
+        String code = txtCode.getText().trim().toUpperCase();
+
+        // 1. Verificar duplicado en el expediente
+        if (service.containsCourse(code)) {
+            showError("Curso duplicado",
+                    "El curso " + code + " ya está registrado en el expediente.");
+            return;
+        }
+
+        // 2. Verificar si el curso está en la malla curricular
+        //    Si no lo reconoce, igual lo permite (cursos libres / extracurriculares).
+        boolean inCurriculum = curriculum.isInCurriculum(code);
+
+        // 3. Validar requisitos SOLO si el curso está en la malla
+        //    y SOLO si el estado que se va a agregar es "En curso" o "Aprobado"
+        //    (si se agrega como "Reprobado" también se valida, porque igual hubo intento).
+        if (inCurriculum) {
+            CurriculumService.ValidationResult result = service.validatePrerequisites(code);
+            if (!result.isValid()) {
+                String nombreOficial = curriculum.getCourseName(code);
+                String header = "Requisitos no cumplidos para \""
+                        + code + (nombreOficial != null ? " - " + nombreOficial : "") + "\"";
+                showError(header, result.buildErrorMessage(code));
+                return;
+            }
+        }
+
+        // 4. Todo bien → agregar al expediente
+        try {
             Course course = new CourseBuilder()
-                    .setCode(txtCode.getText().trim())
+                    .setCode(code)
                     .setName(txtName.getText().trim())
                     .setCredits(Integer.parseInt(txtCredits.getText().trim()))
                     .build();
@@ -90,60 +145,117 @@ public class StudentController {
 
             service.addRecord(entry);
             refreshTable();
+            refreshCreditos();
             clearFields();
             JsonService.saveAcademicRecord(service.toArray(), "src/main/resources/data/courses.json");
             setStatus("✔ Curso \"" + course.getName() + "\" agregado. Total: " + service.size() + " curso(s).");
 
         } catch (IllegalArgumentException ex) {
-            showError(ex.getMessage());
+            showError("Error al crear el curso", ex.getMessage());
         }
     }
 
     @FXML
     private void deleteSelectedCourse() {
         AcademicRecordEntry selected = tableRecord.getSelectionModel().getSelectedItem();
-
         if (selected == null) {
-            showError("Seleccione un curso en la tabla para eliminarlo.");
+            showError("Sin selección", "Seleccione un curso en la tabla para eliminarlo.");
             return;
+        }
+
+        // Advertir si otros cursos en el expediente dependen de este
+        String code = selected.getCourse().getCode();
+        List<String> dependants = findDependantCourses(code);
+
+        String content = "Curso: " + selected.getCourse().getName()
+                + " (" + code + ")";
+        if (!dependants.isEmpty()) {
+            content += "\n\n⚠ Atención: los siguientes cursos del expediente "
+                    + "tienen este curso como requisito:\n  • "
+                    + String.join("\n  • ", dependants);
         }
 
         Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
         confirm.setTitle("Confirmar eliminación");
         confirm.setHeaderText("¿Eliminar el curso seleccionado?");
-        confirm.setContentText("Curso: " + selected.getCourse().getName() + " (" + selected.getCourse().getCode() + ")");
+        confirm.setContentText(content);
 
         confirm.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
                 String nombre = selected.getCourse().getName();
-                service.removeRecordByCode(selected.getCourse().getCode());
+                service.removeRecordByCode(code);
                 refreshTable();
-                JsonService.saveAcademicRecord(service.toArray(), "src/main/resources/data/courses.json");
-                setStatus("✔ Curso \"" + nombre + "\" eliminado. Quedan: " + service.size() + " curso(s).");
+                refreshCreditos();
+                JsonService.saveAcademicRecord(service.toArray(),
+                        "src/main/resources/data/courses.json");
+                setStatus("✔ Curso \"" + nombre + "\" eliminado. Quedan: "
+                        + service.size() + " curso(s).");
             }
         });
     }
 
-    // Cargar cursos demo — solo visible para ADMINISTRADOR
     @FXML
     private void addDemoCourses() {
         service.clear();
 
+        // Cursos del I y II ciclo (sin requisitos) → se pueden agregar directamente
         service.addRecord(new AcademicRecordEntry(
-                new CourseBuilder().setCode("IF3001").setName("Algoritmos y Estructuras de Datos").setCredits(4).build(),
-                "I-2026", 95, "Aprobado"));
+                new CourseBuilder().setCode("IF-0001")
+                        .setName("Desarrollo de Software I").setCredits(4).build(),
+                "I-2024", 85, "Aprobado"));
 
         service.addRecord(new AcademicRecordEntry(
-                new CourseBuilder().setCode("IF2000").setName("Programación I").setCredits(4).build(),
-                "II-2025", 88, "Aprobado"));
+                new CourseBuilder().setCode("IF-0003")
+                        .setName("Matemática Básica para Informática Empresarial").setCredits(3).build(),
+                "I-2024", 78, "Aprobado"));
 
+        // IF-0004 requiere IF-0001 o IF-2000 → ya está aprobado IF-0001 ✔
         service.addRecord(new AcademicRecordEntry(
-                new CourseBuilder().setCode("IF1001").setName("Introducción a Informática").setCredits(3).build(),
-                "I-2025", 79, "Aprobado"));
+                new CourseBuilder().setCode("IF-0004")
+                        .setName("Desarrollo de Software II").setCredits(4).build(),
+                "II-2024", 90, "Aprobado"));
+
+        // IF-3001 requiere IF-0004 o IF-2000 → ya está aprobado IF-0004 ✔
+        service.addRecord(new AcademicRecordEntry(
+                new CourseBuilder().setCode("IF-3001")
+                        .setName("Algoritmos y Estructuras de Datos").setCredits(4).build(),
+                "I-2025", 95, "Aprobado"));
+
+        // IF-0007 requiere IF-0004 → ya está aprobado ✔
+        service.addRecord(new AcademicRecordEntry(
+                new CourseBuilder().setCode("IF-0007")
+                        .setName("Bases de Datos I").setCredits(4).build(),
+                "I-2025", 82, "Aprobado"));
 
         refreshTable();
+        refreshCreditos();
         JsonService.saveAcademicRecord(service.toArray(), "src/main/resources/data/courses.json");
-        setStatus("✔ 3 cursos de demostración cargados correctamente.");
+        setStatus("✔ 5 cursos demo cargados (respetando la malla curricular).");
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Helpers
+    // ─────────────────────────────────────────────────────────────────────────
+
+    /**
+     * Busca cursos DENTRO DEL EXPEDIENTE que dependen del curso eliminado.
+     * Útil para mostrar una advertencia al eliminar.
+     */
+    private java.util.List<String> findDependantCourses(String removedCode) {
+        java.util.List<String> dependants = new java.util.ArrayList<>();
+        for (AcademicRecordEntry entry : service.toArray()) {
+            if (entry == null) continue;
+            String entryCode = entry.getCourse().getCode();
+            if (entryCode.equalsIgnoreCase(removedCode)) continue;
+            // ¿Este curso tiene al eliminado como requisito?
+            for (java.util.Set<String> group : curriculum.getPrerequisiteGroups(entryCode)) {
+                if (group.contains(removedCode.toUpperCase())) {
+                    dependants.add(entryCode + " - " + entry.getCourse().getName());
+                    break;
+                }
+            }
+        }
+        return dependants;
     }
 
     private void refreshTable() {
@@ -153,19 +265,22 @@ public class StudentController {
         }
     }
 
+    private void refreshCreditos() {
+        int total = service.getTotalApprovedCredits();
+        if (lblCreditosAprobados != null) {
+            lblCreditosAprobados.setText(String.valueOf(total));
+        }
+    }
+
     private void validateFields() {
         if (txtCode.getText() == null || txtCode.getText().trim().isEmpty())
             throw new IllegalArgumentException("El código del curso es obligatorio.");
-
         if (txtName.getText() == null || txtName.getText().trim().isEmpty())
             throw new IllegalArgumentException("El nombre del curso es obligatorio.");
-
         if (!txtCredits.getText().trim().matches("\\d+"))
             throw new IllegalArgumentException("Los créditos deben ser un número entero positivo.");
-
         if (!txtGrade.getText().trim().matches("\\d+(\\.\\d+)?"))
             throw new IllegalArgumentException("La nota debe ser numérica.");
-
         double grade = Double.parseDouble(txtGrade.getText().trim());
         if (grade < 0 || grade > 100)
             throw new IllegalArgumentException("La nota debe estar entre 0 y 100.");
@@ -176,18 +291,18 @@ public class StudentController {
         txtName.clear();
         txtCredits.clear();
         txtGrade.clear();
-        cbStatus.getSelectionModel().selectFirst();
-        cbPeriod.getSelectionModel().selectFirst();
+        if (cbStatus != null) cbStatus.getSelectionModel().selectFirst();
+        if (cbPeriod != null) cbPeriod.getSelectionModel().selectFirst();
     }
 
     private void setStatus(String msg) {
         if (lblStatus != null) lblStatus.setText(msg);
     }
 
-    private void showError(String message) {
+    private void showError(String header, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Validación");
-        alert.setHeaderText("Revise los datos ingresados");
+        alert.setHeaderText(header);
         alert.setContentText(message);
         alert.showAndWait();
     }

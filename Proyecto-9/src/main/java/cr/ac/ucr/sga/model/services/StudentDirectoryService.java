@@ -4,28 +4,82 @@ import cr.ac.ucr.sga.model.entities.Student;
 import cr.ac.ucr.sga.model.entities.StudentBuilder;
 import cr.ac.ucr.sga.model.structures.lists.SimpleLinkedList;
 
+/**
+ * Directorio de estudiantes del sistema.
+ *
+ * REGLA IMPORTANTE: el campo `id` de cada Student debe ser idéntico
+ * al `username` del User correspondiente en UserService.
+ * Esto permite que el sistema encuentre el perfil del estudiante
+ * cuando inicia sesión (por currentUser.getUsername()).
+ *
+ * Créditos aprobados de ejemplo basados en la malla 600002-07:
+ *   - Cada curso aprobado de la malla vale entre 2 y 4 créditos.
+ *   - I año completo ≈ 32 créditos, II año ≈ 36, III año ≈ 39, IV año ≈ 37.
+ */
 public class StudentDirectoryService {
+
     private static StudentDirectoryService instance;
 
     private final SimpleLinkedList<Student> students = new SimpleLinkedList<>();
 
     private StudentDirectoryService() {
-        students.addLast(new StudentBuilder().setId("1").setName("Ana Sibaja").setEmail("ana@ucr.ac.cr").withCreditosAprobados(120).build());
-        students.addLast(new StudentBuilder().setId("2").setName("Carlos Gutierrez").setEmail("carlos@ucr.ac.cr").withCreditosAprobados(150).build());
-        students.addLast(new StudentBuilder().setId("3").setName("María Moreno").setEmail("maria@ucr.ac.cr").withCreditosAprobados(100).build());
-        students.addLast(new StudentBuilder().setId("4").setName("José Mesén").setEmail("jose@ucr.ac.cr").withCreditosAprobados(600).build());
-        students.addLast(new StudentBuilder().setId("5").setName("Laura Fernandez").setEmail("laura@ucr.ac.cr").withCreditosAprobados(160).build());
+        // id = username del login, nombre = displayName del login
+        students.addLast(new StudentBuilder()
+                .setId("estudiante")
+                .setName("Héctor Sandoval")
+                .setEmail("hector.sandoval@ucr.ac.cr")
+                .withCreditosAprobados(32)   // Aprobó I año completo (≈ I y II ciclo)
+                .build());
+
+        students.addLast(new StudentBuilder()
+                .setId("maria")
+                .setName("María González")
+                .setEmail("maria.gonzalez@ucr.ac.cr")
+                .withCreditosAprobados(68)   // Aprobó I año + parte del II año
+                .build());
+
+        students.addLast(new StudentBuilder()
+                .setId("carlos")
+                .setName("Carlos Gutierrez")
+                .setEmail("carlos.gutierrez@ucr.ac.cr")
+                .withCreditosAprobados(104)  // Aprobó hasta el III ciclo
+                .build());
+
+        // Estudiantes adicionales que solo aparecen en la cola de matrícula
+        // (el admin los puede agregar manualmente, no tienen login propio)
+        students.addLast(new StudentBuilder()
+                .setId("ana")
+                .setName("Ana Sibaja")
+                .setEmail("ana.sibaja@ucr.ac.cr")
+                .withCreditosAprobados(120)  // Aprobó hasta el IV ciclo
+                .build());
+
+        students.addLast(new StudentBuilder()
+                .setId("jose")
+                .setName("José Mesén")
+                .setEmail("jose.mesen@ucr.ac.cr")
+                .withCreditosAprobados(144)  // Bachillerato casi completo
+                .build());
     }
 
     public static StudentDirectoryService getInstance() {
-        if (instance == null) {
-            instance = new StudentDirectoryService();
-        }
+        if (instance == null) instance = new StudentDirectoryService();
         return instance;
     }
 
     public Student[] getStudents() {
         return students.toArray(new Student[students.size()]);
     }
-}
 
+    /**
+     * Busca un estudiante por su id (= username de login).
+     * Devuelve null si no existe.
+     */
+    public Student findById(String id) {
+        if (id == null) return null;
+        for (Student s : getStudents()) {
+            if (s != null && s.getId().equalsIgnoreCase(id)) return s;
+        }
+        return null;
+    }
+}
