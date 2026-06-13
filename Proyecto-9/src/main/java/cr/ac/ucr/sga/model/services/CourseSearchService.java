@@ -26,7 +26,7 @@ public class CourseSearchService {
 
     private static CourseSearchService instance;
 
-    private final BST<CourseEntry> bst = new BST<>();
+    private final AVL<CourseEntry> bst = new AVL<>();
 
     private CourseSearchService() {
         buildFromCurriculum();
@@ -42,13 +42,24 @@ public class CourseSearchService {
     public void buildFromCurriculum() {
         bst.clear();
         CurriculumService curriculum = CurriculumService.getInstance();
-        for (String code : curriculum.getAllCourseCodes()) {
-            String name = curriculum.getCourseName(code);
-            bst.add(new CourseEntry(code, name != null ? name : code));
-        }
+        List<String> codes = new ArrayList<>(curriculum.getAllCourseCodes());
+        codes.sort(String::compareTo);
+        insertBalanced(codes, 0, codes.size() - 1, curriculum);
     }
 
-    public BST<CourseEntry> getTree() {
+    private void insertBalanced(List<String> codes, int lo, int hi, CurriculumService curriculum) {
+        if (lo > hi) return;
+
+        int mid = (lo + hi) / 2;
+        String code = codes.get(mid);
+        String name = curriculum.getCourseName(code);
+        bst.add(new CourseEntry(code, name != null ? name : code));
+
+        insertBalanced(codes, lo, mid - 1, curriculum);
+        insertBalanced(codes, mid + 1, hi, curriculum);
+    }
+
+    public AVL<CourseEntry> getTree() {
         return bst;
     }
 

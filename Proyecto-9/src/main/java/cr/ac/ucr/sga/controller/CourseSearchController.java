@@ -35,6 +35,7 @@ public class CourseSearchController {
     @FXML private Canvas canvas;
     @FXML private Label lblInfo;
     @FXML private Label lblStatus;
+    @FXML private javafx.scene.control.TextArea txtTraversal;
 
     private final CourseSearchService searchService = CourseSearchService.getInstance();
 
@@ -82,6 +83,34 @@ public class CourseSearchController {
         }
 
         animateSearch(result, code);
+    }
+
+    @FXML
+    private void onInOrder() {
+        showTraversal("InOrden (L-N-R)", () -> searchService.getTree().inOrder());
+    }
+
+    @FXML
+    private void onPreOrder() {
+        showTraversal("PreOrden (N-L-R)", () -> searchService.getTree().preOrder());
+    }
+
+    @FXML
+    private void onPostOrder() {
+        showTraversal("PostOrden (L-R-N)", () -> searchService.getTree().postOrder());
+    }
+
+    private interface TraversalSupplier {
+        String get() throws cr.ac.ucr.sga.model.trees.TreeException;
+    }
+
+    private void showTraversal(String label, TraversalSupplier supplier) {
+        try {
+            String result = supplier.get();
+            txtTraversal.setText(label + ":\n" + result);
+        } catch (cr.ac.ucr.sga.model.trees.TreeException e) {
+            txtTraversal.setText("⚠ " + e.getMessage());
+        }
     }
 
     private void refreshInfo() {
@@ -145,13 +174,13 @@ public class CourseSearchController {
             return;
         }
 
-        int leafCount = Math.max(1, countLeaves(root));
-        double requiredWidth = leafCount * (NODE_RADIUS * 2 + SIBLING_GAP) + 60;
+        int nodeCount = searchService.size();
+        double requiredWidth = nodeCount * (NODE_RADIUS * 2 + SIBLING_GAP) + 60;
         int depth = height(root);
         double requiredHeight = depth * (NODE_RADIUS * 2 + LEVEL_GAP) + 60;
 
-        if (canvas.getWidth() < requiredWidth) canvas.setWidth(requiredWidth);
-        if (canvas.getHeight() < requiredHeight) canvas.setHeight(requiredHeight);
+        canvas.setWidth(Math.max(requiredWidth, 1100));
+        canvas.setHeight(Math.max(requiredHeight, 600));
 
         xPositions = new HashMap<>();
         double[] counter = {0};

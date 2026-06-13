@@ -25,7 +25,7 @@
         <Label fx:id="lblInfo" text="Cursos: 0  |  Altura: 0"/>
     </HBox>
 
-    <ScrollPane fitToWidth="true" fitToHeight="false" VBox.vgrow="ALWAYS">
+    <ScrollPane fitToWidth="false" fitToHeight="false" pannable="true" VBox.vgrow="ALWAYS">
         <Canvas fx:id="canvas" width="1100" height="600"/>
     </ScrollPane>
 
@@ -38,4 +38,15 @@
 
     <Label fx:id="lblStatus" text="Listo. Ingrese un código y presione &quot;Buscar&quot;." styleClass="status-bar"/>
 
+    <Separator/>
+
+    <Label text="Recorridos del Árbol" styleClass="panel-title"/>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Button text="InOrden" styleClass="btn-ghost" onAction="#onInOrder"/>
+        <Button text="PreOrden" styleClass="btn-ghost" onAction="#onPreOrder"/>
+        <Button text="PostOrden" styleClass="btn-ghost" onAction="#onPostOrder"/>
+    </HBox>
+
+    <TextArea fx:id="txtTraversal" editable="false" wrapText="true" prefHeight="100"/>
 </VBox>
