@@ -62,6 +62,7 @@ public class MainController implements NotificationObserver {
             addMenuButton("Expediente Académico", this::openStudentView);
             addMenuButton("Gestión de Trámites",  this::openTramitView);
             addMenuButton("Cola de Matrícula",     this::openEnrollmentView);
+            addMenuButton("Búsqueda de Cursos (BST)", this::openCourseSearchView);
         } else {
             // ESTUDIANTE: solo sus vistas
             // - Gestión de Trámites: puede enviar sus trámites (US-05)
@@ -110,13 +111,14 @@ public class MainController implements NotificationObserver {
             case VIEW_STUDENT    -> loadCenterNoHistory("/fxml/student-view.fxml");
             case VIEW_TRAMIT     -> loadCenterNoHistory("/fxml/tramit-view.fxml");
             case VIEW_ENROLLMENT -> loadCenterNoHistory("/fxml/enrollment-view.fxml");
+            case VIEW_BST_SEARCH -> loadCenterNoHistory("/fxml/course-search-view.fxml");
         }
     }
 
     @FXML void openStudentView()    { loadCenter("/fxml/student-view.fxml",    VIEW_STUDENT);    }
     @FXML void openTramitView()     { loadCenter("/fxml/tramit-view.fxml",     VIEW_TRAMIT);     }
     @FXML void openEnrollmentView() { loadCenter("/fxml/enrollment-view.fxml", VIEW_ENROLLMENT); }
-
+    @FXML void openCourseSearchView() { loadCenter("/fxml/course-search-view.fxml", VIEW_BST_SEARCH); }
     private void logout() {
         UserService.getInstance().logout();
         SessionHistoryService.getInstance().reset();
@@ -167,4 +169,7 @@ public class MainController implements NotificationObserver {
             throw new RuntimeException("No se pudo cargar la vista: " + fxml, e);
         }
     }
+
+    private static final String VIEW_BST_SEARCH = "Búsqueda de Cursos (BST)";
+
 }

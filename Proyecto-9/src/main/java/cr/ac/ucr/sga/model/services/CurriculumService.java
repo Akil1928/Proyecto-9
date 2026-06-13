@@ -2,19 +2,17 @@ package cr.ac.ucr.sga.model.services;
 
 import java.util.*;
 
-/**
- * CurriculumService — Singleton que contiene la malla curricular completa
- * del Bachillerato en Informática Empresarial, código 600002, plan 07
- * (Informe curricular CEA-46-2025).
- *
- * Permite validar si un estudiante cumple los requisitos para llevar
- * un curso dado su expediente académico actual.
- *
- * Lógica de requisitos (según la malla):
- *   - "IF-0004 requiere IF-0001 o IF-2000" → basta con que haya aprobado UNO de los dos.
- *   - Cuando hay múltiples requisitos sin "o" entre ellos, se deben cumplir TODOS.
- *   - Un curso está "aprobado" si su estado en el expediente es "Aprobado".
- */
+
+//CurriculumService — Singleton que contiene la malla curricular completa
+// del Bachillerato en Informática Empresarial, código 600002, plan 07
+//(Informe curricular CEA-46-2025).
+//Permite validar si un estudiante cumple los requisitos para llevar
+// un curso dado su expediente académico actual.
+//Lógica de requisitos (según la malla):
+// - "IF-0004 requiere IF-0001 o IF-2000" → basta con que haya aprobado UNO de los dos.
+// - Cuando hay múltiples requisitos sin "o" entre ellos, se deben cumplir TODOS.
+// - Un curso está "aprobado" si su estado en el expediente es "Aprobado".
+
 public class CurriculumService {
 
     private static CurriculumService instance;
@@ -289,4 +287,9 @@ public class CurriculumService {
             return sb.toString();
         }
     }
+
+    public Set<String> getAllCourseCodes() {
+        return Collections.unmodifiableSet(courseNames.keySet());
+    }
+
 }

@@ -71,4 +71,7 @@ public class ViewFactory {
             throw new RuntimeException("No se pudo cargar la vista: " + fxml, e);
         }
     }
+    public static void showCourseSearchView(Stage stage) {
+        load(stage, "/fxml/course-search-view.fxml", "Búsqueda de Cursos (BST)");
+    }
 }
