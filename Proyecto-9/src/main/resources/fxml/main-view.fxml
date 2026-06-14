@@ -3,62 +3,90 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
 
 <!--
-    main-view.fxml  (actualizado Sprint 2)
-
-    El panel izquierdo se controla dinámicamente desde MainController según el rol:
-      - ADMINISTRADOR: ve Expediente, Trámites, Cola de Matrícula, y botón Cerrar Sesión
-      - ESTUDIANTE: ve solo Expediente y Trámites, y botón Cerrar Sesión
-
-    Los botones Atrás / Adelante ahora son funcionales: navegan por el historial circular
-    (CircularDoublyLinkedList) de vistas cargadas en la sesión.
+    main-view.fxml — Diseño Premium Dark con Sidebar
+    ADMINISTRADOR: ve Expediente, Trámites, Cola de Matrícula, + botón Cerrar Sesión
+    ESTUDIANTE:    ve solo Expediente y Trámites, + botón Cerrar Sesión
+    Botones Atrás/Adelante navegan historial circular (CircularDoublyLinkedList)
 -->
-<BorderPane fx:id="mainPane" styleClass="root-pane"
+<BorderPane fx:id="mainPane"
+            style="-fx-background-color: #0F1117;"
             stylesheets="@../css/styless.css"
             xmlns:fx="http://javafx.com/fxml/1"
             xmlns="http://javafx.com/javafx/17.0.12"
             fx:controller="cr.ac.ucr.sga.controller.MainController">
 
+    <!-- ── HEADER ─────────────────────────────────────────────────────── -->
     <top>
-        <VBox styleClass="header-bar" BorderPane.alignment="CENTER">
-            <padding><Insets top="12" left="28" right="28" bottom="10"/></padding>
+        <HBox styleClass="header-bar" alignment="CENTER_LEFT" spacing="0"
+              BorderPane.alignment="CENTER">
 
-            <HBox alignment="CENTER_LEFT" spacing="12">
-                <Label styleClass="header-badge" text="P-9"/>
-                <Label styleClass="header-title" text="Sistema de Gestión Académica"/>
+            <!-- Badge izquierdo pegado al borde -->
+            <Label styleClass="header-badge" text="SGA"
+                   style="-fx-min-width: 72px; -fx-pref-width: 72px;"/>
+
+            <HBox alignment="CENTER_LEFT" spacing="14" HBox.hgrow="ALWAYS">
+                <padding><Insets left="20" right="20"/></padding>
+
+                <VBox spacing="2">
+                    <Label styleClass="header-title" text="Sistema de Gestión Académica"/>
+                    <Label fx:id="lblCurrentView"
+                           styleClass="header-sub"
+                           text=""/>
+                </VBox>
+
                 <Region HBox.hgrow="ALWAYS"/>
 
-                <!-- Nombre del usuario en sesión -->
-                <Label fx:id="lblUserInfo" styleClass="header-sub"
-                       text="Sesión: —" style="-fx-font-size:12px;"/>
+                <!-- Info sesión -->
+                <Label fx:id="lblUserInfo" styleClass="header-tag"
+                       text="Sesión: —"/>
 
-                <Button text="← Atrás"    styleClass="btn-ghost" onAction="#goBack"/>
-                <Button text="Adelante →" styleClass="btn-ghost" onAction="#goForward"/>
-                <Button text="Acerca de"  styleClass="btn-ghost" onAction="#showAbout"/>
+                <!-- Controles de navegación -->
+                <HBox spacing="6">
+                    <Button text="←" styleClass="btn-ghost"
+                            style="-fx-padding: 6 12 6 12; -fx-font-size: 14px;"
+                            onAction="#goBack"/>
+                    <Button text="→" styleClass="btn-ghost"
+                            style="-fx-padding: 6 12 6 12; -fx-font-size: 14px;"
+                            onAction="#goForward"/>
+                    <Button text="ⓘ" styleClass="btn-ghost"
+                            style="-fx-padding: 6 12 6 12; -fx-font-size: 13px;"
+                            onAction="#showAbout"/>
+                </HBox>
             </HBox>
-
-            <Label fx:id="lblCurrentView"
-                   styleClass="header-sub"
-                   text="Vista actual: —"/>
-        </VBox>
+        </HBox>
     </top>
 
-    <!-- El menú lateral se construye dinámicamente en MainController.initialize()
-         según el rol del usuario. Por eso solo dejamos un VBox vacío con fx:id. -->
+    <!-- ── SIDEBAR ────────────────────────────────────────────────────── -->
     <left>
-        <VBox fx:id="menuPanel" spacing="8" styleClass="panel" BorderPane.alignment="CENTER_LEFT">
-            <padding><Insets top="12" left="12" right="12" bottom="12"/></padding>
-            <!-- Los botones se agregan por código en MainController -->
+        <VBox fx:id="menuPanel" spacing="4"
+              style="-fx-background-color: #12152A;
+                     -fx-border-color: transparent #2E3150 transparent transparent;
+                     -fx-border-width: 0 1 0 0;
+                     -fx-min-width: 210px;
+                     -fx-pref-width: 210px;"
+              BorderPane.alignment="TOP_CENTER">
+            <padding><Insets top="20" left="10" right="10" bottom="20"/></padding>
+            <!-- Los botones se agregan dinámicamente en MainController según el rol -->
         </VBox>
     </left>
 
+    <!-- ── CONTENIDO CENTRAL ──────────────────────────────────────────── -->
+    <!-- Se inyecta desde MainController según la vista seleccionada -->
+
+    <!-- ── STATUS BAR ─────────────────────────────────────────────────── -->
     <bottom>
-        <HBox styleClass="status-bar" spacing="10" BorderPane.alignment="CENTER">
-            <padding><Insets top="6" left="12" right="12" bottom="6"/></padding>
-            <Label fx:id="lblNotificationBar" styleClass="status-left" text="Sin notificaciones"/>
+        <HBox styleClass="status-bar" spacing="12" alignment="CENTER_LEFT"
+              BorderPane.alignment="CENTER">
+            <padding><Insets top="5" left="20" right="20" bottom="5"/></padding>
+            <Rectangle width="6" height="6" arcWidth="6" arcHeight="6"
+                       style="-fx-fill: #26A69A;"/>
+            <Label fx:id="lblNotificationBar" styleClass="status-left"
+                   text="Sin notificaciones"/>
             <Region HBox.hgrow="ALWAYS"/>
-            <Label text="UCR - SGA" styleClass="status-right"/>
+            <Label text="UCR — SGA  ·  Sprint 2" styleClass="status-right"/>
         </HBox>
     </bottom>
 

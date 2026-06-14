@@ -17,7 +17,8 @@
     <Label text="Árbol de Prerrequisitos" styleClass="panel-title"/>
 
     <HBox spacing="10" alignment="CENTER_LEFT">
-        <Label text="Código de curso:"/>
+        <Label text="Código de curso:"
+               style="-fx-text-fill: #C8CDD8; -fx-font-size: 13px; -fx-font-weight: bold;"/>
         <TextField fx:id="txtCourseCode" promptText="Ej: IF-0010" prefWidth="160"/>
         <Button text="Buscar" styleClass="btn-primary" onAction="#onBuscar"/>
     </HBox>
@@ -26,13 +27,18 @@
         <Canvas fx:id="canvas" width="1100" height="500"/>
     </ScrollPane>
 
-    <HBox spacing="16" alignment="CENTER_LEFT" styleClass="info-bar">
-        <padding><Insets top="6" right="10" bottom="6" left="10"/></padding>
-        <Label text="🟩 Curso consultado"/>
-        <Label text="⬜ Prerrequisito"/>
-        <Label text="🟨 Alternativas (uno de los cursos del grupo)"/>
+    <!-- Leyenda -->
+    <HBox spacing="20" alignment="CENTER_LEFT" styleClass="info-bar">
+        <Label text="🟩 Curso consultado"
+               style="-fx-text-fill: #C8CDD8; -fx-font-size: 12px;"/>
+        <Label text="⬜ Prerrequisito"
+               style="-fx-text-fill: #C8CDD8; -fx-font-size: 12px;"/>
+        <Label text="🟨 Alternativas (uno de los cursos del grupo)"
+               style="-fx-text-fill: #C8CDD8; -fx-font-size: 12px;"/>
     </HBox>
 
-    <Label fx:id="lblStatus" text="Listo. Ingrese un código y presione &quot;Buscar&quot;." styleClass="status-bar"/>
+    <Label fx:id="lblStatus"
+           text="Listo. Ingrese un código y presione &quot;Buscar&quot;."
+           style="-fx-text-fill: #9AA3B5; -fx-font-size: 12px; -fx-font-style: italic;"/>
 
 </VBox>

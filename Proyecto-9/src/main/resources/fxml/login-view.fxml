@@ -3,87 +3,117 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
 
-<!--
-    login-view.fxml
-    Primera pantalla que ve el usuario. Dependiendo del rol se carga la vista principal.
-    Rutas de acceso:
-      - ADMINISTRADOR → main-view.fxml (ve todos los módulos)
-      - ESTUDIANTE    → main-view.fxml (solo ve Expediente y Trámites propios)
--->
-<BorderPane styleClass="root-pane"
+<BorderPane style="-fx-background-color: linear-gradient(to bottom right, #14161E, #1E2028, #181A24);"
             stylesheets="@../css/styless.css"
             xmlns:fx="http://javafx.com/fxml/1"
             xmlns="http://javafx.com/javafx/17.0.12"
             fx:controller="cr.ac.ucr.sga.controller.LoginController">
 
     <center>
-        <VBox alignment="CENTER" spacing="20" maxWidth="380"
-              styleClass="login-card">
-            <padding><Insets top="40" left="40" right="40" bottom="40"/></padding>
+        <StackPane>
+            <VBox alignment="CENTER" spacing="0" maxWidth="400"
+                  styleClass="login-card">
 
-            <!-- Logo / título -->
-            <Label text="P-9" styleClass="header-badge" style="-fx-font-size:28px;"/>
-            <Label text="Sistema de Gestión Académica"
-                   styleClass="header-title"
-                   wrapText="true"
-                   style="-fx-alignment:center;"/>
-            <Label text="Inicio de Sesión"
-                   styleClass="header-sub"
-                   style="-fx-font-size:14px;"/>
+                <!-- Franja dorada superior -->
+                <Rectangle height="3" fill="linear-gradient(to right, #C87D00, #F0A500, #FFD060)"
+                           arcWidth="0" arcHeight="0"
+                           style="-fx-fill: linear-gradient(to right, #C87D00, #F0A500, #FFD060);"/>
 
-            <Separator/>
+                <VBox alignment="CENTER" spacing="24">
+                    <padding><Insets top="40" left="44" right="44" bottom="40"/></padding>
 
-            <!-- Formulario -->
-            <VBox spacing="6">
-                <Label text="Usuario:" styleClass="form-label"/>
-                <TextField fx:id="txtUsername"
-                           promptText="Ingrese su usuario"
-                           styleClass="form-field"/>
+                    <!-- Logo + Título -->
+                    <VBox alignment="CENTER" spacing="10">
+                        <Label text="P-9"
+                               style="-fx-background-color: linear-gradient(to bottom, #F0A500, #C87D00);
+                                      -fx-text-fill: #1A1C22;
+                                      -fx-font-weight: bold;
+                                      -fx-font-size: 24px;
+                                      -fx-padding: 12 28 12 28;
+                                      -fx-background-radius: 10;
+                                      -fx-effect: dropshadow(gaussian, rgba(240,165,0,0.45), 16, 0, 0, 4);"/>
+                        <Label text="Sistema de Gestión Académica"
+                               style="-fx-text-fill: #E8EBF2; -fx-font-size: 17px; -fx-font-weight: bold;"/>
+                        <Label text="Universidad de Costa Rica"
+                               style="-fx-text-fill: #4A5068; -fx-font-size: 11px;"/>
+                    </VBox>
+
+                    <Separator/>
+
+                    <!-- Formulario -->
+                    <VBox spacing="18">
+                        <VBox spacing="6">
+                            <Label text="USUARIO" styleClass="form-label"/>
+                            <TextField fx:id="txtUsername"
+                                       promptText="Ingrese su usuario"
+                                       styleClass="form-field"/>
+                        </VBox>
+
+                        <VBox spacing="6">
+                            <Label text="CONTRASEÑA" styleClass="form-label"/>
+                            <PasswordField fx:id="txtPassword"
+                                           promptText="Ingrese su contraseña"
+                                           styleClass="form-field"
+                                           onAction="#handleLogin"/>
+                        </VBox>
+
+                        <Label fx:id="lblError"
+                               styleClass="error-label"
+                               text=""
+                               wrapText="true"
+                               visible="false"
+                               managed="false"/>
+
+                        <Button text="Iniciar Sesión"
+                                styleClass="btn-dark"
+                                maxWidth="Infinity"
+                                onAction="#handleLogin"/>
+                    </VBox>
+
+                    <Separator/>
+
+                    <!-- Credenciales de prueba -->
+                    <VBox spacing="8" alignment="CENTER"
+                          style="-fx-background-color: rgba(240,165,0,0.05);
+                                 -fx-background-radius: 8;
+                                 -fx-border-color: rgba(240,165,0,0.14);
+                                 -fx-border-radius: 8;
+                                 -fx-padding: 12 16 12 16;">
+                        <Label text="USUARIOS DE PRUEBA"
+                               style="-fx-text-fill: #4A5068; -fx-font-size: 9px; -fx-font-weight: bold;"/>
+                        <HBox spacing="24" alignment="CENTER">
+                            <VBox spacing="3" alignment="CENTER">
+                                <Label text="admin / admin123"
+                                       style="-fx-text-fill: #9AA3B5; -fx-font-size: 11px; -fx-font-family: Consolas;"/>
+                                <Label text="ADMINISTRADOR"
+                                       style="-fx-text-fill: #F0A500; -fx-font-size: 9px; -fx-font-weight: bold;"/>
+                            </VBox>
+                            <Rectangle width="1" height="28"
+                                       style="-fx-fill: #363B48;"/>
+                            <VBox spacing="3" alignment="CENTER">
+                                <Label text="estudiante / est123"
+                                       style="-fx-text-fill: #9AA3B5; -fx-font-size: 11px; -fx-font-family: Consolas;"/>
+                                <Label text="ESTUDIANTE"
+                                       style="-fx-text-fill: #34D399; -fx-font-size: 9px; -fx-font-weight: bold;"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                    <Label fx:id="lblStatus" text="" styleClass="status-left"
+                           style="-fx-font-size: 11px;" wrapText="true"/>
+                </VBox>
             </VBox>
-
-            <VBox spacing="6">
-                <Label text="Contraseña:" styleClass="form-label"/>
-                <PasswordField fx:id="txtPassword"
-                               promptText="Ingrese su contraseña"
-                               styleClass="form-field"
-                               onAction="#handleLogin"/>
-            </VBox>
-
-            <!-- Mensaje de error -->
-            <Label fx:id="lblError"
-                   styleClass="error-label"
-                   text=""
-                   wrapText="true"
-                   visible="false"/>
-
-            <!-- Botón de ingreso -->
-            <Button text="Ingresar"
-                    styleClass="btn-dark"
-                    maxWidth="Infinity"
-                    onAction="#handleLogin"/>
-
-            <Separator/>
-
-            <!-- Usuarios de prueba (ayuda para el profesor) -->
-            <VBox spacing="3" alignment="CENTER">
-                <Label text="Usuarios de prueba:" style="-fx-font-size:11px; -fx-opacity:0.7;"/>
-                <Label text="admin / admin123  →  Administrador"
-                       style="-fx-font-size:10px; -fx-font-family:monospace; -fx-opacity:0.6;"/>
-                <Label text="estudiante / est123  →  Estudiante"
-                       style="-fx-font-size:10px; -fx-font-family:monospace; -fx-opacity:0.6;"/>
-            </VBox>
-
-            <!-- Barra de estado inferior -->
-            <Label fx:id="lblStatus" text="" styleClass="status-left"
-                   style="-fx-font-size:11px;" wrapText="true"/>
-        </VBox>
+        </StackPane>
     </center>
 
     <bottom>
-        <HBox styleClass="status-bar" spacing="10" BorderPane.alignment="CENTER">
-            <padding><Insets top="6" left="12" right="12" bottom="6"/></padding>
-            <Label text="UCR - SGA  |  Sprint 2" styleClass="status-right"/>
+        <HBox styleClass="status-bar" spacing="10" alignment="CENTER_LEFT">
+            <padding><Insets top="6" left="20" right="20" bottom="6"/></padding>
+            <Label text="UCR — SGA" styleClass="status-right"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label text="Sprint 2  ·  IF-3001" styleClass="status-right"/>
         </HBox>
     </bottom>
 

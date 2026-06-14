@@ -9,44 +9,70 @@
       xmlns:fx="http://javafx.com/fxml/1"
       xmlns="http://javafx.com/javafx/17.0.12"
       fx:controller="cr.ac.ucr.sga.controller.CourseSearchController"
-      styleClass="panel"
+      style="-fx-background-color: #1E2028; -fx-padding: 16;"
       stylesheets="@../css/styless.css">
 
-    <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
-
-    <Label text="Búsqueda Eficiente de Cursos (BST)" styleClass="panel-title"/>
+    <Label text="Búsqueda Eficiente de Cursos (BST)"
+           style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #E8EBF2;"/>
 
     <HBox spacing="10" alignment="CENTER_LEFT">
-        <Label text="Código a buscar:"/>
-        <TextField fx:id="txtSearchCode" promptText="Ej: IF-0010" prefWidth="160"/>
+        <Label text="Código a buscar:"
+               style="-fx-text-fill: #C8CDD8; -fx-font-size: 13px; -fx-font-weight: bold;"/>
+        <TextField fx:id="txtSearchCode" promptText="Ej: IF-0010" prefWidth="160"
+                   style="-fx-background-color: #1E2028; -fx-text-fill: #E8EBF2;
+                          -fx-prompt-text-fill: #4A5068; -fx-border-color: #363B48;
+                          -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 8 12 8 12;"/>
         <Button text="Buscar" styleClass="btn-primary" onAction="#onBuscar"/>
         <Button text="Reconstruir árbol" styleClass="btn-ghost" onAction="#onReconstruir"/>
         <Region HBox.hgrow="ALWAYS"/>
-        <Label fx:id="lblInfo" text="Cursos: 0  |  Altura: 0"/>
+        <Label fx:id="lblInfo" text="Cursos: 0  |  Altura: 0"
+               style="-fx-text-fill: #9AA3B5; -fx-font-size: 12px;"/>
     </HBox>
 
-    <ScrollPane fitToWidth="false" fitToHeight="false" pannable="true" VBox.vgrow="ALWAYS">
+    <ScrollPane fitToWidth="false" fitToHeight="false" pannable="true" VBox.vgrow="ALWAYS"
+                style="-fx-background-color: #1E2028; -fx-border-color: #363B48; -fx-border-radius: 8;">
         <Canvas fx:id="canvas" width="1100" height="600"/>
     </ScrollPane>
 
-    <HBox spacing="16" alignment="CENTER_LEFT" styleClass="info-bar">
-        <padding><Insets top="6" right="10" bottom="6" left="10"/></padding>
-        <Label text="⬜ Curso"/>
-        <Label text="🟥 Nodo comparado durante la búsqueda"/>
-        <Label text="🟩 Curso encontrado"/>
+    <!-- Leyenda -->
+    <HBox spacing="20" alignment="CENTER_LEFT"
+          style="-fx-background-color: #272B35; -fx-background-radius: 8;
+                 -fx-border-color: #363B48; -fx-border-radius: 8; -fx-padding: 8 14 8 14;">
+        <Label text="⬜ Curso"
+               style="-fx-text-fill: #C8CDD8; -fx-font-size: 12px;"/>
+        <Label text="🟥 Nodo comparado durante la búsqueda"
+               style="-fx-text-fill: #C8CDD8; -fx-font-size: 12px;"/>
+        <Label text="🟩 Curso encontrado"
+               style="-fx-text-fill: #C8CDD8; -fx-font-size: 12px;"/>
     </HBox>
 
-    <Label fx:id="lblStatus" text="Listo. Ingrese un código y presione &quot;Buscar&quot;." styleClass="status-bar"/>
+    <Label fx:id="lblStatus"
+           text="Listo. Ingrese un código y presione &quot;Buscar&quot;."
+           style="-fx-text-fill: #9AA3B5; -fx-font-size: 12px; -fx-font-style: italic;"/>
 
-    <Separator/>
+    <Separator style="-fx-opacity: 0.4;"/>
 
-    <Label text="Recorridos del Árbol" styleClass="panel-title"/>
+    <Label text="Recorridos del Árbol"
+           style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: #E8EBF2;"/>
 
     <HBox spacing="10" alignment="CENTER_LEFT">
-        <Button text="InOrden" styleClass="btn-ghost" onAction="#onInOrder"/>
-        <Button text="PreOrden" styleClass="btn-ghost" onAction="#onPreOrder"/>
+        <Button text="InOrden"   styleClass="btn-ghost" onAction="#onInOrder"/>
+        <Button text="PreOrden"  styleClass="btn-ghost" onAction="#onPreOrder"/>
         <Button text="PostOrden" styleClass="btn-ghost" onAction="#onPostOrder"/>
     </HBox>
 
-    <TextArea fx:id="txtTraversal" editable="false" wrapText="true" prefHeight="100"/>
+    <TextArea fx:id="txtTraversal"
+              editable="false"
+              wrapText="true"
+              prefHeight="100"
+              style="-fx-control-inner-background: #1E2028;
+                     -fx-text-fill: #E8EBF2;
+                     -fx-font-family: Consolas, monospace;
+                     -fx-font-size: 12px;
+                     -fx-background-color: #1E2028;
+                     -fx-border-color: #363B48;
+                     -fx-border-radius: 8;
+                     -fx-background-radius: 8;
+                     -fx-prompt-text-fill: #4A5068;
+                     -fx-highlight-fill: rgba(240,165,0,0.3);"/>
 </VBox>
