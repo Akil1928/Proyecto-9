@@ -50,8 +50,12 @@ public class PriorityQueue<T> implements Queue<T> {
     public T deQueue() throws QueueException {
         if (isEmpty()) throw new QueueException("Priority Queue is empty");
         T element = front.data;
-        if (front == rear) clear();
-        else { front = front.next; size--; }
+        if (front == rear) {
+            clear(); // clear() ya hace size = 0
+        } else {
+            front = front.next;
+            size--;
+        }
         return element;
     }
 
@@ -63,17 +67,22 @@ public class PriorityQueue<T> implements Queue<T> {
         } else {
             Node<T> aux = front;
             Node<T> prev = null;
+            //recorre mientras la prioridad del nodo actual sea MENOR O IGUAL (numericamente)
+            //prioridad 1=ALTA, 2=MEDIA, 3=BAJA → los de menor número van primero
             while (aux != null && aux.priority <= priority) {
                 prev = aux;
                 aux = aux.next;
             }
-            if (aux == front) {
+            if (prev == null) {
+                //el nuevo nodo tiene mayor prioridad que todos (va al frente)
                 node.next = front;
                 front = node;
             } else if (aux == null) {
+                //el nuevo nodo va al final
                 rear.next = node;
                 rear = node;
             } else {
+                //insertar en medio
                 prev.next = node;
                 node.next = aux;
             }

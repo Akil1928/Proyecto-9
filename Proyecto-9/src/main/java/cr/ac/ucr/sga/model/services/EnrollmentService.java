@@ -80,19 +80,35 @@ public class EnrollmentService {
         SimpleLinkedList<Student> list = new SimpleLinkedList<>();
         if (activeQueue.isEmpty()) return list;
 
-        //sacamos todos los elementos, los guardamos en la lista y los volvemos a encolar
+        //sacamos todos los elementos con su prioridad y los guardamos
         SimpleLinkedList<Student> temp = new SimpleLinkedList<>();
+        java.util.List<Integer> priorities = new java.util.ArrayList<>();
         try {
-            while (!activeQueue.isEmpty()) {
-                Student s = activeQueue.deQueue();
-                list.addLast(s);
-                temp.addLast(s);
+            //para PriorityQueue necesitamos recorrer los nodos directamente
+            if (activeQueue instanceof PriorityQueue) {
+                PriorityQueue<Student> pq = (PriorityQueue<Student>) activeQueue;
+                cr.ac.ucr.sga.model.structures.lists.Node<Student> cur = pq.getFront();
+                while (cur != null) {
+                    list.addLast(cur.data);
+                    temp.addLast(cur.data);
+                    priorities.add(cur.priority);
+                    cur = cur.next;
+                }
+                pq.clear();
+                for (int i = 0; i < temp.size(); i++) {
+                    pq.enQueue(temp.get(i), priorities.get(i));
+                }
+            } else {
+                while (!activeQueue.isEmpty()) {
+                    Student s = activeQueue.deQueue();
+                    list.addLast(s);
+                    temp.addLast(s);
+                }
+                for (int i = 0; i < temp.size(); i++) {
+                    activeQueue.enQueue(temp.get(i));
+                }
             }
-            //restauramos la cola
-            for (int i = 0; i < temp.size(); i++) {
-                activeQueue.enQueue(temp.get(i));
-            }
-        } catch (QueueException e) {
+        } catch (cr.ac.ucr.sga.model.structures.queues.QueueException e) {
             throw new RuntimeException(e);
         }
 
