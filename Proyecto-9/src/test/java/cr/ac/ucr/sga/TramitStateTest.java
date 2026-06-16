@@ -42,10 +42,10 @@ public class TramitStateTest {
         System.out.println("\n=== TramitState: Procesando → Resuelto ===");
         Tramit tramit = new Tramit("Retiro", "Retiro de curso", "EST-003", "Carlos Mora");
 
-        tramit.nextState(); // Pendiente → Procesando
+        tramit.nextState(); //Pendiente → Procesando
         System.out.println("Estado intermedio: " + tramit.getStateName());
 
-        tramit.nextState(); // Procesando → Resuelto
+        tramit.nextState(); //Procesando → Resuelto
         System.out.println("Estado final (esperado: Resuelto): " + tramit.getStateName());
         System.out.println("Clase del estado: " + tramit.getState().getClass().getSimpleName());
     }
@@ -58,11 +58,14 @@ public class TramitStateTest {
         tramit.nextState(); // → Procesando
         tramit.nextState(); // → Resuelto
         System.out.println("Estado final antes del intento extra: " + tramit.getStateName());
+        org.junit.jupiter.api.Assertions.assertThrows(
+                IllegalStateException.class,
+                () -> tramit.nextState(),
+                "Debe lanzar IllegalStateException al intentar avanzar desde Resuelto"
+        );
 
-        tramit.nextState(); // no debería cambiar
-        System.out.println("Estado tras llamada extra en Resuelto (esperado: Resuelto): " + tramit.getStateName());
+        System.out.println("Estado tras llamada extra (sigue en Resuelto): " + tramit.getStateName());
     }
-
     @Test
     void testFlujoCompletoConNotificaciones() {
         System.out.println("\n=== TramitState: Flujo completo con notificaciones ===");
