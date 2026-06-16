@@ -29,14 +29,14 @@ public class TramitController implements Initializable, NotificationObserver {
     @FXML private ComboBox<String> comboEstudiante;
     @FXML private TextArea txtDescription;
 
-    // Controles exclusivos del ADMINISTRADOR
+    //controles exclusivos del ADMINISTRADOR
     @FXML private ComboBox<String> comboStackType;
     @FXML private Button btnProcesar;
     @FXML private Button btnAvanzarEstado;
     @FXML private Label  lblStackSection;
     @FXML private Label  lblAdminSection;
 
-    // Labels de estado/info
+    //labels de estado/info
     @FXML private Label lblTopeTramit;
     @FXML private Label lblNotificacion;
     @FXML private Label lblTotalTramits;
@@ -51,13 +51,13 @@ public class TramitController implements Initializable, NotificationObserver {
         User currentUser = UserService.getInstance().getCurrentUser();
         boolean isAdmin = currentUser != null && currentUser.getRole() == User.Role.ADMINISTRADOR;
 
-        // Tipos de trámite disponibles para todos
+        //tipos de trámite disponibles para todos
         comboTipoTramit.setItems(FXCollections.observableArrayList(
                 "Beca", "Revisión de Nota", "Retiro de Curso", "Certificado", "Traslado"));
 
         if (isAdmin) {
-            // ── ADMINISTRADOR ──
-            // Puede seleccionar cualquier estudiante
+            //ADMINISTRADOR
+            //puede seleccionar cualquier estudiante
             comboStackType.setItems(FXCollections.observableArrayList("ArrayStack", "LinkedStack"));
             comboStackType.getSelectionModel().selectFirst();
 
@@ -67,19 +67,19 @@ public class TramitController implements Initializable, NotificationObserver {
             }
             comboEstudiante.setItems(students);
         } else {
-            // ── ESTUDIANTE ──
-            // El estudiante solo puede enviar trámites a su propio nombre (US-05).
-            // El combo queda bloqueado con su usuario pre-cargado.
+            //ESTUDIANTE
+            //el estudiante solo puede enviar trámites a su propio nombre (US-05).
+            //el combo queda bloqueado con su usuario pre-cargado.
             String selfEntry = currentUser.getUsername() + " - " + currentUser.getDisplayName();
             comboEstudiante.setItems(FXCollections.observableArrayList(selfEntry));
             comboEstudiante.getSelectionModel().selectFirst();
             comboEstudiante.setDisable(true); // no puede cambiarlo
 
-            // Ocultar y desactivar todos los controles exclusivos del administrador
+            //ocultar y desactivar todos los controles exclusivos del administrador
             setAdminControlsVisible(false);
         }
 
-        // Configurar columnas de la tabla
+        //configurar columnas de la tabla
         colId.setCellValueFactory(data ->
                 new javafx.beans.property.ReadOnlyStringWrapper(
                         data.getValue().getId().substring(0, 8) + "..."));
@@ -124,7 +124,7 @@ public class TramitController implements Initializable, NotificationObserver {
             comboStackType.setVisible(visible);
             comboStackType.setManaged(visible);
         }
-        // La tabla es de solo lectura para el estudiante (no puede interactuar con estados)
+        //la tabla es de solo lectura para el estudiante (no puede interactuar con estados)
         if (tramitTable != null) {
             tramitTable.setEditable(false);
         }
@@ -146,8 +146,8 @@ public class TramitController implements Initializable, NotificationObserver {
 
         String[] student = comboEstudiante.getValue().split(" - ", 2);
 
-        // El estado se fuerza a "Pendiente" dentro del constructor de Tramit (new PendingState())
-        // El estudiante nunca elige el estado manualmente.
+        //el estado se fuerza a "Pendiente" dentro del constructor de Tramit (new PendingState())
+        //el estudiante nunca elige el estado manualmente.
         Tramit tramit = new Tramit(
                 comboTipoTramit.getValue(),
                 txtDescription.getText().trim(),
@@ -207,9 +207,9 @@ public class TramitController implements Initializable, NotificationObserver {
 
             String estadoNuevo = tramit.getStateName();
 
-            // US-09: El sistema notifica automáticamente el cambio de estado.
-            // Ni el estudiante ni el admin disparan esto con un botón específico;
-            // ocurre como consecuencia directa de que el admin avanzó el estado.
+            //US-09: El sistema notifica automáticamente el cambio de estado.
+            //ni el estudiante ni el admin disparan esto con un botón específico;
+            //ocurre como consecuencia directa de que el admin avanzó el estado.
             NotificationService.getInstance().notify(
                     "Trámite de " + tramit.getStudentName()
                             + " cambió: " + estadoAnterior + " → " + estadoNuevo,
@@ -278,7 +278,7 @@ public class TramitController implements Initializable, NotificationObserver {
         alert.showAndWait();
     }
 
-    // ── Observer (US-09): recibe notificaciones automáticas del sistema ────────
+    //Observer recibe notificaciones automáticas del sistema
 
     @Override
     public void onNotification(String message, String level) {

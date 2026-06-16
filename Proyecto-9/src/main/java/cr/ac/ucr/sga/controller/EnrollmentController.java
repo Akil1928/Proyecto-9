@@ -23,13 +23,13 @@ public class EnrollmentController implements Initializable, NotificationObserver
     @FXML private TableColumn<Student, String> colCreditos;
     @FXML private TableColumn<Student, String> colPrioridad;
 
-    // Controles informativos del estudiante (visibles para todos)
+    //controles informativos del estudiante (visibles para todos)
     @FXML private Label lblNombreEstudiante;
     @FXML private Label lblCreditosAprobados;
     @FXML private Button btnSolicitarMatricula;
     @FXML private Label lblMiPosicion;
 
-    // Controles exclusivos del ADMINISTRADOR
+    //controles exclusivos del ADMINISTRADOR
     @FXML private Label      lblAdminSection;
     @FXML private ComboBox<String> comboEstudiante;
     @FXML private Label      lblCreditosSeleccionado;
@@ -39,7 +39,7 @@ public class EnrollmentController implements Initializable, NotificationObserver
     @FXML private ComboBox<String> comboQueueType;
     @FXML private Label      lblSiguienteEstudiante;
 
-    // Labels compartidos
+    //labels compartidos
     @FXML private Label lblNotificacion;
     @FXML private Label lblTotalEnCola;
 
@@ -52,7 +52,7 @@ public class EnrollmentController implements Initializable, NotificationObserver
         User currentUser = UserService.getInstance().getCurrentUser();
         boolean isAdmin = currentUser != null && currentUser.getRole() == User.Role.ADMINISTRADOR;
 
-        // Configurar columnas (siempre)
+        //configurar columnas (siempre)
         colNombre.setCellValueFactory(data ->
                 new javafx.beans.property.ReadOnlyStringWrapper(data.getValue().getName()));
         colCreditos.setCellValueFactory(data ->
@@ -64,14 +64,14 @@ public class EnrollmentController implements Initializable, NotificationObserver
             return new javafx.beans.property.ReadOnlyStringWrapper(priority);
         });
 
-        // La tabla no es reordenable manualmente (US-08)
+        //tabla no es reordenable manualmente
         enrollmentTable.setEditable(false);
 
         if (isAdmin) {
-            // ── ADMINISTRADOR ──
+            //ADMINISTRADOR
             setupAdminControls();
         } else {
-            // ── ESTUDIANTE ──
+            //ESTUDIANTE
             setupStudentView(currentUser);
         }
 
@@ -82,20 +82,20 @@ public class EnrollmentController implements Initializable, NotificationObserver
     // ─── Configuración de la vista del ADMINISTRADOR ──────────────────────────
 
     private void setupAdminControls() {
-        // El admin selecciona el tipo de cola
+        //el admin selecciona el tipo de cola
         comboQueueType.setItems(
                 FXCollections.observableArrayList("ArrayQueue", "LinkedQueue", "PriorityQueue"));
         comboQueueType.getSelectionModel().select("PriorityQueue");
-        service.setQueueType("priority"); // Por defecto usa PriorityQueue para matrícula
+        service.setQueueType("priority"); // usa PriorityQueue para matrícula
 
-        // Llenar combo de estudiantes
+        //llenar combo de estudiantes
         ObservableList<String> students = FXCollections.observableArrayList();
         for (var s : StudentDirectoryService.getInstance().getStudents()) {
             students.add(s.getId() + " - " + s.getName());
         }
         comboEstudiante.setItems(students);
 
-        // Actualizar créditos al seleccionar un estudiante
+        //actualizar créditos al seleccionar un estudiante
         comboEstudiante.setOnAction(evt -> {
             String val = comboEstudiante.getValue();
             if (val == null) {
@@ -113,19 +113,19 @@ public class EnrollmentController implements Initializable, NotificationObserver
             }
         });
 
-        // Ocultar el botón "Solicitar Matrícula" (es del estudiante)
+        //ocultar el botón "Solicitar Matrícula" (es del estudiante)
         setVisible(btnSolicitarMatricula, false);
         setVisible(lblMiPosicion, false);
     }
 
-    // ─── Configuración de la vista del ESTUDIANTE ─────────────────────────────
+    // ─── Configuración de la vista del ESTUDIANTE ─────────
 
     private void setupStudentView(User currentUser) {
-        // Mostrar nombre y créditos del estudiante actual
+        //mostrar nombre y créditos del estudiante actual
         if (lblNombreEstudiante != null)
             lblNombreEstudiante.setText("Estudiante: " + currentUser.getDisplayName());
 
-        // Buscar los créditos del estudiante actual en el directorio
+        //buscar los créditos del estudiante actual en el directorio
         int creditos = 0;
         for (Student s : StudentDirectoryService.getInstance().getStudents()) {
             if (s.getId().equals(currentUser.getUsername())) {
@@ -136,7 +136,7 @@ public class EnrollmentController implements Initializable, NotificationObserver
         if (lblCreditosAprobados != null)
             lblCreditosAprobados.setText("Créditos aprobados: " + creditos);
 
-        // Ocultar todos los controles exclusivos del administrador
+        //ocultar todos los controles exclusivos del administrador
         setVisible(lblAdminSection, false);
         setVisible(comboEstudiante, false);
         setVisible(lblCreditosSeleccionado, false);
@@ -159,7 +159,7 @@ public class EnrollmentController implements Initializable, NotificationObserver
         User currentUser = UserService.getInstance().getCurrentUser();
         if (currentUser == null) return;
 
-        // Buscar al estudiante en el directorio por su username/id
+        //buscar al estudiante en el directorio por su id
         Student estudianteActual = null;
         for (Student s : StudentDirectoryService.getInstance().getStudents()) {
             if (s.getId().equals(currentUser.getUsername())) {
@@ -173,7 +173,7 @@ public class EnrollmentController implements Initializable, NotificationObserver
             return;
         }
 
-        // Verificar que no esté duplicado
+        //verificar que no esté duplicado
         for (Student s : service.getCurrentQueueAsList().toArray(new Student[0])) {
             if (s != null && s.getId().equals(estudianteActual.getId())) {
                 showError("Ya tienes una solicitud de matrícula en espera.");
@@ -181,7 +181,7 @@ public class EnrollmentController implements Initializable, NotificationObserver
             }
         }
 
-        // El sistema calcula la prioridad automáticamente (US-07)
+        //el sistema calcula la prioridad automáticamente en base a los créditos aprobados del estudiante
         service.enqueueStudent(estudianteActual);
 
         NotificationService.getInstance().notify(
@@ -212,7 +212,7 @@ public class EnrollmentController implements Initializable, NotificationObserver
         }
         if (selected == null) return;
 
-        // Verificar duplicado
+        //verificar duplicado
         for (Student s : service.getCurrentQueueAsList().toArray(new Student[0])) {
             if (s != null && s.getId().equals(selected.getId())) {
                 showError("El estudiante ya está en la cola.");
@@ -259,7 +259,7 @@ public class EnrollmentController implements Initializable, NotificationObserver
         updateLabels();
     }
 
-    // ─── Helpers ──────────────────────────────────────────────────────────────
+    // ─── Helpers ───────────────────────────────
 
     private void refreshTable() {
         enrollmentTable.getItems().clear();
@@ -297,7 +297,7 @@ public class EnrollmentController implements Initializable, NotificationObserver
         lblMiPosicion.setText("Tu posición en la cola: #" + pos);
     }
 
-    /** Oculta un control y también lo elimina del layout (setManaged false). */
+    //Oculta un control y también lo elimina del layout (setManaged false).
     private void setVisible(javafx.scene.Node node, boolean visible) {
         if (node != null) {
             node.setVisible(visible);
@@ -313,7 +313,7 @@ public class EnrollmentController implements Initializable, NotificationObserver
         alert.showAndWait();
     }
 
-    // ── Observer (US-09) ──────────────────────────────────────────────────────
+    //── Observer (US-09) ─────
 
     @Override
     public void onNotification(String message, String level) {

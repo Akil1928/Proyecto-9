@@ -1,9 +1,7 @@
 package cr.ac.ucr.sga.model.entities;
+ //entidad que representa un usuario del sistema.
+ //tiene un rol que determina a qué vistas puede acceder.
 
-/**
- * Entidad que representa un usuario del sistema.
- * Tiene un rol que determina a qué vistas puede acceder.
- */
 public class User {
 
     public enum Role {

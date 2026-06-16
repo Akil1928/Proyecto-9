@@ -1,8 +1,5 @@
 package cr.ac.ucr.sga.model.structures.lists;
 
-
-
-
 public class DoublyLinkedList<T> implements List<T> {
 
     private Node<T> head;//inicio de la lista

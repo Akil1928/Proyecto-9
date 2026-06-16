@@ -44,9 +44,9 @@ public class MainController implements NotificationObserver {
 
         buildMenu(user);
 
-        // Vista inicial según rol:
-        // - ADMINISTRADOR: Expediente Académico
-        // - ESTUDIANTE:    Gestión de Trámites (US-05 es su tarea principal)
+        //vista inicial según rol:
+        //- ADMINISTRADOR: Expediente Académico
+        //- ESTUDIANTE: Gestión de Trámites (US-05 es su tarea principal)
         if (user != null && user.getRole() == User.Role.ADMINISTRADOR) {
             loadCenter("/fxml/student-view.fxml", VIEW_STUDENT);
         } else {
@@ -60,17 +60,17 @@ public class MainController implements NotificationObserver {
         boolean isAdmin = user != null && user.getRole() == User.Role.ADMINISTRADOR;
 
         if (isAdmin) {
-            // ADMINISTRADOR: acceso completo
+            //ADMINISTRADOR: acceso completo
             addMenuButton("Expediente Académico", this::openStudentView);
             addMenuButton("Gestión de Trámites",  this::openTramitView);
             addMenuButton("Cola de Matrícula",     this::openEnrollmentView);
             addMenuButton("Búsqueda de Cursos (BST)", this::openCourseSearchView);
             addMenuButton("Árbol de Prerrequisitos", this::openPrerequisiteTreeView);
         } else {
-            // ESTUDIANTE: solo sus vistas
-            // - Gestión de Trámites: puede enviar sus trámites (US-05)
-            // - Cola de Matrícula:   puede solicitar su matrícula (US-07)
-            // - Expediente:          solo lectura de su historial académico
+            //ESTUDIANTE: solo sus vistas
+            //- Gestión de Trámites:puede enviar sus trámites (US-05)
+            //- Cola de Matrícula:puede solicitar su matrícula (US-07)
+            //- Expediente:solo lectura de su historial académico
             addMenuButton("Gestión de Trámites",  this::openTramitView);
             addMenuButton("Cola de Matrícula",     this::openEnrollmentView);
             addMenuButton("Expediente Académico",  this::openStudentView);
@@ -107,7 +107,7 @@ public class MainController implements NotificationObserver {
         reloadViewByName(viewName);
         lblCurrentView.setText("Vista actual: " + viewName);
     }
-
+//Navegacion entre vistas
     private void reloadViewByName(String viewName) {
         if (viewName == null || viewName.equals("Sin historial")) return;
         switch (viewName) {

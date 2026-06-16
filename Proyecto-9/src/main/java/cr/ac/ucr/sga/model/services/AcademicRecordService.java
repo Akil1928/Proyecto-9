@@ -113,10 +113,8 @@ public class AcademicRecordService {
         return false;
     }
 
-    /**
-     * Cuenta los créditos totales de cursos con estado "Aprobado".
-     * Útil para calcular prioridad en la cola de matrícula (US-07).
-     */
+
+     //Cuenta los créditos totales de cursos con estado "Aprobado".//util para calcular prioridad en la cola de matrícula
     public int getTotalApprovedCredits() {
         int total = 0;
         for (AcademicRecordEntry entry : toArray()) {

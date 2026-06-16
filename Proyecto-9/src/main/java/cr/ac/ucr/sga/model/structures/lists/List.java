@@ -1,9 +1,4 @@
 package cr.ac.ucr.sga.model.structures.lists;
-
-
-
-
-
 public interface List<T> {
     public int size() throws ListException; // Devuelve el número de elementos en la lista
     public void clear(); //Remueve todos los elementos de la lista

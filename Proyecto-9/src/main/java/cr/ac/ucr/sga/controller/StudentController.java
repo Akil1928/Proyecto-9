@@ -109,14 +109,12 @@ public class StudentController {
                     "El curso " + code + " ya está registrado en el expediente.");
             return;
         }
-
-        // 2. Verificar si el curso está en la malla curricular
-        //    Si no lo reconoce, igual lo permite (cursos libres / extracurriculares).
+        //verificar si el curso está en la malla curricular
         boolean inCurriculum = curriculum.isInCurriculum(code);
 
-        // 3. Validar requisitos SOLO si el curso está en la malla
-        //    y SOLO si el estado que se va a agregar es "En curso" o "Aprobado"
-        //    (si se agrega como "Reprobado" también se valida, porque igual hubo intento).
+        //validar requisitos SOLO si el curso está en la malla
+        //y SOLO si el estado que se va a agregar es "En curso" o "Aprobado"
+        //si se agrega como "Reprobado" también se valida, porque igual hubo intento).
         if (inCurriculum) {
             CurriculumService.ValidationResult result = service.validatePrerequisites(code);
             if (!result.isValid()) {
@@ -128,7 +126,7 @@ public class StudentController {
             }
         }
 
-        // 4. Todo bien → agregar al expediente
+        //Todo bien agregar al expediente
         try {
             Course course = new CourseBuilder()
                     .setCode(code)
@@ -163,7 +161,7 @@ public class StudentController {
             return;
         }
 
-        // Advertir si otros cursos en el expediente dependen de este
+        //advertir si otros cursos en el expediente dependen de este
         String code = selected.getCourse().getCode();
         List<String> dependants = findDependantCourses(code);
 
@@ -198,7 +196,7 @@ public class StudentController {
     private void addDemoCourses() {
         service.clear();
 
-        // Cursos del I y II ciclo (sin requisitos) → se pueden agregar directamente
+        //cursos del I y II ciclo (sin requisitos) → se pueden agregar directamente
         service.addRecord(new AcademicRecordEntry(
                 new CourseBuilder().setCode("IF-0001")
                         .setName("Desarrollo de Software I").setCredits(4).build(),
@@ -209,19 +207,19 @@ public class StudentController {
                         .setName("Matemática Básica para Informática Empresarial").setCredits(3).build(),
                 "I-2024", 78, "Aprobado"));
 
-        // IF-0004 requiere IF-0001 o IF-2000 → ya está aprobado IF-0001 ✔
+        //IF-0004 requiere IF-0001 o IF-2000 → ya está aprobado IF-0001 ✔
         service.addRecord(new AcademicRecordEntry(
                 new CourseBuilder().setCode("IF-0004")
                         .setName("Desarrollo de Software II").setCredits(4).build(),
                 "II-2024", 90, "Aprobado"));
 
-        // IF-3001 requiere IF-0004 o IF-2000 → ya está aprobado IF-0004 ✔
+        //IF-3001 requiere IF-0004 o IF-2000 → ya está aprobado IF-0004 ✔
         service.addRecord(new AcademicRecordEntry(
                 new CourseBuilder().setCode("IF-3001")
                         .setName("Algoritmos y Estructuras de Datos").setCredits(4).build(),
                 "I-2025", 95, "Aprobado"));
 
-        // IF-0007 requiere IF-0004 → ya está aprobado ✔
+        //IF-0007 requiere IF-0004 → ya está aprobado ✔
         service.addRecord(new AcademicRecordEntry(
                 new CourseBuilder().setCode("IF-0007")
                         .setName("Bases de Datos I").setCredits(4).build(),
@@ -232,15 +230,7 @@ public class StudentController {
         JsonService.saveAcademicRecord(service.toArray(), "src/main/resources/data/courses.json");
         setStatus("✔ 5 cursos demo cargados (respetando la malla curricular).");
     }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // Helpers
-    // ─────────────────────────────────────────────────────────────────────────
-
-    /**
-     * Busca cursos DENTRO DEL EXPEDIENTE que dependen del curso eliminado.
-     * Útil para mostrar una advertencia al eliminar.
-     */
+    //helpers
     private java.util.List<String> findDependantCourses(String removedCode) {
         java.util.List<String> dependants = new java.util.ArrayList<>();
         for (AcademicRecordEntry entry : service.toArray()) {

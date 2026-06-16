@@ -40,13 +40,13 @@ public class LoginController {
         String username = txtUsername.getText().trim();
         String password = txtPassword.getText();
 
-        // Validación básica de campos vacíos
+        //validación básica de campos vacíos
         if (username.isEmpty() || password.isEmpty()) {
             showError("Por favor ingrese usuario y contraseña.");
             return;
         }
 
-        // Autenticación
+        //autenticación
         Optional<User> result = UserService.getInstance().authenticate(username, password);
 
         if (result.isPresent()) {
@@ -54,7 +54,7 @@ public class LoginController {
             UserService.getInstance().setCurrentUser(user);
             lblError.setVisible(false);
 
-            // Obtener el Stage actual y cargar la vista principal
+            //obtener el Stage actual y cargar la vista principal
             Stage stage = (Stage) txtUsername.getScene().getWindow();
             ViewFactory.showMainView(stage, user);
 

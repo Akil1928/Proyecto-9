@@ -1,11 +1,6 @@
 package cr.ac.ucr.sga.model.entities;
 
-/**
- * CourseEntry — Sprint 3 (US-11 / US-12).
- * Envoltorio simple sobre un curso de la malla curricular que implementa
- * {@code Comparable} para poder insertarse en un {@code BST} o {@code AVL}
- * (clases vistas en laboratorio PG-05, requieren {@code T extends Comparable<T>}).
- */
+
 public class CourseEntry implements Comparable<CourseEntry> {
 
     private final String code;

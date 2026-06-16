@@ -53,24 +53,24 @@ public class CurriculumService {
 
     private void buildCurriculum() {
 
-        // ── PRIMER AÑO ────────────────────────────────────────────────────────
+        // ── PRIMER AÑO ────────────────────
 
-        // I Ciclo
+        //I Ciclo
         addCourse("EG-I",   "Curso Integrado de Humanidades I");           // sin requisitos
         addCourse("IF-0001","Desarrollo de Software I");                    // sin requisitos
         addCourse("IF-0002","Introducción a la Informática Empresarial");   // sin requisitos
         addCourse("IF-0003","Matemática Básica para Informática Empresarial"); // sin requisitos
 
-        // II Ciclo
+        //II Ciclo
         addCourse("EG-II",  "Curso Integrado de Humanidades II",  or("EG-I"));
         addCourse("EF-",    "Actividad Deportiva");                         // sin requisitos
         addCourse("IF-0004","Desarrollo de Software II",          or("IF-0001","IF-2000"));
         addCourse("IF-0005","Matemáticas Discretas para Informática Empresarial",
                 or("IF-0003","IF-1400"));
 
-        // ── SEGUNDO AÑO ───────────────────────────────────────────────────────
+        // ── SEGUNDO AÑO ───────────────────────────
 
-        // III Ciclo
+        //III Ciclo
         addCourse("SR-I",   "Seminario de Realidad Nacional I",   or("EG-II"));
         addCourse("IF-0006","Desarrollo de Software III",         or("IF-0004"));
         addCourse("IF-0007","Bases de Datos I",                   or("IF-0004"));
@@ -78,7 +78,7 @@ public class CurriculumService {
                 or("IF-0003","IF-1400"));
         addCourse("IF-3001","Algoritmos y Estructuras de Datos",  or("IF-0004","IF-2000"));
 
-        // IV Ciclo
+        //IV Ciclo
         addCourse("SR-II",  "Seminario de Realidad Nacional II",  or("SR-I"));
         addCourse("IF-0009","Desarrollo de Software IV",          or("IF-0006","IF-3000"));
         addCourse("IF-0010","Bases de Datos II",                  or("IF-0007","IF-4100"));
@@ -86,37 +86,37 @@ public class CurriculumService {
         addCourse("IF-0012","Álgebra Lineal para Informática Empresarial",
                 or("IF-0008","MA-0321"));
 
-        // ── TERCER AÑO ────────────────────────────────────────────────────────
+        // ── TERCER AÑO ──────────────────
 
-        // V Ciclo (Verano)
+        //V Ciclo (Verano)
         addCourse("IF-0013","Inglés I para Informática Empresarial");       // sin requisitos
 
-        // VI Ciclo
+        //VI Ciclo
         addCourse("IF-0014","Inglés II para Informática Empresarial",       or("IF-0013"));
         addCourse("IF-0015","Introducción a la Administración de Negocios", or("IF-0002","IF-1300"));
         addCourse("IF-0016","Introducción a la Estadística y Análisis de Datos",
                 or("IF-0010","IF-5100"));
         addCourse("IF-0017","Métodos Numéricos y Análisis Computacional",   or("IF-0012","MA-0322"));
-        // OPT Arquitectura e Infraestructura (VI): sin requisitos formales en malla
+        //OPT Arquitectura e Infraestructura (VI): sin requisitos formales en malla
 
-        // VII Ciclo
+        //VII Ciclo
         addCourse("IF-0018","Inglés III para Informática Empresarial",      or("IF-0014"));
         addCourse("IF-0019","Seguridad en Sistemas Informáticos",           or("IF-0029","IF-0030"));
-        // OPT Desarrollo de Software: sin requisito de malla con código fijo
-        // OPT Ingeniería de Datos: sin requisito de malla con código fijo
+        //OPT Desarrollo de Software: sin requisito de malla con código fijo
+        //OPT Ingeniería de Datos: sin requisito de malla con código fijo
 
         // VIII Ciclo (Verano)
         addCourse("IF-0020","Inglés IV para Informática Empresarial",       or("IF-0018"));
 
-        // ── CUARTO AÑO ────────────────────────────────────────────────────────
+        // ── CUARTO AÑO ─────────────
 
-        // IX Ciclo
+        //IX Ciclo
         addCourse("IF-7201","Gestión de Proyectos",                         or("IF-0015","IF-6200"));
-        // OPT Gestión de la Informática IX: sin requisito fijo
+        //OPT Gestión de la Informática IX: sin requisito fijo
 
-        // X Ciclo
+        //X Ciclo
         addCourse("IF-0021","Ética y Responsabilidad Profesional",          or("IF-0023","IF-0024","IF-6201"));
-        // IF-0022 tiene múltiples grupos de requisitos independientes (AND entre grupos)
+        //IF-0022 tiene múltiples grupos de requisitos independientes (AND entre grupos)
         addCourse("IF-0022","Práctica Empresarial Supervisada",
                 or("IF-0016"),
                 or("IF-0020"),
@@ -124,20 +124,20 @@ public class CurriculumService {
                 or("IF-0025","IF-0026","IF-7100"),
                 or("IF-0029","IF-0030"));
 
-        // ── OPTATIVOS ─────────────────────────────────────────────────────────
+        // ── OPTATIVOS ────────
 
-        // Área Gestión de la Informática en las Organizaciones
+        //Área Gestión de la Informática en las Organizaciones
         addCourse("IF-0023","Gobernanza de Tecnologías de Información",     or("IF-0015","IF-5200"));
         addCourse("IF-0024","Emprendimiento y Desarrollo de Negocios",      or("IF-7201"));
         addCourse("IF-6201","Informática Aplicada a los Negocios",          or("IF-0015","IF-5200"));
 
-        // Área Tendencias de Desarrollo de Software
+        //Área Tendencias de Desarrollo de Software
         addCourse("IF-0025","Aseguramiento de la Calidad en la Ingeniería del Software",
                 or("IF-0009","IF-4101"));
         addCourse("IF-0026","Interacción Humano Computador",               or("IF-0009","IF-4101"));
         addCourse("IF-7100","Ingeniería de Software",                       or("IF-0009","IF-6100"));
 
-        // Área Ingeniería de Datos
+        //Área Ingeniería de Datos
         addCourse("IF-0027","Inteligencia de Negocios",                     or("IF-0016","XS-0105"));
         addCourse("IF-0028","Minería de Datos",                             or("IF-0016","XS-0105"));
 
@@ -223,7 +223,7 @@ public class CurriculumService {
         List<String> missing = new ArrayList<>();
 
         for (Set<String> group : groups) {
-            // ¿El estudiante aprobó al menos UNO del grupo?
+            //¿El estudiante aprobó al menos UNO del grupo?
             boolean groupSatisfied = false;
             for (String req : group) {
                 if (approvedCodes.contains(req.toUpperCase())) {
@@ -232,7 +232,7 @@ public class CurriculumService {
                 }
             }
             if (!groupSatisfied) {
-                // Construir mensaje legible: "IF-0007 o IF-4100"
+                //construir mensaje legible: "IF-0007 o IF-4100"
                 StringBuilder sb = new StringBuilder();
                 String[] arr = group.toArray(new String[0]);
                 for (int i = 0; i < arr.length; i++) {

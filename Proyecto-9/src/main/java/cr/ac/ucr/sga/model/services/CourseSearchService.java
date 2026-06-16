@@ -11,17 +11,6 @@ import cr.ac.ucr.sga.model.trees.TreeException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * CourseSearchService — US-11 (Sprint 3).
- *
- * Construye un Árbol Binario de Búsqueda (BST, clase vista en laboratorio PG-05)
- * con todos los cursos de la malla curricular (CurriculumService), ordenados
- * por código de curso.
- *
- * Permite al administrador buscar un curso de forma eficiente (O(log n) en
- * promedio) y devuelve además el "camino recorrido" durante la búsqueda,
- * útil para resaltarlo en la visualización del Canvas (US-14).
- */
 public class CourseSearchService {
 
     private static CourseSearchService instance;

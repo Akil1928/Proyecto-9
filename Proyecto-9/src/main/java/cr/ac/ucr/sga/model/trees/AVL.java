@@ -1,9 +1,5 @@
 package cr.ac.ucr.sga.model.trees;
 
-/**
- * Árbol AVL (Adelson-Velsky & Landis) — clase vista en laboratorio PG-05.
- * US-12: auto-balanceo con rotaciones LL, RR, LR, RL.
- */
 public class AVL<T extends Comparable<T>> extends BST<T> {
 
     @Override

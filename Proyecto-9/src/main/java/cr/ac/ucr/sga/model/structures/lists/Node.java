@@ -1,6 +1,5 @@
 package cr.ac.ucr.sga.model.structures.lists;
 
-
 public class Node<T> {
     public T data;
     public Integer priority; //1=alta, 2=media, 3=baja
