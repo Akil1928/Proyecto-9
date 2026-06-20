@@ -8,12 +8,13 @@ public class DoublyLinkedList<T> implements List<T> {
 
     @Override
     public int size() throws ListException {
-        if(isEmpty()){
-            throw new ListException("Linked List is empty");
+        if (isEmpty()) {
+            return 0;
         }
+
         Node<T> aux = head;
         int count = 0;
-        while(aux!= null){
+        while (aux != null) {
             count++;
             aux = aux.next;
         }
@@ -147,28 +148,25 @@ public class DoublyLinkedList<T> implements List<T> {
             head = head.next;
             if(head != null){
                 head.prev = null;
-
+            } else {
+                tail = null;
             }
         }
         //Caso general. El elemento a suprimir puede estar en el medio o al final
         else{
-            Node<T> prev = head; //Dejamos un rastro en el nodo anterior al que vayamos a eliminar
-            while(prev.next != null){
-                if(equals(prev.next.data, element)){
+            Node<T> aux = head.next;
+            while(aux != null){
+                if(equals(aux.data, element)){
                     //Ya encontré el elemento a eliminar
-                    Node<T> removed = prev.next;
-                    //desenlazo el nodo
-                    prev.next = removed.next;//Se brinca el nodo a suprimir
-                    //dejamos el enlace
-                    if(removed.next != null){
-                        removed.next.prev = prev;
+                    aux.prev.next = aux.next;
+                    if(aux.next != null){
+                        aux.next.prev = aux.prev;
+                    } else {
+                        tail = aux.prev;
                     }
-                    prev = prev.next;
-                    if(prev == null) break;
+                    return;
                 }
-                //Al final dejamos tail en el ultimo nodo
-                //Si la lista queda vacia, se asigna null
-                tail = head!=null ? getNodeByIndex(indexOf(getLast())) : null;
+                aux = aux.next;
             }
         }
 
@@ -353,6 +351,12 @@ public class DoublyLinkedList<T> implements List<T> {
     }
 
     ///======================AYUDAS========================//
+    /**
+     * Obtiene el nodo en la posición especificada (basado en 1).
+     * @param index La posición del nodo a obtener (1-based).
+     * @return El nodo en la posición especificada o null si no se encuentra.
+     * @throws ListException Si la lista está vacía.
+     */
     public Node<T> getNodeByIndex(int index) throws ListException{
         if(isEmpty()){
             throw new ListException("Linked list is empty");
@@ -367,6 +371,12 @@ public class DoublyLinkedList<T> implements List<T> {
         return null;
     }
 
+    /**
+     * Compara dos elementos para verificar si son iguales, manejando correctamente los valores nulos.
+     * @param a Primer elemento a comparar.
+     * @param b Segundo elemento a comparar.
+     * @return true si los elementos son iguales o ambos son nulos, false en caso contrario.
+     */
     private boolean equals (T a, T b){
         return  a == null ? b==null : a.equals(b);
     }

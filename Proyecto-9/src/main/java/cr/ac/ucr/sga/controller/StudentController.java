@@ -43,48 +43,60 @@ public class StudentController {
 
     @FXML
     public void initialize() {
-        if (cbStatus != null)
-            cbStatus.setItems(FXCollections.observableArrayList("Aprobado", "Reprobado", "En curso"));
-        if (cbPeriod != null)
-            cbPeriod.setItems(FXCollections.observableArrayList("I-2025", "II-2025", "I-2026", "II-2026"));
-        if (cbStatus != null) cbStatus.getSelectionModel().selectFirst();
-        if (cbPeriod != null) cbPeriod.getSelectionModel().selectFirst();
+        try {
+            if (cbStatus != null)
+                cbStatus.setItems(FXCollections.observableArrayList("Aprobado", "Reprobado", "En curso"));
+            if (cbPeriod != null)
+                cbPeriod.setItems(FXCollections.observableArrayList("I-2025", "II-2025", "I-2026", "II-2026"));
+            if (cbStatus != null) cbStatus.getSelectionModel().selectFirst();
+            if (cbPeriod != null) cbPeriod.getSelectionModel().selectFirst();
 
-        colCode.setCellValueFactory(data -> data.getValue().getCourse().codeProperty());
-        colName.setCellValueFactory(data -> data.getValue().getCourse().nameProperty());
-        colCredits.setCellValueFactory(data -> data.getValue().getCourse().creditsProperty());
-        colGrade.setCellValueFactory(data -> data.getValue().gradeProperty());
-        colStatus.setCellValueFactory(data -> data.getValue().statusProperty());
-        colPeriod.setCellValueFactory(data -> data.getValue().periodProperty());
+            colCode.setCellValueFactory(data -> data.getValue().getCourse().codeProperty());
+            colName.setCellValueFactory(data -> data.getValue().getCourse().nameProperty());
+            colCredits.setCellValueFactory(data -> data.getValue().getCourse().creditsProperty());
+            colGrade.setCellValueFactory(data -> data.getValue().gradeProperty());
+            colStatus.setCellValueFactory(data -> data.getValue().statusProperty());
+            colPeriod.setCellValueFactory(data -> data.getValue().periodProperty());
 
-        tableRecord.setItems(tableData);
+            tableRecord.setItems(tableData);
 
-        User currentUser = UserService.getInstance().getCurrentUser();
-        boolean isAdmin = currentUser != null && currentUser.getRole() == User.Role.ADMINISTRADOR;
+            User currentUser = UserService.getInstance().getCurrentUser();
+            boolean isAdmin = currentUser != null && currentUser.getRole() == User.Role.ADMINISTRADOR;
 
-        if (isAdmin) {
-            if (panelAdminCurso != null) panelAdminCurso.setVisible(true);
-            if (lblNombreEstudiante != null) lblNombreEstudiante.setText("(Administrador)");
-            refreshCreditos();
-            addDemoCourses();
-        } else {
-            // ESTUDIANTE: ocultar formulario de agregar cursos
-            if (panelAdminCurso != null) {
-                panelAdminCurso.setVisible(false);
-                panelAdminCurso.setManaged(false);
+            if (isAdmin) {
+                if (panelAdminCurso != null) panelAdminCurso.setVisible(true);
+                if (lblNombreEstudiante != null) lblNombreEstudiante.setText("(Administrador)");
+                refreshCreditos();
+                addDemoCourses();
+            } else {
+                // ESTUDIANTE: ocultar formulario de agregar cursos
+                if (panelAdminCurso != null) {
+                    panelAdminCurso.setVisible(false);
+                    panelAdminCurso.setManaged(false);
+                }
+                if (btnLoadDemo != null) {
+                    btnLoadDemo.setVisible(false);
+                    btnLoadDemo.setManaged(false);
+                }
+                if (lblNombreEstudiante != null && currentUser != null) {
+                    lblNombreEstudiante.setText(currentUser.getDisplayName());
+                }
+                refreshTable();
+                refreshCreditos();
+                setStatus(tableData.isEmpty()
+                        ? "Tu expediente académico está vacío."
+                        : "Expediente cargado con " + tableData.size() + " curso(s).");
             }
-            if (btnLoadDemo != null) {
-                btnLoadDemo.setVisible(false);
-                btnLoadDemo.setManaged(false);
+        } catch (Exception ex) {
+            // Evitar que una excepción en initialize provoque InvocationTargetException en FXMLLoader.
+            ex.printStackTrace();
+            // Mostrar un mensaje en la UI si es posible
+            if (lblStatus != null) {
+                lblStatus.setText("Error al inicializar la vista: " + ex.getMessage());
+            } else {
+                // Si lblStatus no está inicializado, usar un alert modal
+                showError("Error al inicializar la vista", ex.getMessage());
             }
-            if (lblNombreEstudiante != null && currentUser != null) {
-                lblNombreEstudiante.setText(currentUser.getDisplayName());
-            }
-            refreshTable();
-            refreshCreditos();
-            setStatus(tableData.isEmpty()
-                    ? "Tu expediente académico está vacío."
-                    : "Expediente cargado con " + tableData.size() + " curso(s).");
         }
     }
 

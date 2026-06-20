@@ -15,51 +15,32 @@
     <left>
         <VBox spacing="8">
             <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
-
-            <!-- Sección: Enviar trámite (estudiante y admin) -->
-            <Label text="Nuevo Trámite" style="-fx-font-weight:bold;"/>
             <ComboBox fx:id="comboTipoTramit" promptText="Tipo de trámite"/>
-            <!-- El admin puede elegir el estudiante; el estudiante ve su nombre fijo -->
             <ComboBox fx:id="comboEstudiante" promptText="Estudiante"/>
             <TextArea fx:id="txtDescription" promptText="Descripción" prefRowCount="4"/>
-            <!-- El estado se asigna "Pendiente" automáticamente por código (US-05).
-                 Este label es solo informativo para el estudiante. -->
-            <Label fx:id="lblEstadoInfo" text="Estado: Pendiente (automático)"
-                   style="-fx-text-fill: #555; -fx-font-style: italic;"/>
-            <Button fx:id="btnCrearTramit" text="Enviar Trámite" onAction="#onCrearTramit" styleClass="btn-primary"/>
-
-            <!-- Separador visual -->
-            <Separator/>
-
-            <!-- Sección exclusiva del ADMINISTRADOR (se ocultan para ESTUDIANTE) -->
-            <Label fx:id="lblAdminSection" text="Administración (LIFO)" style="-fx-font-weight:bold;"/>
-            <Label fx:id="lblStackSection" text="Tipo de pila:"/>
             <ComboBox fx:id="comboStackType" onAction="#onCambiarTipoStack" promptText="Tipo de pila"/>
-            <!-- US-06: Solo admin puede procesar. Botón único, sin selección manual -->
-            <Button fx:id="btnProcesar" text="Procesar Último Trámite (LIFO)"
-                    onAction="#onProcesarTramit" styleClass="btn-green"/>
-            <!-- Avanzar estado: solo admin puede aprobar/rechazar -->
-            <Button fx:id="btnAvanzarEstado" text="Avanzar Estado del Tope"
-                    onAction="#onAvanzarEstado" styleClass="btn-ghost"/>
+            <Button text="Crear Trámite" onAction="#onCrearTramit" styleClass="btn-primary"/>
+            <Button text="Procesar Trámite del Tope" onAction="#onProcesarTramit" styleClass="btn-green"/>
+            <Button text="Avanzar Estado del Tope" onAction="#onAvanzarEstado" styleClass="btn-ghost"/>
         </VBox>
     </left>
     <center>
         <TableView fx:id="tramitTable">
             <columns>
-                <TableColumn fx:id="colId"      text="Id"         prefWidth="80"/>
-                <TableColumn fx:id="colType"    text="Tipo"       prefWidth="110"/>
-                <TableColumn fx:id="colStudent" text="Estudiante" prefWidth="130"/>
-                <TableColumn fx:id="colState"   text="Estado"     prefWidth="100"/>
-                <TableColumn fx:id="colDate"    text="Fecha"      prefWidth="130"/>
+                <TableColumn fx:id="colId" text="Id"/>
+                <TableColumn fx:id="colType" text="Tipo"/>
+                <TableColumn fx:id="colStudent" text="Estudiante"/>
+                <TableColumn fx:id="colState" text="Estado"/>
+                <TableColumn fx:id="colDate" text="Fecha"/>
             </columns>
         </TableView>
     </center>
     <bottom>
         <HBox spacing="10">
             <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
-            <Label fx:id="lblTopeTramit"    text="Tope: vacío"/>
-            <Label fx:id="lblNotificacion"  text="Sin notificaciones"/>
-            <Label fx:id="lblTotalTramits"  text="Total: 0"/>
+            <Label fx:id="lblTopeTramit" text="Tope: vacío"/>
+            <Label fx:id="lblNotificacion" text="Sin notificaciones"/>
+            <Label fx:id="lblTotalTramits" text="Total: 0"/>
         </HBox>
     </bottom>
 </BorderPane>

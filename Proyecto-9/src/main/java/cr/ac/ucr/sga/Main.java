@@ -4,7 +4,8 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 import cr.ac.ucr.sga.view.ViewFactory;
 
-public class Main extends Application {
+public class
+Main extends Application {
 
     @Override
     public void start(Stage stage) {
