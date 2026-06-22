@@ -30,53 +30,53 @@ public class MainController implements NotificationObserver {
     private static final String VIEW_ENROLLMENT = "Cola de Matrícula";
     private static final String VIEW_PREREQ_TREE = "Árbol de Prerrequisitos";
     private static final String VIEW_CAMPUS_MAP = "Mapa del Campus";
+    private static final String VIEW_PROFESSOR   = "Panel del Profesor (AVL)";
 
 
     @FXML
     public void initialize() {
         NotificationService.getInstance().addObserver(this);
-
         User user = UserService.getInstance().getCurrentUser();
-
         if (user != null) {
             lblUserInfo.setText("Sesión: " + user.getDisplayName()
                     + "  [" + user.getRole().name() + "]");
         }
-
         buildMenu(user);
-
-        //vista inicial según rol:
-        //- ADMINISTRADOR: Expediente Académico
-        //- ESTUDIANTE: Gestión de Trámites (US-05 es su tarea principal)
-        if (user != null && user.getRole() == User.Role.ADMINISTRADOR) {
-            loadCenter("/fxml/student-view.fxml", VIEW_STUDENT);
-        } else {
-            loadCenter("/fxml/tramit-view.fxml", VIEW_TRAMIT);
+        if (user != null) {
+            switch (user.getRole()) {
+                case ADMINISTRADOR -> loadCenter("/fxml/student-view.fxml",    VIEW_STUDENT);
+                case PROFESOR      -> loadCenter("/fxml/professor-view.fxml",  VIEW_PROFESSOR);
+                case ESTUDIANTE    -> loadCenter("/fxml/tramit-view.fxml",     VIEW_TRAMIT);
+            }
         }
     }
 
     private void buildMenu(User user) {
         menuPanel.getChildren().clear();
 
-        boolean isAdmin = user != null && user.getRole() == User.Role.ADMINISTRADOR;
+        if (user == null) return;
 
-        if (isAdmin) {
-            //ADMINISTRADOR: acceso completo
-            addMenuButton("Expediente Académico", this::openStudentView);
-            addMenuButton("Gestión de Trámites",  this::openTramitView);
-            addMenuButton("Cola de Matrícula",     this::openEnrollmentView);
-            addMenuButton("Búsqueda de Cursos (BST)", this::openCourseSearchView);
-            addMenuButton("Árbol de Prerrequisitos", this::openPrerequisiteTreeView);
-            addMenuButton("Mapa del Campus", this::openCampusMapView);
-        } else {
-            //ESTUDIANTE: solo sus vistas
-            //- Gestión de Trámites:puede enviar sus trámites (US-05)
-            //- Cola de Matrícula:puede solicitar su matrícula (US-07)
-            //- Expediente:solo lectura de su historial académico
-            addMenuButton("Gestión de Trámites",  this::openTramitView);
-            addMenuButton("Cola de Matrícula",     this::openEnrollmentView);
-            addMenuButton("Expediente Académico",  this::openStudentView);
-            addMenuButton("Mapa del Campus", this::openCampusMapView);
+        switch (user.getRole()) {
+            case ADMINISTRADOR -> {
+                addMenuButton("Expediente Académico",     this::openStudentView);
+                addMenuButton("Gestión de Trámites",      this::openTramitView);
+                addMenuButton("Cola de Matrícula",        this::openEnrollmentView);
+                addMenuButton("Búsqueda de Cursos (BST)", this::openCourseSearchView);
+                addMenuButton("Árbol de Prerrequisitos",  this::openPrerequisiteTreeView);
+                addMenuButton("Mapa del Campus",          this::openCampusMapView);
+            }
+            case PROFESOR -> {
+                addMenuButton("Panel del Profesor (AVL)", this::openProfessorView);
+                addMenuButton("Árbol de Prerrequisitos",  this::openPrerequisiteTreeView);
+                addMenuButton("Búsqueda de Cursos (BST)", this::openCourseSearchView);
+                addMenuButton("Mapa del Campus",          this::openCampusMapView);
+            }
+            case ESTUDIANTE -> {
+                addMenuButton("Gestión de Trámites",  this::openTramitView);
+                addMenuButton("Cola de Matrícula",    this::openEnrollmentView);
+                addMenuButton("Expediente Académico", this::openStudentView);
+                addMenuButton("Mapa del Campus",      this::openCampusMapView);
+            }
         }
 
         javafx.scene.control.Separator sep = new javafx.scene.control.Separator();
@@ -111,17 +111,21 @@ public class MainController implements NotificationObserver {
         lblCurrentView.setText("Vista actual: " + viewName);
     }
 //Navegacion entre vistas
-     private void reloadViewByName(String viewName) {
-         if (viewName == null || viewName.equals("Sin historial")) return;
-         switch (viewName) {
-             case VIEW_STUDENT    -> loadCenterNoHistory("/fxml/student-view.fxml");
-             case VIEW_TRAMIT     -> loadCenterNoHistory("/fxml/tramit-view.fxml");
-             case VIEW_ENROLLMENT -> loadCenterNoHistory("/fxml/enrollment-view.fxml");
-             case VIEW_BST_SEARCH -> loadCenterNoHistory("/fxml/course-search-view.fxml");
-             case VIEW_PREREQ_TREE -> loadCenterNoHistory("/fxml/prerequisite-tree-view.fxml");
-             case VIEW_CAMPUS_MAP -> loadCenterNoHistory("/fxml/campus-map-view.fxml");
-         }
-     }
+
+@FXML void openProfessorView() { loadCenter("/fxml/professor-view.fxml", VIEW_PROFESSOR); }
+
+    private void reloadViewByName(String viewName) {
+        if (viewName == null || viewName.equals("Sin historial")) return;
+        switch (viewName) {
+            case VIEW_STUDENT     -> loadCenterNoHistory("/fxml/student-view.fxml");
+            case VIEW_TRAMIT      -> loadCenterNoHistory("/fxml/tramit-view.fxml");
+            case VIEW_ENROLLMENT  -> loadCenterNoHistory("/fxml/enrollment-view.fxml");
+            case VIEW_BST_SEARCH  -> loadCenterNoHistory("/fxml/course-search-view.fxml");
+            case VIEW_PREREQ_TREE -> loadCenterNoHistory("/fxml/prerequisite-tree-view.fxml");
+            case VIEW_CAMPUS_MAP  -> loadCenterNoHistory("/fxml/campus-map-view.fxml");
+            case VIEW_PROFESSOR   -> loadCenterNoHistory("/fxml/professor-view.fxml");
+        }
+    }
 
      @FXML void openStudentView()    { loadCenter("/fxml/student-view.fxml",    VIEW_STUDENT);    }
      @FXML void openTramitView()     { loadCenter("/fxml/tramit-view.fxml",     VIEW_TRAMIT);     }

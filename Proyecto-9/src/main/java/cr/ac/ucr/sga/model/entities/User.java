@@ -6,7 +6,8 @@ public class User {
 
     public enum Role {
         ESTUDIANTE,
-        ADMINISTRADOR
+        ADMINISTRADOR,
+        PROFESOR
     }
 
     private final String username;
@@ -30,4 +31,5 @@ public class User {
     public boolean checkPassword(String input) {
         return this.password.equals(input);
     }
+
 }

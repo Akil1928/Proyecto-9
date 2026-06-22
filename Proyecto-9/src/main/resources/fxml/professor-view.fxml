@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="12"
+      xmlns:fx="http://javafx.com/fxml/1"
+      xmlns="http://javafx.com/javafx/17.0.12"
+      fx:controller="cr.ac.ucr.sga.controller.ProfessorController"
+      styleClass="panel"
+      stylesheets="@../css/styless.css">
+
+    <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+
+    <Label text="Panel del Profesor — Árbol AVL de Cursos"
+           styleClass="panel-title"/>
+
+    <!-- Controles de inserción -->
+    <VBox spacing="10"
+          style="-fx-background-color: #272B35; -fx-background-radius: 8;
+                 -fx-border-color: #363B48; -fx-border-radius: 8; -fx-padding: 12 14 12 14;">
+
+        <Label text="Gestión del Árbol AVL"
+               style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #E8EBF2;"/>
+
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="Código de curso:"
+                   style="-fx-text-fill: #C8CDD8; -fx-font-size: 12px;"/>
+            <TextField fx:id="txtCourseCode" promptText="Ej: IF-3001" prefWidth="160"/>
+            <Button text="Insertar" styleClass="btn-primary" onAction="#onInsert"/>
+            <Button text="Eliminar" styleClass="btn-ghost" onAction="#onDelete"/>
+            <Button text="Buscar" styleClass="btn-ghost" onAction="#onSearch"/>
+            <Button text="Limpiar árbol" styleClass="btn-ghost" onAction="#onClear"/>
+        </HBox>
+
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Label text="Cargar malla curricular:"
+                   style="-fx-text-fill: #C8CDD8; -fx-font-size: 12px;"/>
+            <Button text="Insertar todos los cursos (AVL)" styleClass="btn-ghost" onAction="#onLoadAll"/>
+        </HBox>
+    </VBox>
+
+    <!-- Recorridos -->
+    <VBox spacing="10"
+          style="-fx-background-color: #272B35; -fx-background-radius: 8;
+                 -fx-border-color: #363B48; -fx-border-radius: 8; -fx-padding: 12 14 12 14;">
+
+        <Label text="Recorridos del Árbol (US-13)"
+               style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #E8EBF2;"/>
+
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <Button text="Inorden" styleClass="btn-ghost" onAction="#onInorder"/>
+            <Button text="Preorden" styleClass="btn-ghost" onAction="#onPreorder"/>
+            <Button text="Posorden" styleClass="btn-ghost" onAction="#onPostorder"/>
+            <Button fx:id="btnAnimate" text="Animar recorrido" styleClass="btn-primary" onAction="#onAnimate"/>
+            <Button text="Paso" styleClass="btn-ghost" onAction="#onStep"/>
+            <Button text="Reiniciar" styleClass="btn-ghost" onAction="#onReset"/>
+        </HBox>
+
+        <Label fx:id="lblTraversal"
+               text=""
+               style="-fx-text-fill: #9AA3B5; -fx-font-size: 12px;"
+               wrapText="true"/>
+    </VBox>
+
+    <!-- Canvas del árbol AVL -->
+    <ScrollPane fitToWidth="false" fitToHeight="false" pannable="true" VBox.vgrow="ALWAYS"
+                style="-fx-background-color: #1E2028; -fx-border-color: #363B48; -fx-border-radius: 8;">
+        <Canvas fx:id="canvas" width="1100" height="520"/>
+    </ScrollPane>
+
+    <!-- Leyenda -->
+    <HBox spacing="20" alignment="CENTER_LEFT" styleClass="info-bar">
+        <Label text="🟩 Nodo raíz"
+               style="-fx-text-fill: #C8CDD8; -fx-font-size: 12px;"/>
+        <Label text="⬜ Nodo normal"
+               style="-fx-text-fill: #C8CDD8; -fx-font-size: 12px;"/>
+        <Label text="🟡 Animación / nodo actual"
+               style="-fx-text-fill: #C8CDD8; -fx-font-size: 12px;"/>
+        <Label text="🔵 Resultado de búsqueda"
+               style="-fx-text-fill: #C8CDD8; -fx-font-size: 12px;"/>
+    </HBox>
+
+    <Label fx:id="lblStatus"
+           text="Listo. Inserte cursos o cargue la malla curricular."
+           style="-fx-text-fill: #9AA3B5; -fx-font-size: 12px; -fx-font-style: italic;"/>
+
+</VBox>

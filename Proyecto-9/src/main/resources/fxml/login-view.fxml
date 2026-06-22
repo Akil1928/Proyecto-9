@@ -4,6 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.*?>
+<?import javafx.scene.layout.GridPane?>
 
 <BorderPane style="-fx-background-color: linear-gradient(to bottom right, #14161E, #1E2028, #181A24);"
             stylesheets="@../css/styless.css"
@@ -83,20 +84,41 @@
                                  -fx-padding: 12 16 12 16;">
                         <Label text="USUARIOS DE PRUEBA"
                                style="-fx-text-fill: #4A5068; -fx-font-size: 9px; -fx-font-weight: bold;"/>
-                        <HBox spacing="24" alignment="CENTER">
-                            <VBox spacing="3" alignment="CENTER">
-                                <Label text="admin / admin123"
-                                       style="-fx-text-fill: #9AA3B5; -fx-font-size: 11px; -fx-font-family: Consolas;"/>
-                                <Label text="ADMINISTRADOR"
-                                       style="-fx-text-fill: #F0A500; -fx-font-size: 9px; -fx-font-weight: bold;"/>
-                            </VBox>
-                            <Rectangle width="1" height="28"
-                                       style="-fx-fill: #363B48;"/>
-                            <VBox spacing="3" alignment="CENTER">
-                                <Label text="estudiante / est123"
-                                       style="-fx-text-fill: #9AA3B5; -fx-font-size: 11px; -fx-font-family: Consolas;"/>
-                                <Label text="ESTUDIANTE"
-                                       style="-fx-text-fill: #34D399; -fx-font-size: 9px; -fx-font-weight: bold;"/>
+                        <HBox spacing="16" alignment="CENTER">
+                            <VBox spacing="8" alignment="CENTER"
+                                  style="-fx-background-color: rgba(240,165,0,0.05);
+             -fx-background-radius: 8;
+             -fx-border-color: rgba(240,165,0,0.14);
+             -fx-border-radius: 8;
+             -fx-padding: 12 16 12 16;">
+                                <Label text="USUARIOS DE PRUEBA"
+                                       style="-fx-text-fill: #4A5068; -fx-font-size: 9px; -fx-font-weight: bold;"/>
+
+                                <GridPane hgap="12" vgap="4" alignment="CENTER">
+                                    <!-- Admin -->
+                                    <Label GridPane.columnIndex="0" GridPane.rowIndex="0"
+                                           text="admin / admin123"
+                                           style="-fx-text-fill: #9AA3B5; -fx-font-size: 10px; -fx-font-family: Consolas;"/>
+                                    <Label GridPane.columnIndex="1" GridPane.rowIndex="0"
+                                           text="ADMINISTRADOR"
+                                           style="-fx-text-fill: #F0A500; -fx-font-size: 9px; -fx-font-weight: bold;"/>
+
+                                    <!-- Profesor -->
+                                    <Label GridPane.columnIndex="0" GridPane.rowIndex="1"
+                                           text="profesor / prof123"
+                                           style="-fx-text-fill: #9AA3B5; -fx-font-size: 10px; -fx-font-family: Consolas;"/>
+                                    <Label GridPane.columnIndex="1" GridPane.rowIndex="1"
+                                           text="PROFESOR"
+                                           style="-fx-text-fill: #60A5FA; -fx-font-size: 9px; -fx-font-weight: bold;"/>
+
+                                    <!-- Estudiante -->
+                                    <Label GridPane.columnIndex="0" GridPane.rowIndex="2"
+                                           text="estudiante / est123"
+                                           style="-fx-text-fill: #9AA3B5; -fx-font-size: 10px; -fx-font-family: Consolas;"/>
+                                    <Label GridPane.columnIndex="1" GridPane.rowIndex="2"
+                                           text="ESTUDIANTE"
+                                           style="-fx-text-fill: #34D399; -fx-font-size: 9px; -fx-font-weight: bold;"/>
+                                </GridPane>
                             </VBox>
                         </HBox>
                     </VBox>

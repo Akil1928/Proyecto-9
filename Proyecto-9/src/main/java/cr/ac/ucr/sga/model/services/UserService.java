@@ -29,7 +29,8 @@ public class UserService {
 
     private UserService() {
         users.add(new User("admin",      "admin123",  "Administrador UCR",  Role.ADMINISTRADOR));
-        users.add(new User("estudiante", "est123",    "Héctor Sandoval",         Role.ESTUDIANTE));
+        users.add(new User("profesor",   "prof123",   "Prof. Guzmán",    Role.PROFESOR));
+        users.add(new User("estudiante", "est123",    "Héctor Sandoval",    Role.ESTUDIANTE));
         users.add(new User("maria",      "maria456",  "María González",     Role.ESTUDIANTE));
         users.add(new User("carlos",     "carlos789", "Carlos Gutierrez",   Role.ESTUDIANTE));
     }
