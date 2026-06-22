@@ -14,6 +14,7 @@ module cr.ac.ucr.sga {
     exports cr.ac.ucr.sga.controller;
     exports cr.ac.ucr.sga.model.entities;
     exports cr.ac.ucr.sga.model.services;
+    exports cr.ac.ucr.sga.model.graph;
     exports cr.ac.ucr.sga.model.structures.lists;
     exports cr.ac.ucr.sga.model.structures.stacks;
     exports cr.ac.ucr.sga.model.structures.queues;
