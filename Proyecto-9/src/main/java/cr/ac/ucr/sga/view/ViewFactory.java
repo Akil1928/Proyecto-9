@@ -1,7 +1,9 @@
 package cr.ac.ucr.sga.view;
 
+import cr.ac.ucr.sga.controller.CampusController;
 import cr.ac.ucr.sga.model.entities.User;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
@@ -73,5 +75,23 @@ public class ViewFactory {
     }
     public static void showCourseSearchView(Stage stage) {
         load(stage, "/fxml/course-search-view.fxml", "Búsqueda de Cursos (BST)");
+    }
+
+
+    public static void showCampusView(Stage stage, User user) {
+        String fxml = (user.getRole() == User.Role.ADMINISTRADOR)
+                ? "/fxml/campus-admin-view.fxml"
+                : "/fxml/campus-student-view.fxml";
+        try {
+            FXMLLoader loader = new FXMLLoader(ViewFactory.class.getResource(fxml));
+            Parent root = loader.load();
+
+            // No necesitas llamar a setAdminMode, porque la vista ya es la correcta
+            stage.setScene(new Scene(root));
+            stage.setTitle("Gestión de Campus");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

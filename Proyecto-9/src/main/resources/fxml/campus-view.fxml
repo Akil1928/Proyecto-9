@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17.0.12"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="cr.ac.ucr.sga.controller.CampusController"
+            stylesheets="@../css/styless.css">
+
+    <top>
+        <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 10;">
+            <Label text="Mapa del Campus" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #E8EBF2;"/>
+        </HBox>
+    </top>
+
+    <center>
+        <Pane style="-fx-background-color: #ffffff;">
+            <Canvas fx:id="canvas" width="800" height="600"/>
+        </Pane>
+    </center>
+
+    <bottom>
+        <HBox fx:id="navigationPanel" spacing="10" alignment="CENTER" style="-fx-padding: 10;">
+            <Label text="Origen:" style="-fx-text-fill: #C8CDD8;"/>
+            <ComboBox fx:id="originComboBox" prefWidth="150"/>
+            <Label text="Destino:" style="-fx-text-fill: #C8CDD8;"/>
+            <ComboBox fx:id="destinationComboBox" prefWidth="150"/>
+            <Button text="Buscar ruta más corta" onAction="#handleFindShortestPath" styleClass="btn-primary"/>
+            <Button text="Ejecutar BFS" onAction="#handleBFS" styleClass="btn-ghost"/>
+            <Button text="Ejecutar DFS" onAction="#handleDFS" styleClass="btn-ghost"/>
+        </HBox>
+    </bottom>
+
+    <right>
+        <VBox fx:id="adminPanel" spacing="10" visible="false" managed="false" style="-fx-padding: 15; -fx-background-color: #2C3440;">
+            <Label text="Modo Administrador" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FF6B6B;"/>
+            <Button text="Agregar Edificio" onAction="#handleAddBuilding" styleClass="btn-secondary" maxWidth="Infinity"/>
+            <Button text="Eliminar Edificio" onAction="#handleDeleteBuilding" styleClass="btn-secondary" maxWidth="Infinity"/>
+            <Button text="Agregar Conexión" onAction="#handleAddEdge" styleClass="btn-secondary" maxWidth="Infinity"/>
+        </VBox>
+    </right>
+
+</BorderPane>

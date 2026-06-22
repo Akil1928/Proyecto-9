@@ -11,17 +11,7 @@ import javafx.stage.Stage;
 
 import java.util.Optional;
 
-/**
- * Controlador de la pantalla de login.
- *
- * Flujo:
- *   1. El usuario ingresa credenciales y presiona "Ingresar".
- *   2. Se valida contra UserService.
- *   3. Si es correcto, se guarda el usuario en sesión y se carga main-view.fxml.
- *   4. Si es incorrecto, se muestra un mensaje de error.
- *
- * La ventana principal recibe el rol a través de ViewFactory.showMainView(stage, user).
- */
+
 public class LoginController {
 
     @FXML private TextField     txtUsername;

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17.0.12"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="cr.ac.ucr.sga.controller.CampusController"
+            stylesheets="@../css/styless.css">
+
+    <top>
+        <HBox spacing="10" alignment="CENTER" style="-fx-padding: 10; -fx-background-color: #2C3440;">
+            <Label text="PANEL DE ADMINISTRACIÓN - Campus" style="-fx-font-size: 16px; -fx-text-fill: #FF6B6B; -fx-font-weight: bold;"/>
+        </HBox>
+    </top>
+
+    <center>
+        <Pane style="-fx-background-color: #ffffff;">
+            <Canvas fx:id="canvas" width="800" height="600"/>
+        </Pane>
+    </center>
+
+    <right>
+        <VBox spacing="15" style="-fx-padding: 20; -fx-background-color: #2C3440;" prefWidth="250">
+            <Label text="Acciones:" style="-fx-text-fill: white;"/>
+            <Button text="Agregar Edificio" onAction="#handleAddBuilding" styleClass="btn-secondary" maxWidth="Infinity"/>
+            <Button text="Eliminar Edificio" onAction="#handleDeleteBuilding" styleClass="btn-secondary" maxWidth="Infinity"/>
+            <Separator />
+            <Button text="Agregar Conexión" onAction="#handleAddEdge" styleClass="btn-secondary" maxWidth="Infinity"/>
+            <Separator />
+            <Button text="Volver al Menú" onAction="#handleBack" styleClass="btn-ghost" maxWidth="Infinity"/>
+        </VBox>
+    </right>
+</BorderPane>

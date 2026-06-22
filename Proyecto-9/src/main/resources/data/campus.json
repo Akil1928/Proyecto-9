@@ -1,27 +1,17 @@
 {
-  "nodes": [
-    {"id": "A", "name": "Edificio A - Ingeniería", "x": 100, "y": 100},
-    {"id": "B", "name": "Edificio B - Administración", "x": 300, "y": 150},
-    {"id": "C", "name": "Edificio C - Biblioteca", "x": 200, "y": 300},
-    {"id": "D", "name": "Edificio D - Cafetería", "x": 400, "y": 250},
-    {"id": "E", "name": "Edificio E - Laboratorios", "x": 100, "y": 400},
-    {"id": "F", "name": "Edificio F - Auditorio", "x": 500, "y": 400},
-    {"id": "G", "name": "Edificio G - Enfermería", "x": 300, "y": 500},
-    {"id": "H", "name": "Edificio H - Tienda", "x": 150, "y": 550}
+  "buildings": [
+    {"id": "A", "name": "Edificio A", "x": 100, "y": 100},
+    {"id": "B", "name": "Edificio B", "x": 300, "y": 100},
+    {"id": "C", "name": "Edificio C", "x": 200, "y": 300},
+    {"id": "D", "name": "Edificio D", "x": 400, "y": 300},
+    {"id": "E", "name": "Edificio E", "x": 500, "y": 100}
   ],
   "edges": [
-    {"from": "A", "to": "B", "weight": 50.0},
-    {"from": "A", "to": "C", "weight": 80.0},
-    {"from": "B", "to": "C", "weight": 60.0},
-    {"from": "B", "to": "D", "weight": 70.0},
-    {"from": "C", "to": "E", "weight": 75.0},
-    {"from": "C", "to": "G", "weight": 90.0},
-    {"from": "D", "to": "F", "weight": 85.0},
-    {"from": "D", "to": "G", "weight": 65.0},
-    {"from": "E", "to": "G", "weight": 55.0},
-    {"from": "E", "to": "H", "weight": 40.0},
-    {"from": "F", "to": "G", "weight": 100.0},
-    {"from": "G", "to": "H", "weight": 50.0}
+    {"source": "A", "target": "B", "weight": 50},
+    {"source": "A", "target": "C", "weight": 85},
+    {"source": "B", "target": "C", "weight": 45},
+    {"source": "B", "target": "E", "weight": 90},
+    {"source": "C", "target": "D", "weight": 60},
+    {"source": "D", "target": "E", "weight": 75}
   ]
 }
-

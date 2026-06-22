@@ -2,6 +2,7 @@ module cr.ac.ucr.sga {
     requires javafx.controls;
     requires javafx.fxml;
     requires com.google.gson;
+    requires com.fasterxml.jackson.databind;
 
     opens cr.ac.ucr.sga to javafx.fxml;
     opens cr.ac.ucr.sga.controller to javafx.fxml;

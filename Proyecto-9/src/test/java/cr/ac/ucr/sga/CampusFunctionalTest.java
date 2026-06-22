@@ -3,7 +3,6 @@ package cr.ac.ucr.sga;
 import cr.ac.ucr.sga.model.graph.Dijkstra;
 import cr.ac.ucr.sga.model.graph.Graph;
 import cr.ac.ucr.sga.model.graph.Traversals;
-import cr.ac.ucr.sga.model.services.CampusGraphService;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
