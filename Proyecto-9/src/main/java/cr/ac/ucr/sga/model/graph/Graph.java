@@ -38,6 +38,10 @@ public class Graph {
         return Collections.unmodifiableCollection(vertices.values());
     }
 
+    public Collection<String> getVertexIds() {
+        return Collections.unmodifiableCollection(vertices.keySet());
+    }
+
     public List<Edge> getEdgesFrom(String id) {
         return Collections.unmodifiableList(adj.getOrDefault(id, Collections.emptyList()));
     }

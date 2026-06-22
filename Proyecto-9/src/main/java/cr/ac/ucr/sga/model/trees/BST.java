@@ -3,6 +3,7 @@ package cr.ac.ucr.sga.model.trees;
 import cr.ac.ucr.sga.model.trees.BTree;
 import cr.ac.ucr.sga.model.trees.BTreeNode;
 
+
 public class BST<T extends Comparable<T>> extends BTree<T> {
 
     @Override

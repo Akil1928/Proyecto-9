@@ -29,6 +29,7 @@ public class MainController implements NotificationObserver {
     private static final String VIEW_TRAMIT     = "Gestión de Trámites";
     private static final String VIEW_ENROLLMENT = "Cola de Matrícula";
     private static final String VIEW_PREREQ_TREE = "Árbol de Prerrequisitos";
+    private static final String VIEW_CAMPUS_MAP = "Mapa del Campus";
 
 
     @FXML
@@ -66,6 +67,7 @@ public class MainController implements NotificationObserver {
             addMenuButton("Cola de Matrícula",     this::openEnrollmentView);
             addMenuButton("Búsqueda de Cursos (BST)", this::openCourseSearchView);
             addMenuButton("Árbol de Prerrequisitos", this::openPrerequisiteTreeView);
+            addMenuButton("Mapa del Campus", this::openCampusMapView);
         } else {
             //ESTUDIANTE: solo sus vistas
             //- Gestión de Trámites:puede enviar sus trámites (US-05)
@@ -74,6 +76,7 @@ public class MainController implements NotificationObserver {
             addMenuButton("Gestión de Trámites",  this::openTramitView);
             addMenuButton("Cola de Matrícula",     this::openEnrollmentView);
             addMenuButton("Expediente Académico",  this::openStudentView);
+            addMenuButton("Mapa del Campus", this::openCampusMapView);
         }
 
         javafx.scene.control.Separator sep = new javafx.scene.control.Separator();
@@ -108,23 +111,25 @@ public class MainController implements NotificationObserver {
         lblCurrentView.setText("Vista actual: " + viewName);
     }
 //Navegacion entre vistas
-    private void reloadViewByName(String viewName) {
-        if (viewName == null || viewName.equals("Sin historial")) return;
-        switch (viewName) {
-            case VIEW_STUDENT    -> loadCenterNoHistory("/fxml/student-view.fxml");
-            case VIEW_TRAMIT     -> loadCenterNoHistory("/fxml/tramit-view.fxml");
-            case VIEW_ENROLLMENT -> loadCenterNoHistory("/fxml/enrollment-view.fxml");
-            case VIEW_BST_SEARCH -> loadCenterNoHistory("/fxml/course-search-view.fxml");
-            case VIEW_PREREQ_TREE -> loadCenterNoHistory("/fxml/prerequisite-tree-view.fxml");
-        }
-    }
+     private void reloadViewByName(String viewName) {
+         if (viewName == null || viewName.equals("Sin historial")) return;
+         switch (viewName) {
+             case VIEW_STUDENT    -> loadCenterNoHistory("/fxml/student-view.fxml");
+             case VIEW_TRAMIT     -> loadCenterNoHistory("/fxml/tramit-view.fxml");
+             case VIEW_ENROLLMENT -> loadCenterNoHistory("/fxml/enrollment-view.fxml");
+             case VIEW_BST_SEARCH -> loadCenterNoHistory("/fxml/course-search-view.fxml");
+             case VIEW_PREREQ_TREE -> loadCenterNoHistory("/fxml/prerequisite-tree-view.fxml");
+             case VIEW_CAMPUS_MAP -> loadCenterNoHistory("/fxml/campus-map-view.fxml");
+         }
+     }
 
-    @FXML void openStudentView()    { loadCenter("/fxml/student-view.fxml",    VIEW_STUDENT);    }
-    @FXML void openTramitView()     { loadCenter("/fxml/tramit-view.fxml",     VIEW_TRAMIT);     }
-    @FXML void openEnrollmentView() { loadCenter("/fxml/enrollment-view.fxml", VIEW_ENROLLMENT); }
-    @FXML void openCourseSearchView() { loadCenter("/fxml/course-search-view.fxml", VIEW_BST_SEARCH); }
-    @FXML void openPrerequisiteTreeView() { loadCenter("/fxml/prerequisite-tree-view.fxml", VIEW_PREREQ_TREE); }
-    private void logout() {
+     @FXML void openStudentView()    { loadCenter("/fxml/student-view.fxml",    VIEW_STUDENT);    }
+     @FXML void openTramitView()     { loadCenter("/fxml/tramit-view.fxml",     VIEW_TRAMIT);     }
+     @FXML void openEnrollmentView() { loadCenter("/fxml/enrollment-view.fxml", VIEW_ENROLLMENT); }
+     @FXML void openCourseSearchView() { loadCenter("/fxml/course-search-view.fxml", VIEW_BST_SEARCH); }
+     @FXML void openPrerequisiteTreeView() { loadCenter("/fxml/prerequisite-tree-view.fxml", VIEW_PREREQ_TREE); }
+     @FXML void openCampusMapView() { loadCenter("/fxml/campus-map-view.fxml", VIEW_CAMPUS_MAP); }
+     private void logout() {
         UserService.getInstance().logout();
         SessionHistoryService.getInstance().reset();
         Stage stage = (Stage) mainPane.getScene().getWindow();
