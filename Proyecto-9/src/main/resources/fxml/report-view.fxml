@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="20" styleClass="panel"
+      xmlns:fx="http://javafx.com/fxml/1"
+      xmlns="http://javafx.com/javafx/17.0.12"
+      fx:controller="cr.ac.ucr.sga.controller.ReportController"
+      stylesheets="@../css/styless.css"
+      style="-fx-background-color: #1E2028;">
+
+    <padding><Insets top="40" right="40" bottom="40" left="40"/></padding>
+
+    <Label text="Informe del Sistema (US-18)"
+           styleClass="panel-title"/>
+
+    <Label text="Genera y descarga el informe en PDF con las métricas del sistema académico."
+           style="-fx-text-fill: #9AA3B5; -fx-font-size: 13px;"
+           wrapText="true"/>
+
+    <Button text="📥 Descargar Informe PDF"
+            styleClass="btn-primary"
+            onAction="#onDownloadPDF"
+            style="-fx-font-size: 14px; -fx-padding: 12 24 12 24;"/>
+
+    <Label fx:id="lblStatus"
+           text=""
+           style="-fx-text-fill: #9AA3B5; -fx-font-size: 12px;"/>
+
+</VBox>

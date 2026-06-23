@@ -33,6 +33,7 @@ public class MainController implements NotificationObserver {
     private static final String VIEW_BST_SEARCH  = "Búsqueda de Cursos (BST)";
     // ── NUEVO ──────────────────────────────────────────────────────────
     private static final String VIEW_CAMPUS      = "Mapa del Campus";
+    private static final String VIEW_REPORT      = "Informes del Sistema";
 
     @FXML
     public void initialize() {
@@ -68,13 +69,17 @@ public class MainController implements NotificationObserver {
             addMenuButton("Cola de Matrícula",         this::openEnrollmentView);
             addMenuButton("Búsqueda de Cursos (BST)",  this::openCourseSearchView);
             addMenuButton("Árbol de Prerrequisitos",   this::openPrerequisiteTreeView);
-            // ── NUEVO ──────────────────────────────────────────────────
             addMenuButton("🗺  Mapa del Campus",       this::openCampusView);
+        } else if (isProfesor) {
+            addMenuButton("Gestión de Trámites",       this::openTramitView);
+            addMenuButton("Cola de Matrícula",         this::openEnrollmentView);
+            addMenuButton("Expediente Académi...",     this::openStudentView);
+            addMenuButton("🗺  Mapa del Campus",       this::openCampusView);
+            addMenuButton("📊 Informes",               this::openReportView);
         } else {
             addMenuButton("Gestión de Trámites",       this::openTramitView);
             addMenuButton("Cola de Matrícula",         this::openEnrollmentView);
             addMenuButton("Expediente Académico",      this::openStudentView);
-            // ── NUEVO: estudiante también puede ver el mapa ───────────
             addMenuButton("🗺  Mapa del Campus",       this::openCampusView);
         }
 
@@ -87,6 +92,7 @@ public class MainController implements NotificationObserver {
         btnLogout.setOnAction(e -> logout());
         menuPanel.getChildren().add(btnLogout);
     }
+
 
     private void addMenuButton(String text, Runnable action) {
         Button btn = new Button(text);
@@ -130,6 +136,7 @@ public class MainController implements NotificationObserver {
     // ── NUEVO ──────────────────────────────────────────────────────────
     @FXML void openProfessorView()        { loadCenter("/fxml/professor-view.fxml",   VIEW_PROFESSOR);  }
     @FXML void openCampusView()          { loadCenter("/fxml/campus-view.fxml",          VIEW_CAMPUS);     }
+    @FXML void openReportView()          { loadCenter("/fxml/report-view.fxml",          VIEW_REPORT);     }
 
     private void logout() {
         UserService.getInstance().logout();

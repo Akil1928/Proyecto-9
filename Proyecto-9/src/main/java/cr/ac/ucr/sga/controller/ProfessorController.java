@@ -6,6 +6,7 @@ import cr.ac.ucr.sga.model.trees.AVL;
 import cr.ac.ucr.sga.model.trees.BTreeNode;
 import cr.ac.ucr.sga.model.trees.TreeException;
 import javafx.animation.PauseTransition;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -291,78 +292,51 @@ public class ProfessorController {
     // ── US-18: Descarga PDF ───────────────────────────────────────────────
 
     @FXML
-    private void onDownloadReport() { onDownloadPDF(); }
-
-    @FXML
     private void onDownloadPDF() {
+
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Guardar informe PDF");
-        fileChooser.setInitialFileName("reporte_sistema.pdf");
+
+        fileChooser.setTitle("Guardar informe");
+
+        fileChooser.setInitialFileName(
+                "InformeSistemaAcademico.pdf"
+        );
+
         fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Archivos PDF (*.pdf)", "*.pdf"));
+                new FileChooser.ExtensionFilter(
+                        "PDF", "*.pdf")
+        );
 
-        File file = fileChooser.showSaveDialog(canvas.getScene().getWindow());
-        if (file == null) return;
+        File file = fileChooser.showSaveDialog(
+                canvas.getScene().getWindow()
+        );
 
-        String period = txtFilterPeriod != null ? txtFilterPeriod.getText().trim() : "";
-        String course = txtFilterCourse != null ? txtFilterCourse.getText().trim() : "";
+        if (file == null) {
+            return;
+        }
 
-        if (lblReportStatus != null) lblReportStatus.setText("⏳ Generando PDF...");
-        lblStatus.setText("Generando informe PDF...");
+        boolean generado =
+                ReportService.generateSystemMetricsPdf(
+                        file.getAbsolutePath()
+                );
 
-        new Thread(() -> {
-            boolean ok = ReportService.generateSystemMetricsPdf(
-                    file.getAbsolutePath(),
-                    period.isEmpty() ? null : period,
-                    course.isEmpty() ? null : course,
-                    null);
-            javafx.application.Platform.runLater(() -> {
-                if (ok) {
-                    if (lblReportStatus != null) lblReportStatus.setText("✔ PDF guardado: " + file.getName());
-                    lblStatus.setText("✔ PDF generado: " + file.getAbsolutePath());
-                } else {
-                    if (lblReportStatus != null) lblReportStatus.setText("⚠ Error al generar PDF.");
-                    lblStatus.setText("⚠ No se pudo generar el PDF.");
-                }
-            });
-        }).start();
+        if (generado) {
+
+            lblStatus.setText(
+                    "✔ Informe generado correctamente."
+            );
+
+        } else {
+
+            lblStatus.setText(
+                    "⚠ Error al generar el informe."
+            );
+        }
     }
 
-    // ── US-18: Descarga CSV ───────────────────────────────────────────────
-
     @FXML
-    private void onDownloadCSV() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Guardar informe CSV");
-        fileChooser.setInitialFileName("reporte_sistema.csv");
-        fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("CSV (*.csv)", "*.csv"));
-
-        File file = fileChooser.showSaveDialog(canvas.getScene().getWindow());
-        if (file == null) return;
-
-        String period = txtFilterPeriod != null ? txtFilterPeriod.getText().trim() : "";
-        String course = txtFilterCourse != null ? txtFilterCourse.getText().trim() : "";
-
-        if (lblReportStatus != null) lblReportStatus.setText("⏳ Generando CSV...");
-        lblStatus.setText("Generando CSV...");
-
-        new Thread(() -> {
-            boolean ok = ReportService.generateSystemMetricsCsv(
-                    file.getAbsolutePath(),
-                    period.isEmpty() ? null : period,
-                    course.isEmpty() ? null : course,
-                    null);
-            javafx.application.Platform.runLater(() -> {
-                if (ok) {
-                    if (lblReportStatus != null) lblReportStatus.setText("✔ CSV guardado: " + file.getName());
-                    lblStatus.setText("✔ CSV generado: " + file.getAbsolutePath());
-                } else {
-                    if (lblReportStatus != null) lblReportStatus.setText("⚠ Error al generar CSV.");
-                    lblStatus.setText("⚠ No se pudo generar el CSV.");
-                }
-            });
-        }).start();
+    private void onDownloadCSV(ActionEvent event) {
+        System.out.println("Botón CSV presionado");
     }
 
     // ── Dibujo en Canvas ──────────────────────────────────────────────────

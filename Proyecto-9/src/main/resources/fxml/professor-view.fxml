@@ -23,7 +23,7 @@
             <!-- Controles de inserción -->
             <VBox spacing="10"
                   style="-fx-background-color: #272B35; -fx-background-radius: 8;
-                 -fx-border-color: #363B48; -fx-border-radius: 8; -fx-padding: 12 14 12 14;">
+                         -fx-border-color: #363B48; -fx-border-radius: 8; -fx-padding: 12 14 12 14;">
 
                 <Label text="Gestión del Árbol AVL"
                        style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #E8EBF2;"/>
@@ -48,7 +48,7 @@
             <!-- Recorridos -->
             <VBox spacing="10"
                   style="-fx-background-color: #272B35; -fx-background-radius: 8;
-                 -fx-border-color: #363B48; -fx-border-radius: 8; -fx-padding: 12 14 12 14;">
+                         -fx-border-color: #363B48; -fx-border-radius: 8; -fx-padding: 12 14 12 14;">
 
                 <Label text="Recorridos del Árbol (US-13)"
                        style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #E8EBF2;"/>
@@ -71,7 +71,9 @@
             <!-- Canvas del árbol AVL -->
             <ScrollPane fitToWidth="false" pannable="true" prefHeight="420"
                         style="-fx-background-color: #1E2028; -fx-border-color: #363B48; -fx-border-radius: 8;">
-                <Canvas fx:id="canvas" width="1100" height="520"/>
+                <content>
+                    <Canvas fx:id="canvas" width="1100" height="520"/>
+                </content>
             </ScrollPane>
 
             <!-- Leyenda -->
@@ -81,45 +83,6 @@
                 <Label text="🟡 Animación"  style="-fx-text-fill: #C8CDD8; -fx-font-size: 12px;"/>
                 <Label text="🔵 Búsqueda"   style="-fx-text-fill: #C8CDD8; -fx-font-size: 12px;"/>
             </HBox>
-
-            <!-- US-18: Informe del Sistema -->
-            <VBox spacing="10"
-                  style="-fx-background-color: #272B35; -fx-background-radius: 8;
-                 -fx-border-color: #363B48; -fx-border-radius: 8; -fx-padding: 12 14 12 14;">
-
-                <Label text="Informe del Sistema (US-18)"
-                       style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #E8EBF2;"/>
-
-                <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Label text="Filtrar por período:"
-                           style="-fx-text-fill: #C8CDD8; -fx-font-size: 12px;"/>
-                    <TextField fx:id="txtFilterPeriod" promptText="Ej: I Ciclo 2026" prefWidth="150"/>
-                    <Label text="Filtrar por curso:"
-                           style="-fx-text-fill: #C8CDD8; -fx-font-size: 12px;"/>
-                    <TextField fx:id="txtFilterCourse" promptText="Ej: IF-3001" prefWidth="120"/>
-                    <Button text="Consultar métricas" styleClass="btn-ghost" onAction="#onPreviewMetrics"/>
-                </HBox>
-
-                <VBox spacing="4"
-                      style="-fx-background-color: #1E2028; -fx-background-radius: 6;
-                     -fx-border-color: #4A5568; -fx-border-radius: 6; -fx-padding: 10 12 10 12;">
-                    <Label fx:id="lblMetricDate"       text="Fecha: —"           style="-fx-text-fill: #9AA3B5; -fx-font-size: 11px;"/>
-                    <Label fx:id="lblMetricPeriod"     text="Período: —"         style="-fx-text-fill: #9AA3B5; -fx-font-size: 11px;"/>
-                    <Label fx:id="lblMetricStudents"   text="Estudiantes: —"     style="-fx-text-fill: #C8CDD8; -fx-font-size: 11px;"/>
-                    <Label fx:id="lblMetricCourses"    text="Cursos: —"          style="-fx-text-fill: #C8CDD8; -fx-font-size: 11px;"/>
-                    <Label fx:id="lblMetricAvg"        text="Calificaciones: —"  style="-fx-text-fill: #C8CDD8; -fx-font-size: 11px;"/>
-                    <Label fx:id="lblMetricMaxEnroll"  text="Mayor matrícula: —" style="-fx-text-fill: #C8CDD8; -fx-font-size: 11px;"/>
-                    <Label fx:id="lblMetricMinEnroll"  text="Menor matrícula: —" style="-fx-text-fill: #C8CDD8; -fx-font-size: 11px;"/>
-                    <Label fx:id="lblMetricProfessors" text="Profesores: —"      style="-fx-text-fill: #C8CDD8; -fx-font-size: 11px;"/>
-                </VBox>
-
-                <HBox spacing="10" alignment="CENTER_LEFT">
-                    <Button text="⬇ Descargar PDF" styleClass="btn-primary" onAction="#onDownloadPDF"/>
-                    <Button text="⬇ Descargar CSV" styleClass="btn-ghost"   onAction="#onDownloadCSV"/>
-                    <Label fx:id="lblReportStatus" text=""
-                           style="-fx-text-fill: #9AA3B5; -fx-font-size: 12px;"/>
-                </HBox>
-            </VBox>
 
             <Label fx:id="lblStatus"
                    text="Listo. Inserte cursos o cargue la malla curricular."
