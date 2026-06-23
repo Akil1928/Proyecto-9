@@ -43,8 +43,11 @@ public class CampusController {
     // Recorridos
     @FXML private ComboBox<Building> cbStart;
 
-    // Panel Admin
-    @FXML private VBox   panelAdmin;
+    // Paneles mutuamente excluyentes según rol
+    @FXML private VBox panelEstudiante;   // Dijkstra + BFS + DFS (solo ESTUDIANTE)
+    @FXML private VBox panelAdmin;        // CRUD edificios/aristas (solo ADMINISTRADOR)
+
+    // Campos del panel Admin
     @FXML private TextField txtBuildingId;
     @FXML private TextField txtBuildingName;
     @FXML private TextField txtBX;
@@ -86,11 +89,19 @@ public class CampusController {
         isAdmin = user != null && user.getRole() == User.Role.ADMINISTRADOR;
 
         if (isAdmin) {
-            lblMode.setText("Modo: Administrador (Edición)");
+            // Admin: solo panel de edición, sin recorridos ni búsqueda
+            lblMode.setText("Modo: Administrador (Edición del Grafo)");
+            panelEstudiante.setVisible(false);
+            panelEstudiante.setManaged(false);
             panelAdmin.setVisible(true);
             panelAdmin.setManaged(true);
         } else {
+            // Estudiante: solo búsqueda y recorridos, sin edición
             lblMode.setText("Modo: Estudiante (Visualización)");
+            panelEstudiante.setVisible(true);
+            panelEstudiante.setManaged(true);
+            panelAdmin.setVisible(false);
+            panelAdmin.setManaged(false);
         }
 
         refreshComboBoxes();
@@ -110,14 +121,16 @@ public class CampusController {
     private void refreshComboBoxes() {
         List<Building> list = new ArrayList<>(service.getBuildings());
 
-        for (ComboBox<Building> cb : List.of(cbOrigen, cbDestino, cbStart)) {
-            Building sel = cb.getValue();
-            cb.getItems().setAll(list);
-            if (sel != null && list.contains(sel)) cb.setValue(sel);
-        }
-
         if (isAdmin) {
+            // Solo los combos del panel de edición
             for (ComboBox<Building> cb : List.of(cbDeleteBuilding, cbEdgeFrom, cbEdgeTo)) {
+                Building sel = cb.getValue();
+                cb.getItems().setAll(list);
+                if (sel != null && list.contains(sel)) cb.setValue(sel);
+            }
+        } else {
+            // Solo los combos del panel de búsqueda/recorridos
+            for (ComboBox<Building> cb : List.of(cbOrigen, cbDestino, cbStart)) {
                 Building sel = cb.getValue();
                 cb.getItems().setAll(list);
                 if (sel != null && list.contains(sel)) cb.setValue(sel);
