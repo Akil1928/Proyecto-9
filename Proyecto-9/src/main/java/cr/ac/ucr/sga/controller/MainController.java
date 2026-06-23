@@ -25,6 +25,7 @@ public class MainController implements NotificationObserver {
     @FXML private Label      lblNotificationBar;
     @FXML private Label      lblUserInfo;
 
+    private static final String VIEW_PROFESSOR   = "Panel del Profesor";
     private static final String VIEW_STUDENT    = "Expediente Académico";
     private static final String VIEW_TRAMIT     = "Gestión de Trámites";
     private static final String VIEW_ENROLLMENT = "Cola de Matrícula";
@@ -48,6 +49,8 @@ public class MainController implements NotificationObserver {
 
         if (user != null && user.getRole() == User.Role.ADMINISTRADOR) {
             loadCenter("/fxml/student-view.fxml", VIEW_STUDENT);
+        } else if (user != null && user.getRole() == User.Role.PROFESOR) {
+            loadCenter("/fxml/professor-view.fxml", VIEW_PROFESSOR);
         } else {
             loadCenter("/fxml/tramit-view.fxml", VIEW_TRAMIT);
         }
@@ -57,6 +60,7 @@ public class MainController implements NotificationObserver {
         menuPanel.getChildren().clear();
 
         boolean isAdmin = user != null && user.getRole() == User.Role.ADMINISTRADOR;
+        boolean isProfesor = user != null && user.getRole() == User.Role.PROFESOR;
 
         if (isAdmin) {
             addMenuButton("Expediente Académico",      this::openStudentView);
@@ -114,6 +118,7 @@ public class MainController implements NotificationObserver {
             case VIEW_PREREQ_TREE -> loadCenterNoHistory("/fxml/prerequisite-tree-view.fxml");
             // ── NUEVO ──────────────────────────────────────────────────
             case VIEW_CAMPUS      -> loadCenterNoHistory("/fxml/campus-view.fxml");
+            case VIEW_PROFESSOR   -> loadCenterNoHistory("/fxml/professor-view.fxml");
         }
     }
 
@@ -123,6 +128,7 @@ public class MainController implements NotificationObserver {
     @FXML void openCourseSearchView()    { loadCenter("/fxml/course-search-view.fxml",   VIEW_BST_SEARCH); }
     @FXML void openPrerequisiteTreeView(){ loadCenter("/fxml/prerequisite-tree-view.fxml",VIEW_PREREQ_TREE);}
     // ── NUEVO ──────────────────────────────────────────────────────────
+    @FXML void openProfessorView()        { loadCenter("/fxml/professor-view.fxml",   VIEW_PROFESSOR);  }
     @FXML void openCampusView()          { loadCenter("/fxml/campus-view.fxml",          VIEW_CAMPUS);     }
 
     private void logout() {

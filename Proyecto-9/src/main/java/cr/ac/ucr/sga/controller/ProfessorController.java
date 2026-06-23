@@ -1,6 +1,7 @@
 package cr.ac.ucr.sga.controller;
 
 import cr.ac.ucr.sga.model.services.CurriculumService;
+import cr.ac.ucr.sga.model.services.ReportService;
 import cr.ac.ucr.sga.model.trees.AVL;
 import cr.ac.ucr.sga.model.trees.BTreeNode;
 import cr.ac.ucr.sga.model.trees.TreeException;
@@ -15,10 +16,11 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
+import javafx.stage.FileChooser;
 import javafx.util.Duration;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +32,21 @@ public class ProfessorController {
     @FXML private Label     lblStatus;
     @FXML private Label     lblTraversal;
     @FXML private Button    btnAnimate;
+
+    // ── US-18 ─────────────────────────────────────────────────────────────
+    @FXML private Label     lblReportStatus;
+    @FXML private Label     lblMetricDate;
+    @FXML private Label     lblMetricPeriod;
+    @FXML private Label     lblMetricStudents;
+    @FXML private Label     lblMetricCourses;
+    @FXML private Label     lblMetricAvg;
+    @FXML private Label     lblMetricProfessors;
+    @FXML private Label     lblMetricMaxEnroll;
+    @FXML private Label     lblMetricMinEnroll;
+    @FXML private TextField txtFilterPeriod;
+    @FXML private TextField txtFilterCourse;
+
+    private cr.ac.ucr.sga.model.services.ReportService.ReportData lastMetrics;
 
     private final CurriculumService curriculum = CurriculumService.getInstance();
     private AVL<String> avl;
@@ -155,7 +172,6 @@ public class ProfessorController {
         }
     }
 
-    // convierte el String "A, B, C, " en una lista y actualiza la UI
     private void loadTraversal(String raw, String name) {
         traversalOrder.clear();
         traversalStep   = 0;
@@ -163,7 +179,6 @@ public class ProfessorController {
         isAnimating     = false;
         btnAnimate.setDisable(false);
 
-        // "IF-0001, IF-0002, " → split y trim
         String[] parts = raw.split(",");
         for (String p : parts) {
             String t = p.trim();
@@ -237,6 +252,117 @@ public class ProfessorController {
         lblTraversal.setText("");
         drawTree();
         lblStatus.setText("✔ Estado de animación reiniciado.");
+    }
+
+    // ── US-18: Preview en pantalla ────────────────────────────────────────
+
+    @FXML
+    private void onPreviewMetrics() {
+        String period = txtFilterPeriod != null ? txtFilterPeriod.getText().trim() : "";
+        String course = txtFilterCourse != null ? txtFilterCourse.getText().trim() : "";
+
+        lastMetrics = ReportService.collectMetrics(
+                period.isEmpty() ? null : period,
+                course.isEmpty() ? null : course,
+                null);
+
+        if (lblMetricDate    != null) lblMetricDate.setText("Fecha: " + lastMetrics.date);
+        if (lblMetricPeriod  != null) lblMetricPeriod.setText("Período: " + lastMetrics.period);
+        if (lblMetricStudents!= null) lblMetricStudents.setText(
+                "Registrados: " + lastMetrics.totalStudents
+                        + "  |  Activos: " + lastMetrics.activeStudents
+                        + "  |  Inactivos: " + lastMetrics.inactiveStudents);
+        if (lblMetricCourses != null) lblMetricCourses.setText(
+                "Cursos registrados: " + lastMetrics.totalCourses
+                        + "  |  Cursos activos: " + lastMetrics.activeCourses);
+        if (lblMetricAvg     != null) lblMetricAvg.setText(
+                "Promedio: " + String.format("%.2f", lastMetrics.avg)
+                        + "  |  Aprobados: " + lastMetrics.approvedCourses
+                        + "  |  Reprobados: " + lastMetrics.failedCourses);
+        if (lblMetricProfessors!= null) lblMetricProfessors.setText(
+                "Profesores activos: " + lastMetrics.professors
+                        + "  |  Mayor carga: " + lastMetrics.topProfessor);
+        if (lblMetricMaxEnroll != null) lblMetricMaxEnroll.setText("Mayor matrícula: " + lastMetrics.maxEnrollCourse);
+        if (lblMetricMinEnroll != null) lblMetricMinEnroll.setText("Menor matrícula: " + lastMetrics.minEnrollCourse);
+        if (lblReportStatus   != null) lblReportStatus.setText("✔ Métricas consultadas.");
+        lblStatus.setText("✔ Métricas del sistema actualizadas.");
+    }
+
+    // ── US-18: Descarga PDF ───────────────────────────────────────────────
+
+    @FXML
+    private void onDownloadReport() { onDownloadPDF(); }
+
+    @FXML
+    private void onDownloadPDF() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Guardar informe PDF");
+        fileChooser.setInitialFileName("reporte_sistema.pdf");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Archivos PDF (*.pdf)", "*.pdf"));
+
+        File file = fileChooser.showSaveDialog(canvas.getScene().getWindow());
+        if (file == null) return;
+
+        String period = txtFilterPeriod != null ? txtFilterPeriod.getText().trim() : "";
+        String course = txtFilterCourse != null ? txtFilterCourse.getText().trim() : "";
+
+        if (lblReportStatus != null) lblReportStatus.setText("⏳ Generando PDF...");
+        lblStatus.setText("Generando informe PDF...");
+
+        new Thread(() -> {
+            boolean ok = ReportService.generateSystemMetricsPdf(
+                    file.getAbsolutePath(),
+                    period.isEmpty() ? null : period,
+                    course.isEmpty() ? null : course,
+                    null);
+            javafx.application.Platform.runLater(() -> {
+                if (ok) {
+                    if (lblReportStatus != null) lblReportStatus.setText("✔ PDF guardado: " + file.getName());
+                    lblStatus.setText("✔ PDF generado: " + file.getAbsolutePath());
+                } else {
+                    if (lblReportStatus != null) lblReportStatus.setText("⚠ Error al generar PDF.");
+                    lblStatus.setText("⚠ No se pudo generar el PDF.");
+                }
+            });
+        }).start();
+    }
+
+    // ── US-18: Descarga CSV ───────────────────────────────────────────────
+
+    @FXML
+    private void onDownloadCSV() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Guardar informe CSV");
+        fileChooser.setInitialFileName("reporte_sistema.csv");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("CSV (*.csv)", "*.csv"));
+
+        File file = fileChooser.showSaveDialog(canvas.getScene().getWindow());
+        if (file == null) return;
+
+        String period = txtFilterPeriod != null ? txtFilterPeriod.getText().trim() : "";
+        String course = txtFilterCourse != null ? txtFilterCourse.getText().trim() : "";
+
+        if (lblReportStatus != null) lblReportStatus.setText("⏳ Generando CSV...");
+        lblStatus.setText("Generando CSV...");
+
+        new Thread(() -> {
+            boolean ok = ReportService.generateSystemMetricsCsv(
+                    file.getAbsolutePath(),
+                    period.isEmpty() ? null : period,
+                    course.isEmpty() ? null : course,
+                    null);
+            javafx.application.Platform.runLater(() -> {
+                if (ok) {
+                    if (lblReportStatus != null) lblReportStatus.setText("✔ CSV guardado: " + file.getName());
+                    lblStatus.setText("✔ CSV generado: " + file.getAbsolutePath());
+                } else {
+                    if (lblReportStatus != null) lblReportStatus.setText("⚠ Error al generar CSV.");
+                    lblStatus.setText("⚠ No se pudo generar el CSV.");
+                }
+            });
+        }).start();
     }
 
     // ── Dibujo en Canvas ──────────────────────────────────────────────────
@@ -326,13 +452,13 @@ public class ProfessorController {
 
         Color fill;
         if (code.equals(highlightedNode) && isAnimating) {
-            fill = Color.web("#fde68a"); // amarillo — animación
+            fill = Color.web("#fde68a");
         } else if (code.equals(highlightedNode)) {
-            fill = Color.web("#93c5fd"); // azul — búsqueda
+            fill = Color.web("#93c5fd");
         } else if (depth == 0) {
-            fill = Color.web("#86efac"); // verde — raíz
+            fill = Color.web("#86efac");
         } else {
-            fill = Color.web("#e2e8f0"); // blanco — normal
+            fill = Color.web("#e2e8f0");
         }
 
         gc.setFill(fill);
@@ -346,7 +472,6 @@ public class ProfessorController {
         gc.setFont(Font.font("System", FontWeight.BOLD, 10));
         gc.fillText(code, x, y);
 
-        // factor de balance
         int bf = avl.getBalanceFactor(node);
         gc.setFont(Font.font("System", 9));
         gc.setFill(Color.web("#64748b"));
@@ -377,4 +502,7 @@ public class ProfessorController {
         if (node == null) return 0;
         return 1 + Math.max(height(node.left), height(node.right));
     }
+
+    @FXML
+    private void onGenerateReport() { onDownloadPDF(); }
 }
