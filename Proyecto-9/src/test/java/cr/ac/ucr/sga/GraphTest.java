@@ -19,7 +19,7 @@ public class GraphTest {
         g.addEdge("C","E",1);
 
         List<String> bfs = Traversals.bfs(g, "A");
-        // possible BFS order: A,B,C,D,E
+        //possible BFS order: A,B,C,D,E
         assertEquals(5, bfs.size());
         assertEquals("A", bfs.get(0));
 

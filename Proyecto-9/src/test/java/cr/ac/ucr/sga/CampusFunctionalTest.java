@@ -3,122 +3,110 @@ package cr.ac.ucr.sga;
 import cr.ac.ucr.sga.model.graph.Dijkstra;
 import cr.ac.ucr.sga.model.graph.Graph;
 import cr.ac.ucr.sga.model.graph.Traversals;
+import cr.ac.ucr.sga.model.services.CampusService;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Pruebas funcionales del servicio del campus.
- */
 public class CampusFunctionalTest {
 
     @Test
-    void testCampusGraphLoads() {
-        CampusGraphService service = CampusGraphService.getInstance();
-        Graph graph = service.getGraph();
+    void testCampusLoads() {
+        CampusService service = CampusService.getInstance();
 
-        assertNotNull(graph, "El grafo no debe ser nulo");
-        assertTrue(graph.vertexCount() > 0, "El grafo debe contener vértices");
-        assertTrue(graph.edgeCount() > 0, "El grafo debe contener aristas");
+        assertTrue(service.getBuildings().size() > 0, "Debe haber edificios cargados");
+        assertTrue(service.getAllEdges().size() > 0,   "Debe haber aristas cargadas");
     }
 
     @Test
-    void testCampusNodesData() {
-        CampusGraphService service = CampusGraphService.getInstance();
+    void testCampusNodeData() {
+        CampusService service = CampusService.getInstance();
 
-        assertTrue(service.getAllNodeIds().size() > 0, "Debe haber al menos un nodo");
-        assertTrue(service.getAllNodeNames().size() > 0, "Debe haber nombres de nodos");
-
-        // Verificar que se puede obtener ID por nombre
-        String firstName = service.getAllNodeNames().get(0);
-        String firstId = service.getNodeIdByName(firstName);
-        assertNotNull(firstId, "Should find node by name");
+        //ttomar el primer edificio y verificar que tiene id y nombre
+        var first = service.getBuildings().iterator().next();
+        assertNotNull(first.getId(),   "El edificio debe tener id");
+        assertNotNull(first.getName(), "El edificio debe tener nombre");
+        assertTrue(service.containsBuilding(first.getId()), "containsBuilding debe funcionar");
     }
 
     @Test
     void testDijkstraOnCampus() {
-        CampusGraphService service = CampusGraphService.getInstance();
-        Graph graph = service.getGraph();
+        CampusService service = CampusService.getInstance();
 
-        if (graph.vertexCount() < 2) {
-            System.out.println("Omitiendo prueba Dijkstra: no hay suficientes nodos");
+        if (service.getBuildings().size() < 2) {
+            System.out.println("Omitiendo prueba Dijkstra: menos de 2 edificios");
             return;
         }
 
-        String start = service.getAllNodeIds().stream().findFirst().get();
-        String end = service.getAllNodeIds().stream().skip(1).findFirst().get();
+        var ids = service.getBuildings().stream().map(b -> b.getId()).toList();
+        String start = ids.get(0);
+        String end   = ids.get(1);
 
-        Dijkstra.Result result = Dijkstra.compute(graph, start);
-        double distance = result.distanceTo(end);
+        CampusService.DijkstraResult result = service.dijkstra(start);
+        double distance = result.dist.getOrDefault(end, Double.POSITIVE_INFINITY);
 
-        // Si hay ruta conectada, debe tener distancia finita
         if (!Double.isInfinite(distance)) {
-            assertTrue(distance >= 0, "La distancia debe ser positiva");
+            assertTrue(distance >= 0, "La distancia debe ser no negativa");
 
             List<String> path = result.pathTo(end);
-            assertTrue(path.size() > 0, "El camino no debe estar vacío");
-            assertEquals(start, path.get(0), "El camino debe comenzar en el nodo origen");
-            assertEquals(end, path.get(path.size() - 1), "El camino debe terminar en el nodo destino");
+            assertFalse(path.isEmpty(), "El camino no debe estar vacío");
+            assertEquals(start, path.get(0), "El camino debe empezar en el origen");
+            assertEquals(end,   path.get(path.size() - 1), "El camino debe terminar en el destino");
         }
     }
 
     @Test
     void testBFSOnCampus() {
-        CampusGraphService service = CampusGraphService.getInstance();
-        Graph graph = service.getGraph();
+        CampusService service = CampusService.getInstance();
 
-        if (graph.vertexCount() == 0) {
-            System.out.println("Omitiendo prueba BFS: no hay nodos");
+        if (service.getBuildings().isEmpty()) {
+            System.out.println("Omitiendo prueba BFS: sin edificios");
             return;
         }
 
-        String start = service.getAllNodeIds().stream().findFirst().get();
-        List<String> traversal = Traversals.bfs(graph, start);
+        String start = service.getBuildings().iterator().next().getId();
+        List<String> traversal = service.bfs(start);
 
         assertNotNull(traversal, "El recorrido BFS no debe ser nulo");
-        assertTrue(traversal.contains(start), "El recorrido BFS debe contener el nodo origen");
+        assertFalse(traversal.isEmpty(), "El recorrido BFS no debe estar vacío");
+        assertEquals(start, traversal.get(0), "BFS debe comenzar en el nodo origen");
     }
 
     @Test
     void testDFSOnCampus() {
-        CampusGraphService service = CampusGraphService.getInstance();
-        Graph graph = service.getGraph();
+        CampusService service = CampusService.getInstance();
 
-        if (graph.vertexCount() == 0) {
-            System.out.println("Omitiendo prueba DFS: no hay nodos");
+        if (service.getBuildings().isEmpty()) {
+            System.out.println("Omitiendo prueba DFS: sin edificios");
             return;
         }
 
-        String start = service.getAllNodeIds().stream().findFirst().get();
-        List<String> traversal = Traversals.dfs(graph, start);
+        String start = service.getBuildings().iterator().next().getId();
+        List<String> traversal = service.dfs(start);
 
         assertNotNull(traversal, "El recorrido DFS no debe ser nulo");
-        assertTrue(traversal.contains(start), "El recorrido DFS debe contener el nodo origen");
+        assertFalse(traversal.isEmpty(), "El recorrido DFS no debe estar vacío");
+        assertEquals(start, traversal.get(0), "DFS debe comenzar en el nodo origen");
     }
 
     @Test
-    void testCampusDijkstraPerformance() {
-        CampusGraphService service = CampusGraphService.getInstance();
-        Graph graph = service.getGraph();
+    void testDijkstraPerformance() {
+        CampusService service = CampusService.getInstance();
 
-        if (graph.vertexCount() < 2) {
-            System.out.println("Omitiendo prueba de rendimiento: no hay suficientes nodos");
+        if (service.getBuildings().size() < 2) {
+            System.out.println("Omitiendo prueba de rendimiento: menos de 2 edificios");
             return;
         }
 
-        String start = service.getAllNodeIds().stream().findFirst().get();
+        String start = service.getBuildings().iterator().next().getId();
 
-        long startTime = System.nanoTime();
-        Dijkstra.Result result = Dijkstra.compute(graph, start);
-        long endTime = System.nanoTime();
+        long t0 = System.nanoTime();
+        service.dijkstra(start);
+        long ms = (System.nanoTime() - t0) / 1_000_000;
 
-        long durationMs = (endTime - startTime) / 1_000_000;
-        System.out.println("Tiempo de ejecución de Dijkstra: " + durationMs + " ms");
-
-        // Dijkstra en grafo pequeño debe ejecutarse muy rápido (< 100ms)
-        assertTrue(durationMs < 100, "Dijkstra debe ejecutarse en un tiempo razonable");
+        System.out.println("Tiempo de ejecución de Dijkstra: " + ms + " ms");
+        assertTrue(ms < 100, "Dijkstra debe ejecutarse en menos de 100ms");
     }
 }
-
