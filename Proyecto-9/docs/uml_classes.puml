@@ -1,0 +1,67 @@
+@startuml
+' Diagrama de clases (simplificado) para el módulo del campus
+package "cr.ac.ucr.sga.model.graph" {
+  class Graph {
+    - Map<String,Vertex> vertices
+    - Map<String,List<Edge>> adj
+    + addVertex(id): Vertex
+    + addEdge(from,to,weight,directed): void
+    + getEdgesFrom(id): List<Edge>
+  }
+
+  class Vertex {
+    - String id
+    - String label
+    + getId(): String
+  }
+
+  class Edge {
+    - String from
+    - String to
+    - double weight
+    + getTo(): String
+    + getWeight(): double
+  }
+
+  class Dijkstra {
+    + compute(Graph,String): Result
+  }
+
+  class Traversals {
+    + bfs(Graph,String): List<String>
+    + dfs(Graph,String): List<String>
+  }
+
+  Graph "1" *-- "*" Vertex
+  Graph "1" *-- "*" Edge
+}
+
+package "cr.ac.ucr.sga.model.services" {
+  class CampusGraphService {
+    - Graph graph
+    + getInstance(): CampusGraphService
+    + getGraph(): Graph
+    + getAllNodeIds(): List<String>
+  }
+
+  class ReportService {
+    + exportCsv(...): void
+  }
+
+  CampusGraphService --> Graph
+  ReportService ..> CampusGraphService
+}
+
+package "cr.ac.ucr.sga.controller" {
+  class CampusMapController {
+    - Canvas canvas
+    + initialize(): void
+    + handleDijkstra(): void
+    + handleBFS(): void
+  }
+  CampusMapController ..> CampusGraphService
+  CampusMapController ..> Dijkstra
+}
+
+@enduml
+
