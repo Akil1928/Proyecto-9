@@ -15,10 +15,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CourseSearchController {
 
@@ -49,7 +46,9 @@ public class CourseSearchController {
 
     private void buildBST() {
         bst = new BST<>();
-        for (String code : curriculum.getAllCourseCodes()) {
+        List<String> codes = new ArrayList<>(curriculum.getAllCourseCodes());
+        Collections.shuffle(codes);
+        for (String code : codes) {
             bst.add(code);
         }
         highlightedNode = null;

@@ -105,7 +105,7 @@ public class CurriculumService {
         //OPT Desarrollo de Software: sin requisito de malla con código fijo
         //OPT Ingeniería de Datos: sin requisito de malla con código fijo
 
-        // VIII Ciclo (Verano)
+        //VIII Ciclo (Verano)
         addCourse("IF-0020","Inglés IV para Informática Empresarial",       or("IF-0018"));
 
         // ── CUARTO AÑO ─────────────

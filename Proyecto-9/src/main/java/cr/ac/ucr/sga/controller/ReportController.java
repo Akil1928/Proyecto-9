@@ -24,7 +24,7 @@ public class ReportController {
 
         boolean ok = ReportService.generateSystemMetricsPdf(file.getAbsolutePath());
         lblStatus.setText(ok
-                ? "✔ Informe generado correctamente."
-                : "⚠ Error al generar el informe.");
+                ? "✔ Informe generado correctamente." //windows + . (emoji)
+                : "⚠ Error al generar el informe."); //windows + . (emoji)
     }
 }
