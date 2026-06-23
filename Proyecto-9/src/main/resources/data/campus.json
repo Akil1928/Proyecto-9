@@ -1,17 +1,29 @@
 {
   "buildings": [
-    {"id": "A", "name": "Edificio A", "x": 100, "y": 100},
-    {"id": "B", "name": "Edificio B", "x": 300, "y": 100},
-    {"id": "C", "name": "Edificio C", "x": 200, "y": 300},
-    {"id": "D", "name": "Edificio D", "x": 400, "y": 300},
-    {"id": "E", "name": "Edificio E", "x": 500, "y": 100}
+    { "id": "B1", "name": "Biblioteca Central",       "x": 400, "y": 100 },
+    { "id": "B2", "name": "Facultad de Ingeniería",   "x": 180, "y": 230 },
+    { "id": "B3", "name": "Rectoría",                 "x": 620, "y": 230 },
+    { "id": "B4", "name": "Comedor Universitario",    "x": 180, "y": 400 },
+    { "id": "B5", "name": "Centro Deportivo",         "x": 620, "y": 400 },
+    { "id": "B6", "name": "Facultad de Ciencias",     "x": 400, "y": 300 },
+    { "id": "B7", "name": "Posgrado",                 "x": 400, "y": 480 },
+    { "id": "B8", "name": "Aulas de Idiomas",         "x": 90,  "y": 310 },
+    { "id": "B9", "name": "Centro de Cómputo",        "x": 710, "y": 310 }
   ],
   "edges": [
-    {"source": "A", "target": "B", "weight": 50},
-    {"source": "A", "target": "C", "weight": 85},
-    {"source": "B", "target": "C", "weight": 45},
-    {"source": "B", "target": "E", "weight": 90},
-    {"source": "C", "target": "D", "weight": 60},
-    {"source": "D", "target": "E", "weight": 75}
+    { "from": "B1", "to": "B2", "weight": 320 },
+    { "from": "B1", "to": "B3", "weight": 280 },
+    { "from": "B1", "to": "B6", "weight": 210 },
+    { "from": "B2", "to": "B4", "weight": 190 },
+    { "from": "B2", "to": "B6", "weight": 250 },
+    { "from": "B2", "to": "B8", "weight": 130 },
+    { "from": "B3", "to": "B5", "weight": 200 },
+    { "from": "B3", "to": "B6", "weight": 230 },
+    { "from": "B3", "to": "B9", "weight": 120 },
+    { "from": "B4", "to": "B7", "weight": 240 },
+    { "from": "B5", "to": "B7", "weight": 210 },
+    { "from": "B6", "to": "B7", "weight": 185 },
+    { "from": "B8", "to": "B4", "weight": 160 },
+    { "from": "B9", "to": "B5", "weight": 145 }
   ]
 }

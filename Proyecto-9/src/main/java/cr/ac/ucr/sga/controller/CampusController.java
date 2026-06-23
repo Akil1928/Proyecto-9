@@ -1,230 +1,373 @@
-/* UCR - IF-3001 - Grupo 21 */
 package cr.ac.ucr.sga.controller;
 
 import cr.ac.ucr.sga.model.entities.Building;
+import cr.ac.ucr.sga.model.entities.User;
 import cr.ac.ucr.sga.model.services.CampusService;
-import javafx.animation.PauseTransition;
-import javafx.animation.SequentialTransition;
+import cr.ac.ucr.sga.model.services.CampusService.CEdge;
+import cr.ac.ucr.sga.model.services.CampusService.DijkstraResult;
+import cr.ac.ucr.sga.model.services.UserService;
+import javafx.animation.*;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ComboBox;
-import javafx.scene.layout.HBox;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.util.Duration;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+/**
+ * CampusController — MVC: conecta CampusService (Modelo) con campus-view.fxml (Vista).
+ *
+ * Gestiona:
+ *  • Dibujo del grafo en Canvas.
+ *  • Animaciones paso a paso de BFS / DFS / Dijkstra.
+ *  • Controles del Administrador (CRUD de edificios y aristas).
+ */
 public class CampusController {
 
-    @FXML private Canvas canvas;
-    @FXML private ComboBox<Building> originComboBox;
-    @FXML private ComboBox<Building> destinationComboBox;
-    @FXML private VBox adminPanel;
-    @FXML private HBox navigationPanel;
+    // ── FXML Bindings ──────────────────────────────────────────────────
+    @FXML private Canvas   canvas;
+    @FXML private Label    lblMode;
+    @FXML private Label    lblStatus;
+    @FXML private Label    lblSteps;
 
-    private CampusService campusService;
-    private GraphicsContext gc;
+    // Búsqueda ruta
+    @FXML private ComboBox<Building> cbOrigen;
+    @FXML private ComboBox<Building> cbDestino;
 
+    // Recorridos
+    @FXML private ComboBox<Building> cbStart;
 
+    // Panel Admin
+    @FXML private VBox   panelAdmin;
+    @FXML private TextField txtBuildingId;
+    @FXML private TextField txtBuildingName;
+    @FXML private TextField txtBX;
+    @FXML private TextField txtBY;
+    @FXML private ComboBox<Building> cbDeleteBuilding;
+    @FXML private ComboBox<Building> cbEdgeFrom;
+    @FXML private ComboBox<Building> cbEdgeTo;
+    @FXML private TextField txtEdgeWeight;
+
+    // ── Estado interno ─────────────────────────────────────────────────
+    private final CampusService service = CampusService.getInstance();
+    private boolean isAdmin = false;
+
+    /** Nodos resaltados para animación */
+    private final Set<String>   highlightedNodes = new HashSet<>();
+    /** Aristas resaltadas para Dijkstra */
+    private final List<String[]> highlightedEdges = new ArrayList<>();
+    /** Color actual de resaltado */
+    private Color highlightColor = Color.web("#F0A500");
+
+    // ── Colores ────────────────────────────────────────────────────────
+    private static final Color COL_BG        = Color.web("#1A1C22");
+    private static final Color COL_EDGE      = Color.web("#2E3150");
+    private static final Color COL_NODE      = Color.web("#60A5FA");
+    private static final Color COL_NODE_RING = Color.web("#3B82F6");
+    private static final Color COL_LABEL     = Color.web("#E8EBF2");
+    private static final Color COL_WEIGHT    = Color.web("#6B7280");
+    private static final Color COL_DIJKSTRA  = Color.web("#F0A500");
+    private static final Color COL_BFS       = Color.web("#34D399");
+    private static final Color COL_DFS       = Color.web("#F28B82");
+    private static final Color COL_START     = Color.web("#A78BFA");
+
+    private static final double NODE_R = 18;
+
+    // ── Inicialización ─────────────────────────────────────────────────
     @FXML
     public void initialize() {
-        campusService = CampusService.getInstance();
-        gc = canvas.getGraphicsContext2D();
-        loadBuildingsIntoComboBoxes();
+        User user = UserService.getInstance().getCurrentUser();
+        isAdmin = user != null && user.getRole() == User.Role.ADMINISTRADOR;
+
+        if (isAdmin) {
+            lblMode.setText("Modo: Administrador (Edición)");
+            panelAdmin.setVisible(true);
+            panelAdmin.setManaged(true);
+        } else {
+            lblMode.setText("Modo: Estudiante (Visualización)");
+        }
+
+        refreshComboBoxes();
         drawGraph();
+
+        // Canvas clic: mostrar nombre de edificio
+        canvas.setOnMouseClicked(e -> {
+            Building clicked = buildingAt(e.getX(), e.getY());
+            if (clicked != null) {
+                lblStatus.setText("Edificio: " + clicked.getName()
+                        + " (" + clicked.getX() + ", " + clicked.getY() + ")");
+            }
+        });
     }
 
+    // ── Refrescar ComboBoxes ───────────────────────────────────────────
+    private void refreshComboBoxes() {
+        List<Building> list = new ArrayList<>(service.getBuildings());
 
+        for (ComboBox<Building> cb : List.of(cbOrigen, cbDestino, cbStart)) {
+            Building sel = cb.getValue();
+            cb.getItems().setAll(list);
+            if (sel != null && list.contains(sel)) cb.setValue(sel);
+        }
 
-
-    private void loadBuildingsIntoComboBoxes() {
-        originComboBox.getItems().setAll(campusService.getBuildings().values());
-        destinationComboBox.getItems().setAll(campusService.getBuildings().values());
-    }
-
-    private void drawGraph() {
-        gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-        Map<String, Building> buildings = campusService.getBuildings();
-        Map<String, Map<String, Integer>> graph = campusService.getGraph();
-
-        for (Map.Entry<String, Map<String, Integer>> entry : graph.entrySet()) {
-            Building source = buildings.get(entry.getKey());
-            if (source == null) continue;
-
-            for (Map.Entry<String, Integer> neighbor : entry.getValue().entrySet()) {
-                Building dest = buildings.get(neighbor.getKey());
-                if (dest == null) continue;
-
-                gc.setStroke(Color.GRAY);
-                gc.setLineWidth(2);
-                gc.strokeLine(source.getX(), source.getY(), dest.getX(), dest.getY());
-
-                gc.setFill(Color.DARKSLATEGRAY);
-                gc.fillText(
-                        String.valueOf(neighbor.getValue()) + "m",
-                        (source.getX() + dest.getX()) / 2,
-                        (source.getY() + dest.getY()) / 2
-                );
+        if (isAdmin) {
+            for (ComboBox<Building> cb : List.of(cbDeleteBuilding, cbEdgeFrom, cbEdgeTo)) {
+                Building sel = cb.getValue();
+                cb.getItems().setAll(list);
+                if (sel != null && list.contains(sel)) cb.setValue(sel);
             }
         }
+    }
 
-        for (Building building : buildings.values()) {
-            gc.setFill(Color.ROYALBLUE);
-            gc.fillOval(building.getX() - 8, building.getY() - 8, 16, 16);
-            gc.setFill(Color.BLACK);
-            gc.fillText(building.getName(), building.getX() + 12, building.getY() - 12);
+    // ── Dibujo del Grafo ──────────────────────────────────────────────
+    public void drawGraph() {
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        double W = canvas.getWidth(), H = canvas.getHeight();
+
+        // Fondo
+        gc.setFill(COL_BG);
+        gc.fillRect(0, 0, W, H);
+
+        // Aristas
+        gc.setLineWidth(1.5);
+        for (CEdge e : service.getAllEdges()) {
+            Building a = service.getBuilding(e.from);
+            Building b = service.getBuilding(e.to);
+            if (a == null || b == null) continue;
+
+            boolean hilite = isEdgeHighlighted(e.from, e.to);
+            gc.setStroke(hilite ? highlightColor : COL_EDGE);
+            gc.setLineWidth(hilite ? 3.0 : 1.5);
+            gc.strokeLine(a.getX(), a.getY(), b.getX(), b.getY());
+
+            // Peso en el centro de la arista
+            double mx = (a.getX() + b.getX()) / 2;
+            double my = (a.getY() + b.getY()) / 2;
+            gc.setFill(COL_WEIGHT);
+            gc.setFont(Font.font("Consolas", 10));
+            gc.fillText((int) e.weight + "m", mx + 4, my - 3);
+        }
+
+        // Nodos
+        for (Building b : service.getBuildings()) {
+            boolean hi = highlightedNodes.contains(b.getId());
+            Color nodeColor = hi ? highlightColor : COL_NODE;
+
+            // Sombra/anillo
+            gc.setFill(hi ? highlightColor.deriveColor(0, 1, 0.5, 0.3) : COL_NODE_RING.deriveColor(0, 1, 1, 0.3));
+            gc.fillOval(b.getX() - NODE_R - 4, b.getY() - NODE_R - 4, (NODE_R + 4) * 2, (NODE_R + 4) * 2);
+
+            // Círculo principal
+            gc.setFill(nodeColor);
+            gc.fillOval(b.getX() - NODE_R, b.getY() - NODE_R, NODE_R * 2, NODE_R * 2);
+
+            // ID dentro del nodo
+            gc.setFill(Color.web("#1A1C22"));
+            gc.setFont(Font.font("Segoe UI", FontWeight.BOLD, 11));
+            gc.fillText(b.getId(), b.getX() - 9, b.getY() + 4);
+
+            // Nombre debajo
+            gc.setFill(COL_LABEL);
+            gc.setFont(Font.font("Segoe UI", 10));
+            String name = b.getName().length() > 18
+                    ? b.getName().substring(0, 15) + "…"
+                    : b.getName();
+            gc.fillText(name, b.getX() - (name.length() * 3), b.getY() + NODE_R + 14);
         }
     }
 
-    @FXML
-    private void handleFindShortestPath() {
-        drawGraph();
-        Building origin = originComboBox.getValue();
-        Building destination = destinationComboBox.getValue();
+    private boolean isEdgeHighlighted(String a, String b) {
+        for (String[] e : highlightedEdges) {
+            if ((e[0].equals(a) && e[1].equals(b)) || (e[0].equals(b) && e[1].equals(a)))
+                return true;
+        }
+        return false;
+    }
 
-        if (origin == null || destination == null) {
-            showAlert("Selección requerida", "Debe seleccionar un origen y un destino.");
+    private Building buildingAt(double mx, double my) {
+        for (Building b : service.getBuildings()) {
+            double dx = b.getX() - mx, dy = b.getY() - my;
+            if (dx * dx + dy * dy <= (NODE_R + 6) * (NODE_R + 6)) return b;
+        }
+        return null;
+    }
+
+    // ── Dijkstra ──────────────────────────────────────────────────────
+    @FXML
+    private void onDijkstra() {
+        Building ori = cbOrigen.getValue();
+        Building dst = cbDestino.getValue();
+        if (ori == null || dst == null) {
+            lblStatus.setText("Selecciona Origen y Destino.");
             return;
         }
+        clearHighlights();
+        highlightColor = COL_DIJKSTRA;
 
-        List<String> path = campusService.dijkstra(origin.getId(), destination.getId());
+        DijkstraResult res = service.dijkstra(ori.getId());
+        List<String> path  = res.pathTo(dst.getId());
+
         if (path.isEmpty()) {
-            showAlert("Sin ruta", "No existe una ruta entre los edificios seleccionados.");
+            lblStatus.setText("No existe ruta entre " + ori.getName() + " y " + dst.getName());
             return;
         }
-        animatePath(path, Color.RED);
-    }
 
-    @FXML
-    private void handleBFS() {
+        // Resaltar nodos del camino
+        highlightedNodes.addAll(path);
+
+        // Resaltar aristas del camino
+        for (int i = 0; i < path.size() - 1; i++)
+            highlightedEdges.add(new String[]{ path.get(i), path.get(i + 1) });
+
+        double dist = res.dist.getOrDefault(dst.getId(), Double.POSITIVE_INFINITY);
+        lblSteps.setText(String.join(" → ", path.stream()
+                .map(id -> service.getBuilding(id) != null ? service.getBuilding(id).getName() : id)
+                .toList()));
+        lblStatus.setText("Ruta más corta: " + (int) dist + " m");
         drawGraph();
-        Building start = originComboBox.getValue();
-        if (start == null) {
-            showAlert("Selección requerida", "Debe seleccionar un edificio de origen.");
-            return;
-        }
-        List<String> path = campusService.bfs(start.getId());
-        animatePath(path, Color.GREEN);
     }
 
+    // ── BFS ───────────────────────────────────────────────────────────
     @FXML
-    private void handleDFS() {
-        drawGraph();
-        Building start = originComboBox.getValue();
-        if (start == null) {
-            showAlert("Selección requerida", "Debe seleccionar un edificio de origen.");
-            return;
-        }
-        List<String> path = campusService.dfs(start.getId());
-        animatePath(path, Color.BLUE);
+    private void onBFS() {
+        Building start = cbStart.getValue();
+        if (start == null) { lblStatus.setText("Selecciona nodo inicial."); return; }
+        clearHighlights();
+        highlightColor = COL_BFS;
+        List<String> order = service.bfs(start.getId());
+        animateTraversal(order, "BFS");
     }
 
-    private void animatePath(List<String> path, Color color) {
-        if (path == null || path.size() < 2) return;
+    // ── DFS ───────────────────────────────────────────────────────────
+    @FXML
+    private void onDFS() {
+        Building start = cbStart.getValue();
+        if (start == null) { lblStatus.setText("Selecciona nodo inicial."); return; }
+        clearHighlights();
+        highlightColor = COL_DFS;
+        List<String> order = service.dfs(start.getId());
+        animateTraversal(order, "DFS");
+    }
 
-        gc.setStroke(color);
-        gc.setLineWidth(4);
+    /** Animación paso a paso: resalta un nodo cada 600 ms */
+    private void animateTraversal(List<String> order, String algo) {
+        if (order.isEmpty()) return;
+        drawGraph();
 
-        SequentialTransition sequence = new SequentialTransition();
-
-        for (int i = 0; i < path.size() - 1; i++) {
-            Building current = campusService.getBuildings().get(path.get(i));
-            Building next = campusService.getBuildings().get(path.get(i + 1));
-
-            if (current == null || next == null) continue;
-
-            PauseTransition pause = new PauseTransition(Duration.seconds(0.4));
-            pause.setOnFinished(event -> {
-                gc.strokeLine(current.getX(), current.getY(), next.getX(), next.getY());
-
-                gc.setFill(color);
-                gc.fillOval(current.getX() - 8, current.getY() - 8, 16, 16);
-                gc.fillOval(next.getX() - 8, next.getY() - 8, 16, 16);
+        Timeline timeline = new Timeline();
+        for (int i = 0; i < order.size(); i++) {
+            final int idx = i;
+            KeyFrame kf = new KeyFrame(Duration.millis(600 * (idx + 1)), e -> {
+                highlightedNodes.add(order.get(idx));
+                lblSteps.setText(algo + ": " + String.join(" → ", order.subList(0, idx + 1)
+                        .stream().map(id -> service.getBuilding(id) != null
+                                ? service.getBuilding(id).getName() : id).toList()));
+                drawGraph();
             });
-            sequence.getChildren().add(pause);
+            timeline.getKeyFrames().add(kf);
         }
-        sequence.play();
+        timeline.setOnFinished(e ->
+                lblStatus.setText(algo + " completado — " + order.size() + " edificios visitados."));
+        timeline.play();
+        lblStatus.setText("Ejecutando " + algo + "…");
     }
 
-
-
+    // ── Admin: Agregar Edificio ────────────────────────────────────────
     @FXML
-    private void handleAddBuilding() {
-        javafx.scene.control.TextInputDialog dialog = new javafx.scene.control.TextInputDialog();
-        dialog.setTitle("Agregar Edificio");
-        dialog.setHeaderText("Formato: ID,Nombre,X,Y\nEjemplo: F,Edificio F,600,200");
+    private void onAddBuilding() {
+        String id   = txtBuildingId.getText().trim();
+        String name = txtBuildingName.getText().trim();
+        String xs   = txtBX.getText().trim();
+        String ys   = txtBY.getText().trim();
 
-        dialog.showAndWait().ifPresent(input -> {
-            try {
-                String[] parts = input.split(",");
-                Building b = new Building.Builder()
-                        .id(parts[0].trim())
-                        .name(parts[1].trim())
-                        .x(Double.parseDouble(parts[2].trim()))
-                        .y(Double.parseDouble(parts[3].trim()))
-                        .build();
-                campusService.addBuilding(b);
-                loadBuildingsIntoComboBoxes();
-                drawGraph();
-            } catch (Exception e) {
-                showAlert("Error", "Formato incorrecto. Use: ID,Nombre,X,Y");
-            }
-        });
-    }
-
-    @FXML
-    private void handleDeleteBuilding() {
-        javafx.scene.control.ChoiceDialog<Building> dialog = new javafx.scene.control.ChoiceDialog<>(null, campusService.getBuildings().values());
-        dialog.setTitle("Eliminar Edificio");
-        dialog.setHeaderText("Seleccione el edificio a eliminar:");
-
-        dialog.showAndWait().ifPresent(b -> {
-            campusService.deleteBuilding(b.getId());
-            loadBuildingsIntoComboBoxes();
+        if (id.isEmpty() || name.isEmpty() || xs.isEmpty() || ys.isEmpty()) {
+            lblStatus.setText("Completa todos los campos del edificio.");
+            return;
+        }
+        if (service.containsBuilding(id)) {
+            lblStatus.setText("Ya existe un edificio con ID: " + id);
+            return;
+        }
+        try {
+            double x = Double.parseDouble(xs);
+            double y = Double.parseDouble(ys);
+            Building b = new Building.Builder(id).name(name).x(x).y(y).build();
+            service.addBuilding(b);
+            refreshComboBoxes();
+            clearHighlights();
             drawGraph();
-        });
-    }
-
-    @FXML
-    private void handleAddEdge() {
-        javafx.scene.control.TextInputDialog dialog = new javafx.scene.control.TextInputDialog();
-        dialog.setTitle("Agregar Conexión");
-        dialog.setHeaderText("Formato: ID_Origen,ID_Destino,Peso\nEjemplo: A,B,50");
-
-        dialog.showAndWait().ifPresent(input -> {
-            try {
-                String[] parts = input.split(",");
-                campusService.addEdge(parts[0].trim(), parts[1].trim(), Double.parseDouble(parts[2].trim()));
-                drawGraph();
-            } catch (Exception e) {
-                showAlert("Error", "Formato incorrecto. Use: ID_Origen,ID_Destino,Peso");
-            }
-        });
-    }
-
-
-    private void showAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
-    }
-    public void setAdminMode(boolean isAdmin) {
-        // Mostrar/Ocultar panel admin
-        adminPanel.setVisible(isAdmin);
-        adminPanel.setManaged(isAdmin);
-
-        // Ocultar/Mostrar panel de navegación (si el HBox en el FXML tiene el id "navigationPanel")
-        // Asegúrate de tener declarado: @FXML private HBox navigationPanel;
-        if (navigationPanel != null) {
-            navigationPanel.setVisible(!isAdmin);
-            navigationPanel.setManaged(!isAdmin);
+            service.saveToJson();
+            lblStatus.setText("Edificio '" + name + "' agregado.");
+            txtBuildingId.clear(); txtBuildingName.clear(); txtBX.clear(); txtBY.clear();
+        } catch (NumberFormatException ex) {
+            lblStatus.setText("X e Y deben ser números.");
         }
     }
 
+    // ── Admin: Eliminar Edificio ───────────────────────────────────────
+    @FXML
+    private void onDeleteBuilding() {
+        Building b = cbDeleteBuilding.getValue();
+        if (b == null) { lblStatus.setText("Selecciona un edificio."); return; }
+        service.removeBuilding(b.getId());
+        refreshComboBoxes();
+        clearHighlights();
+        drawGraph();
+        service.saveToJson();
+        lblStatus.setText("Edificio '" + b.getName() + "' eliminado.");
+    }
+
+    // ── Admin: Guardar Conexión ────────────────────────────────────────
+    @FXML
+    private void onSaveEdge() {
+        Building from = cbEdgeFrom.getValue();
+        Building to   = cbEdgeTo.getValue();
+        String   ws   = txtEdgeWeight.getText().trim();
+
+        if (from == null || to == null || ws.isEmpty()) {
+            lblStatus.setText("Completa todos los campos de la conexión.");
+            return;
+        }
+        if (from.getId().equals(to.getId())) {
+            lblStatus.setText("El origen y destino no pueden ser el mismo edificio.");
+            return;
+        }
+        try {
+            double w = Double.parseDouble(ws);
+            if (w <= 0) { lblStatus.setText("La distancia debe ser positiva."); return; }
+            service.addEdge(from.getId(), to.getId(), w);
+            clearHighlights();
+            drawGraph();
+            service.saveToJson();
+            lblStatus.setText("Conexión guardada: " + from.getName() + " ↔ " + to.getName()
+                    + " (" + (int) w + " m)");
+            txtEdgeWeight.clear();
+        } catch (NumberFormatException ex) {
+            lblStatus.setText("La distancia debe ser un número válido.");
+        }
+    }
+
+    // ── Admin: Guardar JSON ───────────────────────────────────────────
+    @FXML
+    private void onSaveJson() {
+        service.saveToJson();
+        lblStatus.setText("campus.json guardado correctamente.");
+    }
+
+    // ── Utilidades ────────────────────────────────────────────────────
+    private void clearHighlights() {
+        highlightedNodes.clear();
+        highlightedEdges.clear();
+    }
+
+    /** Llamado por MainController para indicar si el usuario es admin */
+    public void setAdminMode(boolean admin) {
+        this.isAdmin = admin;
+    }
 }

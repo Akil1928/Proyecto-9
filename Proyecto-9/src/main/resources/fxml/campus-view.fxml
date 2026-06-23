@@ -1,44 +1,184 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane xmlns="http://javafx.com/javafx/17.0.12"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="cr.ac.ucr.sga.controller.CampusController"
-            stylesheets="@../css/styless.css">
+<!--
+  campus-view.fxml  —  Mapa del Campus (Sprint 4)
+  Modos: ESTUDIANTE (visualización/búsqueda) | ADMINISTRADOR (edición)
+-->
+<BorderPane
+        xmlns:fx="http://javafx.com/fxml/1"
+        xmlns="http://javafx.com/javafx/17.0.12"
+        fx:controller="cr.ac.ucr.sga.controller.CampusController"
+        style="-fx-background-color: #1E2028;"
+        stylesheets="@../css/styless.css">
 
+    <!-- ── HEADER ─────────────────────────────────────────────────────── -->
     <top>
-        <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 10;">
-            <Label text="Mapa del Campus" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #E8EBF2;"/>
+        <HBox alignment="CENTER_LEFT" spacing="14"
+              style="-fx-background-color: #23272F;
+                     -fx-border-color: transparent transparent #363B48 transparent;
+                     -fx-border-width: 0 0 1 0; -fx-padding: 12 20 12 20;">
+            <Label text="🗺" style="-fx-font-size: 20px;"/>
+            <VBox spacing="2">
+                <Label text="Mapa del Campus" styleClass="panel-title"/>
+                <Label fx:id="lblMode"
+                       text="Modo: Visualización"
+                       style="-fx-text-fill: #F0A500; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="lblStatus" text="Listo"
+                   style="-fx-text-fill: #6B7280; -fx-font-size: 11px; -fx-font-style: italic;"/>
         </HBox>
     </top>
 
+    <!-- ── CANVAS CENTRAL ─────────────────────────────────────────────── -->
     <center>
-        <Pane style="-fx-background-color: #ffffff;">
-            <Canvas fx:id="canvas" width="800" height="600"/>
-        </Pane>
+        <ScrollPane fitToWidth="true" fitToHeight="true"
+                    style="-fx-background-color: #1E2028; -fx-border-color: transparent;">
+            <StackPane style="-fx-background-color: #1A1C22;">
+                <Canvas fx:id="canvas" width="820" height="560"
+                        style="-fx-cursor: crosshair;"/>
+            </StackPane>
+        </ScrollPane>
     </center>
 
-    <bottom>
-        <HBox fx:id="navigationPanel" spacing="10" alignment="CENTER" style="-fx-padding: 10;">
-            <Label text="Origen:" style="-fx-text-fill: #C8CDD8;"/>
-            <ComboBox fx:id="originComboBox" prefWidth="150"/>
-            <Label text="Destino:" style="-fx-text-fill: #C8CDD8;"/>
-            <ComboBox fx:id="destinationComboBox" prefWidth="150"/>
-            <Button text="Buscar ruta más corta" onAction="#handleFindShortestPath" styleClass="btn-primary"/>
-            <Button text="Ejecutar BFS" onAction="#handleBFS" styleClass="btn-ghost"/>
-            <Button text="Ejecutar DFS" onAction="#handleDFS" styleClass="btn-ghost"/>
-        </HBox>
-    </bottom>
-
+    <!-- ── PANEL DERECHO ──────────────────────────────────────────────── -->
     <right>
-        <VBox fx:id="adminPanel" spacing="10" visible="false" managed="false" style="-fx-padding: 15; -fx-background-color: #2C3440;">
-            <Label text="Modo Administrador" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FF6B6B;"/>
-            <Button text="Agregar Edificio" onAction="#handleAddBuilding" styleClass="btn-secondary" maxWidth="Infinity"/>
-            <Button text="Eliminar Edificio" onAction="#handleDeleteBuilding" styleClass="btn-secondary" maxWidth="Infinity"/>
-            <Button text="Agregar Conexión" onAction="#handleAddEdge" styleClass="btn-secondary" maxWidth="Infinity"/>
+        <VBox spacing="10" style="-fx-background-color: #12152A;
+                                  -fx-border-color: transparent transparent transparent #2E3150;
+                                  -fx-border-width: 0 0 0 1; -fx-padding: 14 12 14 12;
+                                  -fx-min-width: 240px; -fx-pref-width: 240px;">
+
+            <!-- Sección Búsqueda de Ruta -->
+            <Label text="BÚSQUEDA DE RUTA" styleClass="section-label"/>
+
+            <VBox spacing="6" styleClass="info-box">
+                <Label text="Origen:" style="-fx-text-fill: #9AA3B5; -fx-font-size: 11px;"/>
+                <ComboBox fx:id="cbOrigen" maxWidth="Infinity"
+                          promptText="Seleccionar…" styleClass="combo-box"/>
+
+                <Label text="Destino:" style="-fx-text-fill: #9AA3B5; -fx-font-size: 11px; -fx-padding: 4 0 0 0;"/>
+                <ComboBox fx:id="cbDestino" maxWidth="Infinity"
+                          promptText="Seleccionar…" styleClass="combo-box"/>
+
+                <Button text="Buscar ruta más corta (Dijkstra)"
+                        styleClass="btn-primary"
+                        maxWidth="Infinity"
+                        onAction="#onDijkstra"/>
+            </VBox>
+
+            <!-- Sección Recorridos -->
+            <Label text="RECORRIDOS" styleClass="section-label"/>
+
+            <VBox spacing="6" styleClass="info-box">
+                <Label text="Nodo inicial:" style="-fx-text-fill: #9AA3B5; -fx-font-size: 11px;"/>
+                <ComboBox fx:id="cbStart" maxWidth="Infinity"
+                          promptText="Seleccionar…" styleClass="combo-box"/>
+
+                <HBox spacing="6">
+                    <Button text="BFS" styleClass="btn-accent"
+                            HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                            onAction="#onBFS"/>
+                    <Button text="DFS" styleClass="btn-ghost"
+                            HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                            onAction="#onDFS"/>
+                </HBox>
+            </VBox>
+
+            <!-- Leyenda -->
+            <Label text="LEYENDA" styleClass="section-label"/>
+            <VBox spacing="4" styleClass="legend-box">
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <Label text="●" style="-fx-text-fill: #60A5FA; -fx-font-size: 14px;"/>
+                    <Label text="Edificio" styleClass="legend-item"/>
+                </HBox>
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <Label text="●" style="-fx-text-fill: #F0A500; -fx-font-size: 14px;"/>
+                    <Label text="Ruta Dijkstra" styleClass="legend-item"/>
+                </HBox>
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <Label text="●" style="-fx-text-fill: #34D399; -fx-font-size: 14px;"/>
+                    <Label text="BFS visitado" styleClass="legend-item"/>
+                </HBox>
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <Label text="●" style="-fx-text-fill: #F28B82; -fx-font-size: 14px;"/>
+                    <Label text="DFS visitado" styleClass="legend-item"/>
+                </HBox>
+            </VBox>
+
+            <!-- Panel ADMIN (oculto para estudiantes) -->
+            <VBox fx:id="panelAdmin" spacing="10" managed="false" visible="false">
+                <Separator/>
+                <Label text="ADMINISTRACIÓN" styleClass="section-label"
+                       style="-fx-text-fill: #F28B82;"/>
+
+                <!-- Agregar edificio -->
+                <VBox spacing="5" styleClass="info-box">
+                    <Label text="Nuevo Edificio" styleClass="info-title"/>
+                    <TextField fx:id="txtBuildingId"   promptText="ID (ej: B10)"
+                               styleClass="text-field"/>
+                    <TextField fx:id="txtBuildingName" promptText="Nombre"
+                               styleClass="text-field"/>
+                    <HBox spacing="6">
+                        <TextField fx:id="txtBX" promptText="X" prefWidth="70"
+                                   styleClass="text-field"/>
+                        <TextField fx:id="txtBY" promptText="Y" prefWidth="70"
+                                   styleClass="text-field"/>
+                    </HBox>
+                    <Button text="Agregar Edificio" styleClass="btn-green"
+                            maxWidth="Infinity" onAction="#onAddBuilding"/>
+                </VBox>
+
+                <!-- Eliminar edificio -->
+                <VBox spacing="5" styleClass="info-box">
+                    <Label text="Eliminar Edificio" styleClass="info-title"/>
+                    <ComboBox fx:id="cbDeleteBuilding" maxWidth="Infinity"
+                              promptText="Seleccionar…" styleClass="combo-box"/>
+                    <Button text="Eliminar Edificio" styleClass="btn-primary"
+                            style="-fx-background-color: #F28B82; -fx-text-fill: #1A1C22;"
+                            maxWidth="Infinity" onAction="#onDeleteBuilding"/>
+                </VBox>
+
+                <!-- Agregar/editar arista -->
+                <VBox spacing="5" styleClass="info-box">
+                    <Label text="Agregar / Editar Conexión" styleClass="info-title"/>
+                    <ComboBox fx:id="cbEdgeFrom" maxWidth="Infinity"
+                              promptText="Desde…" styleClass="combo-box"/>
+                    <ComboBox fx:id="cbEdgeTo"   maxWidth="Infinity"
+                              promptText="Hasta…" styleClass="combo-box"/>
+                    <TextField fx:id="txtEdgeWeight" promptText="Distancia (m)"
+                               styleClass="text-field"/>
+                    <Button text="Guardar Conexión" styleClass="btn-ghost"
+                            maxWidth="Infinity" onAction="#onSaveEdge"/>
+                </VBox>
+
+                <Button text="💾  Guardar campus.json" styleClass="btn-accent"
+                        maxWidth="Infinity" onAction="#onSaveJson"/>
+            </VBox>
+
         </VBox>
     </right>
+
+    <!-- ── BARRA INFERIOR / LOG ───────────────────────────────────────── -->
+    <bottom>
+        <VBox>
+            <Separator/>
+            <HBox spacing="12" alignment="CENTER_LEFT"
+                  style="-fx-background-color: #1A1C22; -fx-padding: 6 20 6 20;">
+                <Label text="Pasos:" style="-fx-text-fill: #4A5068; -fx-font-size: 11px;"/>
+                <Label fx:id="lblSteps"
+                       text="—"
+                       style="-fx-text-fill: #9AA3B5; -fx-font-size: 11px;
+                              -fx-font-family: 'Consolas', monospace;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label text="UCR · Mapa del Campus · Sprint 4"
+                       style="-fx-text-fill: #4A5068; -fx-font-size: 11px;"/>
+            </HBox>
+        </VBox>
+    </bottom>
 
 </BorderPane>
