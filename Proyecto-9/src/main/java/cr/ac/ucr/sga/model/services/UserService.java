@@ -4,6 +4,7 @@ import cr.ac.ucr.sga.model.entities.User;
 import cr.ac.ucr.sga.model.entities.User.Role;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,13 +13,10 @@ import java.util.Optional;
  *
  * Credenciales de prueba:
  *   admin       / admin123   → ADMINISTRADOR
- *   estudiante  / est123     → ESTUDIANTE  (Juan Pérez,     carné B10001)
- *   maria       / maria456   → ESTUDIANTE  (María González, carné B10002)
- *   carlos      / carlos789  → ESTUDIANTE  (Carlos Gutierrez, carné B10003)
- *
- * IMPORTANTE: el username de cada estudiante debe coincidir exactamente
- * con el id registrado en StudentDirectoryService, para que el sistema
- * pueda encontrar su perfil al solicitar matrícula.
+ *   profesor    / prof123    → PROFESOR
+ *   estudiante  / est123     → ESTUDIANTE  (Héctor Sandoval,   carné B10001)
+ *   maria       / maria456   → ESTUDIANTE  (María González,    carné B10002)
+ *   carlos      / carlos789  → ESTUDIANTE  (Carlos Gutierrez,  carné B10003)
  */
 public class UserService {
 
@@ -29,7 +27,7 @@ public class UserService {
 
     private UserService() {
         users.add(new User("admin",      "admin123",  "Administrador UCR",  Role.ADMINISTRADOR));
-        users.add(new User("profesor",   "prof123",   "Prof. Guzmán",    Role.PROFESOR));
+        users.add(new User("profesor",   "prof123",   "Prof. Guzmán",       Role.PROFESOR));
         users.add(new User("estudiante", "est123",    "Héctor Sandoval",    Role.ESTUDIANTE));
         users.add(new User("maria",      "maria456",  "María González",     Role.ESTUDIANTE));
         users.add(new User("carlos",     "carlos789", "Carlos Gutierrez",   Role.ESTUDIANTE));
@@ -50,4 +48,12 @@ public class UserService {
     public void setCurrentUser(User user) { this.currentUser = user; }
     public User getCurrentUser()          { return currentUser; }
     public void logout()                  { this.currentUser = null; }
+
+    /**
+     * Devuelve una lista no modificable de todos los usuarios registrados.
+     * Utilizado por ReportService (US-18) para contar profesores activos.
+     */
+    public List<User> getAllUsers() {
+        return Collections.unmodifiableList(users);
+    }
 }

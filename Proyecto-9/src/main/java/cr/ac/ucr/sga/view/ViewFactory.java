@@ -17,17 +17,17 @@ public class ViewFactory {
 
     private ViewFactory() {}
 
-    // ── Login ─────────────────────────────────────────────────────────
+    //── Login ─────────────────────────────────────────────────────────
     public static void showLoginView(Stage stage) {
         load(stage, "/fxml/login-view.fxml", "Sistema de Gestión Académica — Iniciar Sesión");
     }
 
-    // ── Vista principal ───────────────────────────────────────────────
+    //── Vista principal ───────────────────────────────────────────────
     public static void showMainView(Stage stage, User user) {
         load(stage, "/fxml/main-view.fxml", "Sistema de Gestión Académica");
     }
 
-    // ── Vistas individuales ───────────────────────────────────────────
+    //── Vistas individuales ───────────────────────────────────────────
     public static void showTramitView(Stage stage) {
         load(stage, "/fxml/tramit-view.fxml", "Gestión de Trámites");
     }
@@ -40,7 +40,7 @@ public class ViewFactory {
         load(stage, "/fxml/course-search-view.fxml", "Búsqueda de Cursos (BST)");
     }
 
-    // ── NUEVO: Mapa del Campus ─────────────────────────────────────────
+    //── NUEVO: Mapa del Campus ─────────────────────────────────────────
     /**
      * Abre campus-view.fxml en una ventana modal independiente.
      * Útil si se invoca directamente desde un botón "Mirar" en el perfil.
@@ -71,7 +71,7 @@ public class ViewFactory {
         }
     }
 
-    // ── Helper genérico ───────────────────────────────────────────────
+    //── Helper genérico ───────────────────────────────────────────────
     private static void load(Stage stage, String fxml, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(ViewFactory.class.getResource(fxml));
