@@ -91,8 +91,19 @@ public class MainController implements NotificationObserver {
         btnLogout.setMaxWidth(Double.MAX_VALUE);
         btnLogout.setOnAction(e -> logout());
         menuPanel.getChildren().add(btnLogout);
-    }
 
+        //mostrar notificaciones pendientes acumuladas mientras el usuario no estaba conectado
+        if (user != null) {
+            var pending = NotificationService.getInstance().drainPending(user.getUsername());
+            if (!pending.isEmpty()) {
+                //mostrar la más reciente en el footer
+                String[] last = pending.get(pending.size() - 1);
+                lblNotificationBar.setText("[" + last[1] + "] " + last[0]
+                        + (pending.size() > 1 ? " (+" + (pending.size()-1) + " más)" : ""));
+                NotificationService.getInstance().clearPending(user.getUsername());
+            }
+        }
+    }
 
     private void addMenuButton(String text, Runnable action) {
         Button btn = new Button(text);
@@ -160,8 +171,35 @@ public class MainController implements NotificationObserver {
 
     @Override
     public void onNotification(String message, String level) {
-        if (lblNotificationBar != null)
-            lblNotificationBar.setText("[" + level + "] " + message);
+        if (lblNotificationBar == null) return;
+
+        User currentUser = UserService.getInstance().getCurrentUser();
+        if (currentUser == null) return;
+
+        boolean isAdmin   = currentUser.getRole() == User.Role.ADMINISTRADOR;
+        boolean isProfesor = currentUser.getRole() == User.Role.PROFESOR;
+
+        // Detectar si el mensaje tiene destinatario específico
+        if (message.startsWith("[TO:")) {
+            int end = message.indexOf("]");
+            if (end != -1) {
+                String targetId      = message.substring(4, end);       // "estudiante"
+                String visibleMessage = message.substring(end + 2);     // quita "[TO:xxx] "
+
+                if (isAdmin || isProfesor) {
+                    // Admin y profesor ven todas las notificaciones (sin el prefijo)
+                    lblNotificationBar.setText("[" + level + "] " + visibleMessage);
+                } else if (currentUser.getUsername().equals(targetId)) {
+                    // Estudiante solo ve las suyas
+                    lblNotificationBar.setText("[" + level + "] " + visibleMessage);
+                }
+                // Si no le corresponde, simplemente no actualiza el label — sin else
+                return;
+            }
+        }
+
+        // Notificaciones sin destinatario específico (pila vacía, enqueue, etc.) — todos las ven
+        lblNotificationBar.setText("[" + level + "] " + message);
     }
 
     @Override

@@ -210,10 +210,17 @@ public class TramitController implements Initializable, NotificationObserver {
             //US-09: El sistema notifica automáticamente el cambio de estado.
             //ni el estudiante ni el admin disparan esto con un botón específico;
             //ocurre como consecuencia directa de que el admin avanzó el estado.
+            String nivelNuevo = estadoNuevo.equalsIgnoreCase("Resuelto") ? "INFO" : "ADVERTENCIA";
+            String msgVisible = "Tu trámite (" + tramit.getType() + ") cambió: "
+                    + estadoAnterior + " → " + estadoNuevo;
+
+//guardar pendiente para cuando el estudiante se loguee
+            NotificationService.getInstance().queueForUser(tramit.getStudentId(), msgVisible, nivelNuevo);
+
+//notificar a observers activos (si el admin mismo está viendo la vista)
             NotificationService.getInstance().notify(
-                    "Trámite de " + tramit.getStudentName()
-                            + " cambió: " + estadoAnterior + " → " + estadoNuevo,
-                    estadoNuevo.equalsIgnoreCase("Resuelto") ? "INFO" : "ADVERTENCIA"
+                    "[TO:" + tramit.getStudentId() + "] " + msgVisible,
+                    nivelNuevo
             );
 
             refreshTable();
@@ -234,13 +241,22 @@ public class TramitController implements Initializable, NotificationObserver {
 
     private void refreshTable() {
         tramitTable.getItems().clear();
+        User currentUser = UserService.getInstance().getCurrentUser();
+        boolean isAdmin = currentUser != null && currentUser.getRole() == User.Role.ADMINISTRADOR;
+        boolean isProfesor = currentUser != null && currentUser.getRole() == User.Role.PROFESOR;
+
         int n = service.getAllTramits().size();
         if (n == 0) return;
         Tramit[] arr = new Tramit[n];
         service.getAllTramits().toArray(arr);
-        // Mostrar más reciente primero (LIFO visual)
+
         for (int i = n - 1; i >= 0; i--) {
-            if (arr[i] != null) tramitTable.getItems().add(arr[i]);
+            if (arr[i] == null) continue;
+            //admin y Profesor ven todos; Estudiante solo los suyos
+            if (isAdmin || isProfesor ||
+                    arr[i].getStudentId().equals(currentUser.getUsername())) {
+                tramitTable.getItems().add(arr[i]);
+            }
         }
     }
 

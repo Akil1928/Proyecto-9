@@ -15,11 +15,26 @@
     <left>
         <VBox spacing="8">
             <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
-            <ComboBox fx:id="comboQueueType" onAction="#onCambiarTipoCola" promptText="Tipo de cola"/>
-            <ComboBox fx:id="comboEstudiante" promptText="Estudiante"/>
+
+            <!-- INFO COMPARTIDA -->
+            <Label fx:id="lblNombreEstudiante" text=""/>
             <Label fx:id="lblCreditosAprobados" text="Créditos aprobados: 0"/>
-            <Button text="Agregar a Cola de Matrícula" onAction="#onAgregarACola" styleClass="btn-primary"/>
-            <Button text="Matricular Siguiente (Dequeue)" onAction="#onMatricularSiguiente" styleClass="btn-green"/>
+
+            <!-- SOLO ESTUDIANTE -->
+            <Button fx:id="btnSolicitarMatricula" text="Solicitar Matrícula"
+                    onAction="#onSolicitarMatricula" styleClass="btn-primary"/>
+            <Label fx:id="lblMiPosicion" text="Tu posición en la cola: -"/>
+
+            <!-- SOLO ADMINISTRADOR -->
+            <Label fx:id="lblAdminSection" text="── Administración ──" styleClass="section-label"/>
+            <Label fx:id="lblTipoCola" text="Tipo de cola:"/>
+            <ComboBox fx:id="comboQueueType" onAction="#onCambiarTipoCola" promptText="Tipo de cola"/>
+            <Label fx:id="lblCreditosSeleccionado" text="Créditos: 0"/>
+            <ComboBox fx:id="comboEstudiante" promptText="Estudiante"/>
+            <Button fx:id="btnAgregarACola" text="Agregar a Cola de Matrícula"
+                    onAction="#onAgregarACola" styleClass="btn-primary"/>
+            <Button fx:id="btnMatricularSiguiente" text="Matricular Siguiente (Dequeue)"
+                    onAction="#onMatricularSiguiente" styleClass="btn-green"/>
             <Label fx:id="lblSiguienteEstudiante" text="Siguiente: vacío"/>
         </VBox>
     </left>

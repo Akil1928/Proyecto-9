@@ -61,4 +61,24 @@ public class NotificationService {
             default                -> 3;
         };
     }
+
+    //agregar este campo al singleton
+    private final java.util.Map<String, java.util.List<String[]>> pendingByUser = new java.util.HashMap<>();
+
+    //agregar este método
+    public void queueForUser(String targetUserId, String message, String level) {
+        pendingByUser
+                .computeIfAbsent(targetUserId, k -> new java.util.ArrayList<>())
+                .add(new String[]{message, level});
+    }
+
+    //agregar este método
+    public java.util.List<String[]> drainPending(String userId) {
+        return pendingByUser.getOrDefault(userId, java.util.List.of());
+        //no borramos aún — llamar clearPending después de mostrar
+    }
+
+    public void clearPending(String userId) {
+        pendingByUser.remove(userId);
+    }
 }

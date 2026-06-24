@@ -15,13 +15,21 @@
     <left>
         <VBox spacing="8">
             <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+
+            <!-- CONTROLES DISPONIBLES PARA TODOS -->
             <ComboBox fx:id="comboTipoTramit" promptText="Tipo de trámite"/>
             <ComboBox fx:id="comboEstudiante" promptText="Estudiante"/>
             <TextArea fx:id="txtDescription" promptText="Descripción" prefRowCount="4"/>
-            <ComboBox fx:id="comboStackType" onAction="#onCambiarTipoStack" promptText="Tipo de pila"/>
             <Button text="Crear Trámite" onAction="#onCrearTramit" styleClass="btn-primary"/>
-            <Button text="Procesar Trámite del Tope" onAction="#onProcesarTramit" styleClass="btn-green"/>
-            <Button text="Avanzar Estado del Tope" onAction="#onAvanzarEstado" styleClass="btn-ghost"/>
+
+            <!-- SOLO ADMINISTRADOR -->
+            <Label fx:id="lblAdminSection" text="── Administración ──" styleClass="section-label"/>
+            <Label fx:id="lblStackSection" text="Tipo de pila:"/>
+            <ComboBox fx:id="comboStackType" onAction="#onCambiarTipoStack" promptText="Tipo de pila"/>
+            <Button fx:id="btnProcesar" text="Procesar Trámite del Tope"
+                    onAction="#onProcesarTramit" styleClass="btn-green"/>
+            <Button fx:id="btnAvanzarEstado" text="Avanzar Estado del Tope"
+                    onAction="#onAvanzarEstado" styleClass="btn-ghost"/>
         </VBox>
     </left>
     <center>
