@@ -28,37 +28,36 @@ public class StudentDirectoryService {
                 .setId("estudiante")
                 .setName("Héctor Sandoval")
                 .setEmail("hector.sandoval@ucr.ac.cr")
-                .withCreditosAprobados(32)   // Aprobó I año completo (≈ I y II ciclo)
+                .withCreditosAprobados(18)   //Aprobó I año completo (≈ I y II ciclo)
                 .build());
 
         students.addLast(new StudentBuilder()
                 .setId("maria")
                 .setName("María González")
                 .setEmail("maria.gonzalez@ucr.ac.cr")
-                .withCreditosAprobados(68)   // Aprobó I año + parte del II año
+                .withCreditosAprobados(20)   //Aprobó I año + parte del II año
                 .build());
 
         students.addLast(new StudentBuilder()
                 .setId("carlos")
                 .setName("Carlos Gutierrez")
                 .setEmail("carlos.gutierrez@ucr.ac.cr")
-                .withCreditosAprobados(104)  // Aprobó hasta el III ciclo
+                .withCreditosAprobados(14)  //Aprobó hasta el III ciclo
                 .build());
 
-        // Estudiantes adicionales que solo aparecen en la cola de matrícula
-        // (el admin los puede agregar manualmente, no tienen login propio)
+        //Estudiantes adicionales que solo aparecen en la cola de matrícula
         students.addLast(new StudentBuilder()
                 .setId("ana")
                 .setName("Ana Sibaja")
                 .setEmail("ana.sibaja@ucr.ac.cr")
-                .withCreditosAprobados(120)  // Aprobó hasta el IV ciclo
+                .withCreditosAprobados(12)  //Aprobó hasta el IV ciclo
                 .build());
 
         students.addLast(new StudentBuilder()
                 .setId("jose")
                 .setName("José Mesén")
                 .setEmail("jose.mesen@ucr.ac.cr")
-                .withCreditosAprobados(144)  // Bachillerato casi completo
+                .withCreditosAprobados(22)  // Bachillerato casi completo
                 .build());
     }
 

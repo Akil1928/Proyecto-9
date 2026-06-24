@@ -60,7 +60,7 @@ public class EnrollmentController implements Initializable, NotificationObserver
                         String.valueOf(data.getValue().getApprovedCredits())));
         colPrioridad.setCellValueFactory(data -> {
             int credits = data.getValue().getApprovedCredits();
-            String priority = credits >= 160 ? "ALTA" : (credits >= 80 ? "MEDIA" : "BAJA");
+            String priority = credits >= 20 ? "ALTA" : (credits >= 15 ? "MEDIA" : "BAJA");
             return new javafx.beans.property.ReadOnlyStringWrapper(priority);
         });
 

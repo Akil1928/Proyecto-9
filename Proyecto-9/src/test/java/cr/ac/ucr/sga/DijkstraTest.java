@@ -23,11 +23,11 @@ public class DijkstraTest {
         Dijkstra.Result r = Dijkstra.compute(g, "S");
 
         assertEquals(0.0, r.distanceTo("S"));
-        // Expected shortest distance S -> A -> B -> C = 1 + 2 + 1 = 4
+        //Expected shortest distance S -> A -> B -> C = 1 + 2 + 1 = 4
         assertEquals(4.0, r.distanceTo("C"));
 
         List<String> path = r.pathTo("T");
-        // path should not be empty and should start with S
+        //path should not be empty and should start with S
         assertFalse(path.isEmpty());
         assertEquals("S", path.get(0));
     }

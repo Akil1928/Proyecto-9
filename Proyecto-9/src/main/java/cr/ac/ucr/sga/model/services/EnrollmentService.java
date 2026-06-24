@@ -30,9 +30,9 @@ public class EnrollmentService {
             if (activeQueue instanceof PriorityQueue) {
                 int credits = student.getApprovedCredits();
                 int priority;
-                if (credits >= 160) priority = 1;
-                else if (credits >= 80)  priority = 2;
-                else priority = 3;
+                if (credits >= 20) priority = 1;      // ALTA
+                else if (credits >= 15) priority = 2; // MEDIA
+                else priority = 3;                    // BAJA
                 activeQueue.enQueue(student, priority);
             } else {
                 activeQueue.enQueue(student);

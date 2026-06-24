@@ -4,98 +4,91 @@ public class ArrayQueue<T> implements Queue<T> {
 
     private int n;
     private T[] data;
-    private int front, rear;
+    private int front;   // índice del primer elemento
+    private int size;    // cantidad de elementos actuales
 
     public ArrayQueue(int capacity) {
         this.n = capacity;
         data = (T[]) new Object[capacity];
-        rear = n - 1;
-        front = rear;
+        front = 0;
+        size = 0;
     }
 
     @Override
     public int size() {
-        return rear - front;
+        return size;
     }
 
     @Override
     public void clear() {
         data = (T[]) new Object[n];
-        rear = n - 1;
-        front = rear;
+        front = 0;
+        size = 0;
     }
 
     @Override
     public boolean isEmpty() {
-        return front == rear;
-    }
-
-    @Override
-    public int indexOf(T element) throws QueueException {
-        if (isEmpty()) throw new QueueException("Array Queue is empty");
-        HeaderLinkedQueue<T> aux = new HeaderLinkedQueue<>();
-        int index = 1, pos = -1;
-        while (!isEmpty()) {
-            if (equals(front(), element)) pos = index;
-            aux.enQueue(deQueue());
-            index++;
-        }
-        while (!aux.isEmpty()) enQueue(aux.deQueue());
-        return pos;
+        return size == 0;
     }
 
     @Override
     public void enQueue(T element) throws QueueException {
-        if (size() == data.length)
+        if (size == n)
             throw new QueueException("Array Queue is full");
-        for (int i = front; i <= rear; i++) {
-            data[i] = data[i + 1];
-        }
+        int rear = (front + size) % n;
         data[rear] = element;
-        front--;
+        size++;
     }
 
     @Override
     public T deQueue() throws QueueException {
         if (isEmpty()) throw new QueueException("Array Queue is empty");
-        return data[++front];
-    }
-
-    @Override
-    public void enQueue(T element, Integer priority) throws QueueException {}
-
-    @Override
-    public boolean contains(T element) throws QueueException {
-        if (isEmpty()) throw new QueueException("Array Queue is empty");
-        return false;
+        T element = data[front];
+        data[front] = null;
+        front = (front + 1) % n;
+        size--;
+        return element;
     }
 
     @Override
     public T peek() throws QueueException {
         if (isEmpty()) throw new QueueException("Array Queue is empty");
-        return data[front + 1];
+        return data[front];
     }
 
     @Override
     public T front() throws QueueException {
+        return peek();
+    }
+
+    @Override
+    public int indexOf(T element) throws QueueException {
         if (isEmpty()) throw new QueueException("Array Queue is empty");
-        return data[front + 1];
+        for (int i = 0; i < size; i++) {
+            T val = data[(front + i) % n];
+            if (equals(val, element)) return i + 1;
+        }
+        return -1;
+    }
+
+    @Override
+    public boolean contains(T element) throws QueueException {
+        if (isEmpty()) throw new QueueException("Array Queue is empty");
+        return indexOf(element) != -1;
+    }
+
+    @Override
+    public void enQueue(T element, Integer priority) throws QueueException {
+        enQueue(element);
     }
 
     @Override
     public String toString() {
         if (isEmpty()) return "Array Queue is empty";
         StringBuilder sb = new StringBuilder(" FRONT → ");
-        try {
-            ArrayQueue<T> auxQueue = new ArrayQueue<>(n);
-            while (!isEmpty()) {
-                sb.append("[").append(peek()).append("]");
-                auxQueue.enQueue(deQueue());
-                if (!isEmpty()) sb.append(", ");
-            }
-            while (!auxQueue.isEmpty()) enQueue(auxQueue.deQueue());
-        } catch (QueueException e) {
-            throw new RuntimeException(e);
+        for (int i = 0; i < size; i++) {
+            sb.append("[").append(data[(front + i) % n]).append("]");
+            if (i < size - 1) sb.append(", ");
         }
         return sb.toString();
     }

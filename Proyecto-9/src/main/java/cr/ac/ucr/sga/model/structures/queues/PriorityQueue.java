@@ -69,7 +69,7 @@ public class PriorityQueue<T> implements Queue<T> {
             Node<T> prev = null;
             //recorre mientras la prioridad del nodo actual sea MENOR O IGUAL (numericamente)
             //prioridad 1=ALTA, 2=MEDIA, 3=BAJA → los de menor número van primero
-            while (aux != null && aux.priority <= priority) {
+            while (aux != null && aux.priority < priority) {
                 prev = aux;
                 aux = aux.next;
             }
